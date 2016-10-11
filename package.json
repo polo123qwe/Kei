@@ -1,0 +1,31 @@
+{
+  "name": "chocolate",
+  "version": "0.0.1",
+  "description": "A discord bot using discord.js",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "devstart": "node node_modules/nodemon/bin/nodemon.js main.js",
+    "test": "node ./node_modules/mocha/bin/mocha -b"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polo123qwe/Chocolate.git"
+  },
+  "author": "Sergi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/polo123qwe/Chocolate/issues"
+  },
+  "homepage": "https://github.com/polo123qwe/Chocolate#readme",
+  "dependencies": {
+    "discord.js": "^9.2.0",
+    "mongo": "^0.1.0",
+    "require-directory": "^2.1.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2",
+    "nodemon": "^1.10.2",
+  }
+}

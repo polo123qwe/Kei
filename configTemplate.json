@@ -1,0 +1,11 @@
+{
+    "token": "TOKEN",
+    "db": {
+        "sshtunnel": {
+        },
+        "host": "HOST",
+        "port": PORT,
+		"db": "bot"
+    },
+    "DELETEAFTER": 3000
+}

@@ -1,1 +1,1 @@
-# Ghock
+Discord bot based on discordjs 

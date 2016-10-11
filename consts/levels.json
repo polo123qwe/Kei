@@ -1,0 +1,9 @@
+{
+    "MASTER": 1000,
+    "OWNER": 5,
+    "ADMIN": 4,
+    "MODERATOR": 3,
+    "DM": 0,
+    "USER": 1,
+    "DEFAULT": -1
+}
