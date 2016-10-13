@@ -60,7 +60,7 @@ cmd.execution = function(client, msg, suffix) {
                     member.user.username + "#" + member.user.discriminator +
                     "(" + member.user.id + ")\n" + "Mod:    " + msg.author.username +
                     "#" + msg.author.discriminator + "(" + msg.author.id + ")\n" +
-                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + "(2 minutes)");
+                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (2 minutes)");
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
         });
@@ -98,7 +98,7 @@ cmd.execution = function(client, msg, suffix) {
                     member.user.username + "#" + member.user.discriminator +
                     "(" + member.user.id + ")\n" + "Mod:    " + msg.author.username +
                     "#" + msg.author.discriminator + "(" + msg.author.id + ")\n" +
-                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + "(" + time + ")");
+                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (" + time + " day/s)");
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "mute", reason, time, function() {});
             dbUtils.insertTimer(Date.now(), time*24*3600*1000, member.user.id, role.id, msg.guild.id, function() {});
