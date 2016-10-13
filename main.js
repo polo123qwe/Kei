@@ -31,37 +31,35 @@ client.on('ready', () => {
 // create an event listener for messages
 client.on('message', msg => {
 
-    if (msg.author.id === '131905565466034176') {
+    var splitted = msg.content.split(" ");
+    //Remove suffix
+    var cmdName = splitted[0];
+    var suffix = msg.content.substr(cmdName.length + 1).split(" ");
 
-        var splitted = msg.content.split(" ");
-        //Remove suffix
-        var cmdName = splitted[0];
-        var suffix = msg.content.substr(cmdName.length + 1).split(" ");
+    //Log the message in the DB
+    dbUtils.storeMessage(msg);
 
-        //Log the message in the DB
-        dbUtils.storeMessage(msg);
+    //We check is its a command
+    if (cmdName.endsWith(suf)) {
+        cmdName = cmdName.substring(0, splitted[0].length - 1);
+        if (commands.hasOwnProperty(cmdName)) {
+            dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+                if (err) {
+                    console.log(err);
+                }
+                if (!guildData) return commands[cmdName].run(client, msg, suffix);
 
-        //We check is its a command
-        if (cmdName.endsWith(suf)) {
-            cmdName = cmdName.substring(0, splitted[0].length - 1);
-            if (commands.hasOwnProperty(cmdName)) {
-                dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-                    if (err) {
-                        console.log(err);
-                    }
-                    if (!guildData) return commands[cmdName].run(client, msg, suffix);
-
-                    var disabledCats = guildData.disabled;
-                    if (disabledCats && !disabledCats.includes(commands[cmdName].category.toLowerCase())) {
-                        console.log("Running " + cmdName);
-                        commands[cmdName].run(client, msg, suffix);
-                    } else {
-                        console.log("Running " + cmdName);
-                        commands[cmdName].run(client, msg, suffix);
-                    }
-                });
-            }
+                var disabledCats = guildData.disabled;
+                if (disabledCats && !disabledCats.includes(commands[cmdName].category.toLowerCase())) {
+                    console.log("Running " + cmdName);
+                    commands[cmdName].run(client, msg, suffix);
+                } else {
+                    console.log("Running " + cmdName);
+                    commands[cmdName].run(client, msg, suffix);
+                }
+            });
         }
+
     }
 });
 
