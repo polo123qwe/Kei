@@ -9,7 +9,7 @@ var commands = [];
 
 var cmd;
 ////////////////////////////////////////////////////////////
-cmd = new Command('colorsetup'); //UNTESTED
+cmd = new Command('colorsetup', 'dev'); //UNTESTED
 cmd.addHelp('Sets up color roles for the server');
 cmd.minLvl = levels.ADMIN;
 cmd.execution = function(client, msg, suffix) {
@@ -80,44 +80,83 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('addrole');
-cmd.addHelp('Adds/Removes a role to the opt roles');
-cmd.addUsage('["remove"] <role name>');
+cmd = new Command('set');
+cmd.addHelp('Sets a parameter for the guild');
+cmd.addUsage('<field> ["remove"] <value>');
 cmd.minLvl = levels.ADMIN;
 cmd.reqDB = true;
 cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
-    var roleName = suffix.join(" ");
-    var remove = false;
-    if(suffix.length > 1 && suffix[0] == "remove"){
-        roleName = suffix.splice(1, suffix.length).join(" ");
-        remove = true;
-    }
-
-    var role = discordUtils.getRole(msg.guild, roleName);
-
-    if (!role) {
-        utils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
-        return;
-    }
 
     var db = Connection.getDB();
     var collection = db.collection('guilds');
+    var operation = {};
 
-    //If the user specified the removal of the role
-    var enabledmsg = "";
-    if(remove){
-        enabledmsg = "removed!";
-        operation = {
-            $pull: {
-                roles: role.id
+    //We check which operation the user is trying to execute
+    var option = suffix[0].toLowerCase();
+    switch(option){
+        case "role":
+        case "roles":
+            rolesOperation();
+            break;
+        case "colors":
+            if(suffix.length > 1){
+                console.log(suffix[1]);
+                if(suffix[1] == true){
+                    operation = {
+                        $set: {
+                            colors: true
+                        }
+                    }
+                } else {
+                    operation = {
+                        $set: {
+                            colors: false
+                        }
+                    }
+                }
+                break;
+            } else {
+                utils.sendAndDelete(msg.channel, "Error, try again.");
+                return;
             }
+        default:
+            utils.sendAndDelete(msg.channel, "You can't access that field!");
+            return;
+    }
+
+    /*
+     * This funciton tries to find the appropiate role and adds it / removes it
+     * from the pool of roles available for the user
+     */
+    function rolesOperation(){
+        var roleName;
+        var remove = false;
+        if(suffix.length > 2 && suffix[1].toLowerCase() == "remove"){
+            roleName = suffix.splice(2, suffix.length).join(" ");
+            remove = true;
+        } else {
+            roleName = suffix.splice(1, suffix.length).join(" ");
         }
-    } else {
-        enabledmsg = "added!";
-        operation = {
-            $push: {
-                roles: role.id
+
+        var role = discordUtils.getRole(msg.guild, roleName);
+
+        if (!role) {
+            utils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
+            return;
+        }
+        //If the user specified the removal of the role
+        if(remove){
+            operation = {
+                $pull: {
+                    roles: role.id
+                }
+            }
+        } else {
+            operation = {
+                $push: {
+                    roles: role.id
+                }
             }
         }
     }
@@ -131,7 +170,7 @@ cmd.execution = function(client, msg, suffix) {
         function(err, res) {
             if (err) return console.log(err);
             if (res.ok == 1) {
-                utils.sendAndDelete(msg.channel, "Role " + role.name + " successfully " + enabledmsg, 10000);
+                utils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
             } else {
                 console.log(res);
                 utils.sendAndDelete(msg.channel, res)

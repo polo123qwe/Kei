@@ -21,7 +21,7 @@ for (var cmds in allCmds) {
 
 var cmd;
 ///////////////////////// HELP /////////////////////////////
-cmd = new Command('help');
+cmd = new Command('help', 'Core', 'off');
 cmd.category = 'Core';
 cmd.addHelp('Returns all commands available.');
 cmd.addUsage('[command]');

@@ -6,9 +6,10 @@ var Command;
 var levels = require('../consts/levels.json');
 var checks = require('./checks');
 var utils = require('./utils');
+var utils = require('../config.json').owners;
 var Connection = require('./dbConnection');
 
-function Command(name, cat) {
+function Command(name, cat, mode) {
 
     if (typeof name === 'string') {
         this.name = name;
@@ -20,6 +21,16 @@ function Command(name, cat) {
         this.category = 'default';
     }
 
+    if (typeof mode === 'string') {
+        if (mode == 'dev' || mode == 'off') {
+            this.mode = cat;
+        } else {
+            this.mode = 'on';
+        }
+    } else {
+        this.mode = 'on';
+    }
+
     //We set the defualt values
     this.minLvl = levels.DEFAULT;
     this.reqDB = false;
@@ -27,6 +38,12 @@ function Command(name, cat) {
     this.cd = 0;
 
     this.run = function(client, msg, suffix) {
+
+        //If command is set to off, it will not excecute
+        if (this.mode == 'off') return;
+        //Dev mode can only be excecuted my bot owner
+        if (this.mode == 'dev' && !owners.includes(msg.author.id)) return;
+
         this.check(client, msg, suffix, (err, res) => {
             if (err) return utils.sendAndDelete(msg.channel, err);
             if (!res) return;
@@ -34,7 +51,7 @@ function Command(name, cat) {
                 utils.sendAndDelete(msg.channel, "Database not connected, can't run this command");
             } else {
                 this.execution(client, msg, suffix);
-                if(this.del){
+                if (this.del) {
                     msg.delete();
                 }
             }

@@ -13,9 +13,10 @@ const client = new Discord.Client({
     disable_everyone: true
 });
 const token = require('./config.json').token;
-var discordUtils = require('./bin/discordUtils');
+const suf = require('./config.json').suffix;
 var utils = require('./bin/utils');
 var dbUtils = require('./bin/dbUtils');
+var discordUtils = require('./bin/discordUtils');
 
 const Connection = require('./bin/dbConnection');
 var time = Date.now();
@@ -37,8 +38,11 @@ client.on('message', msg => {
         var cmdName = splitted[0];
         var suffix = msg.content.substr(cmdName.length + 1).split(" ");
 
+        //Log the message in the DB
+        dbUtils.storeMessage(msg);
+
         //We check is its a command
-        if (cmdName.endsWith("!")) {
+        if (cmdName.endsWith(suf)) {
             cmdName = cmdName.substring(0, splitted[0].length - 1);
             if (commands.hasOwnProperty(cmdName)) {
                 dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
@@ -48,7 +52,10 @@ client.on('message', msg => {
                     if (!guildData) return commands[cmdName].run(client, msg, suffix);
 
                     var disabledCats = guildData.disabled;
-                    if (!disabledCats.includes(commands[cmdName].category.toLowerCase())) {
+                    if (disabledCats && !disabledCats.includes(commands[cmdName].category.toLowerCase())) {
+                        console.log("Running " + cmdName);
+                        commands[cmdName].run(client, msg, suffix);
+                    } else {
                         console.log("Running " + cmdName);
                         commands[cmdName].run(client, msg, suffix);
                     }
@@ -58,13 +65,37 @@ client.on('message', msg => {
     }
 });
 
+client.on('guildMemberAdd', (guild, member) => {
+    //do stuff
+});
+
+client.on('guildMemberRemove', (guild, member) => {
+    //do stuff
+});
+
+///////////////// Namechanges handling ////////////////////////////
+client.on('presenceUpdate', (oldUser, newUser) => {
+    if (oldUser.username != newUser.username) {
+        dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
+    }
+});
+
+client.on('guildMemberUpdate', (guild, oldMember, newMember) => {
+    dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, guild.id);
+});
+///////////////////////////////////////////////////////////////////
+//If a message was deleted, tag that message as deleted
+client.on('messageDelete', (message) => {
+    dbUtils.tagAsDeleted(message.id);
+});
+
 client.on('guildBanAdd', (guild, user) => {
     discordUtils.findLogsChannel(guild, (channel) => {
         if (channel) {
             channel.sendCode('diff', '').then((m) => {
                 m.editCode('diff', "- ----------------BAN----------------- -\nUser:   " +
                     user.username + "#" + user.discriminator + "(" + user.id + ")\n" +
-                     "Mod:    " + m.id + "\nReason: " + m.id + "\nTime:   " +
+                    "Mod:    " + m.id + "\nReason: " + m.id + "\nTime:   " +
                     utils.unixToTime(Date.now()));
             });
         }

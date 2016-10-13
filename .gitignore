@@ -40,3 +40,4 @@ config.json
 .tern-project
 run.bat
 tests.bat
+test

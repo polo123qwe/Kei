@@ -1,6 +1,5 @@
 var MongoClient = require("mongodb").MongoClient;
 var dboptions = require('../config.json').db;
-var tunnel = require('tunnel-ssh');
 var assert = require('assert');
 
 var Connection;

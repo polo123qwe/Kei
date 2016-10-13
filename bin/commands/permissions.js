@@ -2,6 +2,7 @@ var Command = require('../commandTemplate');
 var Connection = require('../dbConnection');
 var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
+var owners = require('../../config.json').owners;
 var checks = require('../checks');
 var utils = require('../utils');
 var dbUtils = require('../dbUtils');
@@ -14,7 +15,7 @@ cmd.addHelp('Sets the level for a role');
 cmd.addUsage('<level> <role name/role id>');
 cmd.minLvl = levels.MODERATOR;
 cmd.reqDB = true;
-cmd.params.push(paramtypes.NUMBER);
+cmd.params.push(paramtypes.LEVEL);
 //cmd.params.push(paramtypes.CHANNEL);
 cmd.execution = function(client, msg, suffix) {
 
@@ -37,21 +38,21 @@ cmd.execution = function(client, msg, suffix) {
 
     dbUtils.getLevel(msg.guild, msg.member, function(err, res) {
         if (err) return console.log(err);
-        console.log("res: " + res + " lvl: " + lvl + " smaller: " + (parseInt(res) < parseInt(lvl)));
-        if (parseInt(res) < parseInt(lvl)) {
+        if (res && parseInt(res) < parseInt(lvl)) {
             utils.sendAndDelete(msg.channel,
                 "You cannot assign a higher role than your own! " + res + ", " + lvl, 8000);
             return;
         }
         collection.findOne({
             _id: role.id
-        }, function(err, res) {
+        }, function(err, res2) {
             if (err) return console.log(err);
-            console.log(res);
-            if (parseInt(lvl) < parseInt(res.level)) {
-                utils.sendAndDelete(msg.channel,
-                    "You cannot edit a role with higher rank than yours! " + lvl + ", " + res.level, 8000);
-                return;
+            if(!owners.includes(msg.author.id)){
+                if (!res2 || res2.level && parseInt(lvl) < parseInt(res2.level)) {
+                    utils.sendAndDelete(msg.channel,
+                        "You cannot edit a role with higher rank than yours! " + lvl + ", " + res.level, 8000);
+                    return;
+                }
             }
             collection.findOneAndUpdate({
                     _id: role.id,

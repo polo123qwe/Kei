@@ -1,6 +1,7 @@
 var Connection = require('./dbConnection');
 var utils = require('./utils');
 var levels = require('../consts/levels.json');
+var owners = require('../config.json').owners;
 
 /*
 Checks the roles of the user to find a match with the roles stored in the db
@@ -13,7 +14,9 @@ exports.getLevel = function(guild, member, callback) {
 
     var collection = db.collection('roles');
 
-    //TODO Add ignore owner
+    if (owners.includes(member.user.id)) {
+        return callback(null, levels.MASTER);
+    }
 
     collection.find({
         'guild_id': guild.id
@@ -99,6 +102,66 @@ exports.removeTimer = function(user_id, role_id, callback) {
     }, function(err, res) {
         return callback(err, res);
     });
+}
+exports.tagAsDeleted = function(message_id) {
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('logs');
+
+    collection.findOneAndUpdate({
+        _id: message_id
+    }, {
+        $set: {
+            deleted: true
+        }
+    }, function(err, res){
+        if(err) return console.log(err);
+    });
+}
+
+exports.storeMessage = function(msg) {
+
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('logs');
+    var guild = null;
+    if (msg.guild) {
+        guild = msg.guild.id;
+    }
+    var toInsert = {
+        _id: msg.id,
+        author_id: msg.author.id,
+        channel_id: msg.channel.id,
+        guild_id: guild,
+        timestamp: msg.timestamp,
+        content: msg.content,
+        edited: false,
+        deleted: false,
+        attachments: msg.attachments.array().length
+    }
+
+    collection.insertOne(toInsert);
+}
+
+exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id){
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('lognames');
+
+    var toInsert = {
+        user_id: user_id,
+        oldName: oldName,
+        newName: newName,
+        isNick: isNick
+    }
+    if(isNick) toInsert.guild_id = guild_id;
+
+    collection.insertOne(toInsert);
 }
 
 exports.fetchGuild = function(guild_id, callback) {

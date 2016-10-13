@@ -4,8 +4,9 @@
         "sshtunnel": {
         },
         "host": "HOST",
-        "port": PORT,
+        "port": "PORT",
 		"db": "bot"
     },
-    "DELETEAFTER": 3000
+    "DELETEAFTER": 3000,
+    "owners": ["USERID"]
 }

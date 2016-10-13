@@ -25,7 +25,7 @@ commands.push(cmd);
 cmd = new Command('eval', 'Debugging');
 cmd.addHelp('Evals some code');
 cmd.addUsage('<code>');
-cmd.minLvl = levels.USER;
+cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg, suffix) {
     var result;
 
@@ -33,10 +33,11 @@ cmd.execution = function(client, msg, suffix) {
         result = eval(suffix.join(" "));
     } catch (err) {
         console.log(err);
-        msg.channel.sendMessage("```" + err + "```");
+        msg.channel.sendCode("", err);
         return;
     }
-    msg.channel.sendMessage(result);
+    // @TODO Something causes error here, check it
+    msg.channel.sendMessage(result)/*.catch(console.log)*/;
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////

@@ -71,6 +71,17 @@ function checkParams(client, msg, suffix, cmd) {
                 } else {
                     return i;
                 }
+            case paramtypes.LEVEL:
+                var isnum = /^\d+$/.test(suffix[i]);
+                if (!isnum) {
+                    var lvl = paramtypes[suffix[i].toUpperCase()];
+                    if(lvl){
+                        suffix[i] = lvl;
+                        break;
+                    } else {
+                        return i;
+                    }
+                }
             case paramtypes.NUMBER:
                 var isnum = /^\d+$/.test(suffix[i]);
                 if (!isnum) {

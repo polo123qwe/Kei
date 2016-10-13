@@ -79,5 +79,23 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
+cmd = new Command('color', 'User Customization', 'off');
+cmd.alias.push("colour")
+cmd.addHelp('Sets the color of a user');
+cmd.addUsage('<color code>');
+cmd.minLvl = levels.DEFAULT;
+cmd.execution = function(client, msg, suffix) {
+
+    // @TODO FINISH THIS
+    var isOk = true;
+    dbUtils.fetchGuild(msg.guild.id, function(err, guildData){
+        if(err) return utils.sendAndDelete(msg.channel, err);
+        if(guildData){
+
+        }
+    })
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
 
 module.exports = commands;
