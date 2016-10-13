@@ -6,7 +6,7 @@ var Command;
 var levels = require('../consts/levels.json');
 var checks = require('./checks');
 var utils = require('./utils');
-var utils = require('../config.json').owners;
+var owners = require('../config.json').owners;
 var Connection = require('./dbConnection');
 
 function Command(name, cat, mode) {

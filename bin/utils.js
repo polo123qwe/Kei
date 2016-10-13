@@ -89,12 +89,13 @@ exports.unixToTime = function(UNIX_timestamp) {
 
 //Generates a hastebin document
 exports.generateHasteBin = function(data, callback) {
-    unirest.post('http://hastebin.com/documents')
+    // @TODO Fix
+    /*unirest.post('http://hastebin.com/documents')
         .send(data)
         .end(function(response) {
             if (typeof callback === "function")
                 return callback("http://hastebin.com/" + response.body.key + ".txt");
-        });
+        });*/
 }
 
 exports.getRandom = function(min, max) {
