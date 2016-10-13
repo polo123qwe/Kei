@@ -193,7 +193,9 @@ cmd.execution = function(client, msg, suffix) {
                 } else {
                     utils.sendAndDelete(msg.channel, "Cannot edit that message!");
                 }
-            }).catch(console.log);
+            }).catch(() => {
+                utils.sendAndDelete(msg.channel, "Message not found!");
+            });
         }
     });
 }

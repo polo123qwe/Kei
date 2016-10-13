@@ -14,7 +14,7 @@ exports.getMembersFromMessage = function(msg, suffix){
             members.push(msg.guild.members.find("id", element));
         }
     }
-    console.log(members.length);
+    //console.log(members.length);
 
     return members;
 }
