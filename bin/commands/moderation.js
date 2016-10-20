@@ -65,7 +65,7 @@ cmd.execution = function(client, msg, suffix) {
             dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
         });
         setTimeout(() => {
-            member.removeRole(r).catch(console.log);
+            member.removeRole(role).catch(console.log);
         }, 120000);
     });
 }
