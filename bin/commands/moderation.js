@@ -215,7 +215,7 @@ cmd.execution = function(client, msg, suffix) {
             var channel = msg.guild.channels.find('id', guildData.topicchannel);
             if (channel) {
                 var topic = suffix.join(" ");
-                channel.setTopic("The topic to talk about is: " + topic)
+                channel.setTopic("Today's topic: " + topic)
                     .then(chan => {
                         chan.sendMessage("Topic is now: ***" + topic + "***.");
                         dbUtils.addTopic(msg.guild.id, topic);
