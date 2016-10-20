@@ -121,7 +121,7 @@ exports.tagAsDeleted = function(message_id) {
     });
 }
 
-exports.addTopic = function(guild_id, topic) {
+exports.addTopic = function(guild_id, topic, channel, message_id) {
 
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
@@ -131,6 +131,9 @@ exports.addTopic = function(guild_id, topic) {
     collection.findOneAndUpdate({
         guild_id: guild_id
     }, {
+        $set: {
+            last: message_id,
+        },
         $push: {
             topics: topic
         }
@@ -138,6 +141,11 @@ exports.addTopic = function(guild_id, topic) {
         upsert: true
     }, function(err, res) {
         if (err) return console.log(err);
+        if (res.value.hasOwnProperty('last')) {
+            channel.fetchMessage(res.value.last).then(m => {
+                m.unpin();
+            });
+        }
     });
 }
 

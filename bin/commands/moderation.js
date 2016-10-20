@@ -217,8 +217,10 @@ cmd.execution = function(client, msg, suffix) {
                 var topic = suffix.join(" ");
                 channel.setTopic("Today's topic: " + topic)
                     .then(chan => {
-                        chan.sendMessage("Topic is now: ***" + topic + "***.");
-                        dbUtils.addTopic(msg.guild.id, topic);
+                        chan.sendMessage("Topic is now: ***" + topic + "***.").then(m => {
+                            m.pin();
+                            dbUtils.addTopic(msg.guild.id, topic, m.channel, m.id);
+                        });
                     })
                     .catch((e) => {
                         console.log(e);
