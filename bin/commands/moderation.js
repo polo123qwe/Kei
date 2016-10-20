@@ -214,10 +214,11 @@ cmd.execution = function(client, msg, suffix) {
         if (guildData.hasOwnProperty('topicchannel')) {
             var channel = msg.guild.channels.find('id', guildData.topicchannel);
             if (channel) {
-                channel.setTopic("The topic to talk about is " + suffix.join(" "))
+                var topic = suffix.join(" ");
+                channel.setTopic("The topic to talk about is " + topic)
                     .then(chan => {
-                        chan.sendMessage("Topic is now: ***" + suffix.join(" ") + "***.");
-                        dbUtils.addTopic(msg.guild, chan.topic);
+                        chan.sendMessage("Topic is now: ***" + topic + "***.");
+                        dbUtils.addTopic(msg.guild, topic);
                     })
                     .catch(() => {
                         utils.sendAndDelete(msg.channel, "Not enough permissions!");
