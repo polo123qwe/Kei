@@ -26,7 +26,7 @@ cmd.execution = function(client, msg, suffix) {
                 mentionedMember = msg.guild.members.find((m) => {
                     return utils.isUser(name, m, true);
                 });
-                if(!mentionedMember){
+                if (!mentionedMember) {
                     mentionedMember = msg.guild.members.find((m) => {
                         return utils.isUser(name, m, false);
                     });
@@ -48,5 +48,6 @@ commands.push(cmd);
 // @TODO get name history
 ////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////
 
 module.exports = commands;

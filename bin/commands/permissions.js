@@ -102,18 +102,20 @@ cmd.execution = function(client, msg, suffix) {
         cur.sort({
             'level': 1
         }).toArray().then((arr) => {
-            var out = "```md\n";
+            var out = "";
             for (var rol of arr) {
                 var role = msg.guild.roles.find("id", rol._id);
                 if (role) {
                     out += role.name;
+                    out += " has level access " + rol.level + "\n";
                 } else {
-                    out += rol._id;
+                    collection.findOneAndDelete({_id: rol._id});
                 }
-                out += " has level access " + rol.level + "\n";
             }
-            out += "```";
-            msg.channel.sendMessage(out);
+            if(!out) {
+                out = "No roles are set up!";
+            }
+            msg.channel.sendCode('md', out);
         });
     });
 }

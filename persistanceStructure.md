@@ -9,6 +9,11 @@ guilds:
     roles: [role_id]
     disabled: []
     color: boolean
+    topicchannel: channel_id
+
+topics:
+    guild_id: guild_id
+    topics: []
 
 logs:
 	_id: message_id

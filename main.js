@@ -42,6 +42,7 @@ client.on('message', msg => {
     //We check is its a command
     if (cmdName.endsWith(suf)) {
         cmdName = cmdName.substring(0, splitted[0].length - 1);
+        cmdName = cmdName.toLowerCase();
         if (commands.hasOwnProperty(cmdName)) {
             dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
                 if (err) {

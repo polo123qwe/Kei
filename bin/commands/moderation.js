@@ -65,7 +65,7 @@ cmd.execution = function(client, msg, suffix) {
             dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
         });
         setTimeout(() => {
-            member.removeRole(r);
+            member.removeRole(r).catch(console.log);
         }, 120000);
     });
 }
@@ -76,7 +76,6 @@ cmd.addHelp('Mutes a user (default 3 days)');
 cmd.addUsage('<mention/id> [time(days)] [reason]');
 cmd.minLvl = levels.MODERATOR;
 cmd.params.push(paramtypes.MENTIONORID);
-cmd.params.push(paramtypes.NUMBER);
 cmd.execution = function(client, msg, suffix) {
 
     var isnum = /^\d+$/.test(suffix[1]);
@@ -196,6 +195,38 @@ cmd.execution = function(client, msg, suffix) {
             }).catch(() => {
                 utils.sendAndDelete(msg.channel, "Message not found!");
             });
+        }
+    });
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+cmd = new Command('topic', 'Server Data');
+cmd.addHelp('Sets the topic for the topic channel');
+cmd.addUsage('<topic>');
+cmd.minLvl = levels.MODERATOR;
+cmd.params.push(paramtypes.PARAM);
+cmd.reqDB = true;
+cmd.execution = function(client, msg, suffix) {
+    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+        if (err) return utils.sendAndDelete(msg.channel, err);
+        if (!guildData) return utils.sendAndDelete(msg.channel, "Guild has no settings!");
+
+        if (guildData.hasOwnProperty('topicchannel')) {
+            var channel = msg.guild.channels.find('id', guildData.topicchannel);
+            if (channel) {
+                channel.setTopic("The topic to talk about is " + suffix.join(" "))
+                    .then(chan => {
+                        chan.sendMessage("Topic is now: ***" + chan.topic + "***.");
+                        dbUtils.addTopic(msg.guild, chan.topic);
+                    })
+                    .catch(() => {
+                        utils.sendAndDelete(msg.channel, "Not enough permissions!");
+                    });
+            } else {
+                utils.sendAndDelete(msg.channel, "Topic channel is not valid!");
+            }
+        } else {
+            utils.sendAndDelete(msg.channel, "Topic channel is not set!");
         }
     });
 }

@@ -116,8 +116,28 @@ exports.tagAsDeleted = function(message_id) {
         $set: {
             deleted: true
         }
-    }, function(err, res){
-        if(err) return console.log(err);
+    }, function(err, res) {
+        if (err) return console.log(err);
+    });
+}
+
+exports.addTopic = function(guild_id, topic) {
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('topics');
+
+    collection.findOneAndUpdate({
+        guild_id: guild_id
+    }, {
+        $push: {
+            topics: topic
+        }
+    }, {
+        upsert: true
+    }, function(err, res) {
+        if (err) return console.log(err);
     });
 }
 
@@ -144,10 +164,12 @@ exports.storeMessage = function(msg) {
         attachments: msg.attachments.array().length
     }
 
-    collection.insertOne(toInsert);
+    collection.insertOne(toInsert).catch((e) => {
+        //Ignore error on add
+    });
 }
 
-exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id){
+exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id) {
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
 
@@ -159,7 +181,7 @@ exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id){
         newName: newName,
         isNick: isNick
     }
-    if(isNick) toInsert.guild_id = guild_id;
+    if (isNick) toInsert.guild_id = guild_id;
 
     collection.insertOne(toInsert);
 }
