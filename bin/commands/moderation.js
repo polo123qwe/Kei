@@ -216,7 +216,7 @@ cmd.execution = function(client, msg, suffix) {
             if (channel) {
                 channel.setTopic("The topic to talk about is " + suffix.join(" "))
                     .then(chan => {
-                        chan.sendMessage("Topic is now: ***" + chan.topic + "***.");
+                        chan.sendMessage("Topic is now: ***" + suffix.join(" ") + "***.");
                         dbUtils.addTopic(msg.guild, chan.topic);
                     })
                     .catch(() => {
