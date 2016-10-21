@@ -9,77 +9,6 @@ var commands = [];
 
 var cmd;
 ////////////////////////////////////////////////////////////
-cmd = new Command('colorsetup', 'Setup', 'dev'); //UNTESTED
-cmd.addHelp('Sets up color roles for the server');
-cmd.minLvl = levels.ADMIN;
-cmd.execution = function(client, msg, suffix) {
-    var guild = msg.guild;
-    var user = msg.author;
-    var counterA = 0,
-        counterB = 0;
-
-    var colorRoles = [];
-
-    guild.roles.array().foreach((r) => {
-        if (r.name.startsWith("#") && role.name.length == 7) {
-            colorRoles.push(role);
-        }
-    });
-
-    msg.channel.sendMessage("Starting role creation/update...").then(updmsg => {
-        //Check roles we have to delete
-
-        //Add the roles needed
-        processColor(0, colors, updmsg);
-    });
-
-    function processColor(i, arr, updmsg) {
-        if (i >= arr.length) {
-            updmsg.edit(counterA + " roles created! Deleting roles...").then((m) => {
-                setTimeout(() => {
-                    deleteColors(0, colorRoles, updmsg);
-                }, 1000)
-            }).catch(e => console.log(e));
-        } else {
-            for (var role of guild.roles) {
-                if (role.name == arr[i]) {
-                    return processColor(i + 1, arr, updmsg);
-                }
-            }
-            setTimeout(() => {
-                var newRoleName = arr[i];
-                var opts = {
-                    name: newRoleName,
-                    color: arr[i].substr(1, arr[i].length),
-                    permissions: 0
-                }
-                guild.createRole(opts).then(role => {
-                    updmsg.edit(newRoleName + " created successfully! " + counterA + " roles created.");
-                    counterA++;
-                    processColor(i + 1, arr, updmsg);
-                }).catch(err => console.log("Failed to create role: ", err));
-            }, 1000);
-        }
-    }
-
-    function deleteColors(i, arr, updmsg) {
-        if (i >= arr.length) {
-            updmsg.edit("Finished! " + counterB + " roles deleted.").then((m) => {
-                setTimeout(() => m.delete(), 3000)
-            });
-        } else {
-            setTimeout(() => {
-                arr[i].delete().then(() => {
-                    counterB++;
-                    updmsg.edit(counterB + " roles deleted.");
-                    deleteColors(i + 1, arr, updmsg);
-                }).catch(err => console.log("Failed to remove role: ", err));
-            }, 1000);
-        }
-    }
-}
-commands.push(cmd);
-////////////////////////////////////////////////////////////
 cmd = new Command('set', 'Setup');
 cmd.addHelp('Sets a parameter for the guild');
 cmd.addUsage('<field> ["remove"] <value>');
@@ -99,11 +28,11 @@ cmd.execution = function(client, msg, suffix) {
         case "roles":
             rolesOperation();
             break;
-        case "colors":
+        case "limitedcolors":
             if (suffix.length > 1) {
                 operation = {
                     $set: {
-                        colors: (suffix[1] == true)
+                        limitedcolors: (suffix[1] == true)
                     }
                 }
                 break;
