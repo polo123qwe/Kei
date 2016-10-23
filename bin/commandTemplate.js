@@ -23,7 +23,7 @@ function Command(name, cat, mode) {
 
     if (typeof mode === 'string') {
         if (mode == 'dev' || mode == 'off') {
-            this.mode = cat;
+            this.mode = mode;
         } else {
             this.mode = 'on';
         }

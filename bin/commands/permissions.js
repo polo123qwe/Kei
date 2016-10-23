@@ -10,7 +10,7 @@ var commands = [];
 
 var cmd;
 ////////////////////////////////////////////////////////////
-cmd = new Command('setLvl', 'Permissions');
+cmd = new Command('setlvl', 'Permissions');
 cmd.addHelp('Sets the level for a role');
 cmd.addUsage('<level> <role name/role id>');
 cmd.minLvl = levels.MODERATOR;

@@ -11,9 +11,8 @@ var cmd;
 ////////////////////////////////////////////////////////////
 cmd = new Command('ping', 'Others');
 cmd.addHelp('Returns pong and delay');
-cmd.addUsage('You use it like this');
 cmd.cd = 5;
-cmd.minLvl = levels.USER;
+cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var time = Date.now();
     msg.channel.sendMessage("Pong!").then((nMsg) => {
@@ -37,7 +36,7 @@ cmd.execution = function(client, msg, suffix) {
         return;
     }
     // @TODO Something causes error here, check it
-    msg.channel.sendMessage(result)/*.catch(console.log)*/;
+    msg.channel.sendMessage(result) /*.catch(console.log)*/ ;
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
