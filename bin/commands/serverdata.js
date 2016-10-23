@@ -47,7 +47,45 @@ commands.push(cmd);
 ////////////////////////////////////////////////////////////
 // @TODO get name history
 ////////////////////////////////////////////////////////////
+cmd = new Command('guild', 'Server Data', 'dev');
+cmd.alias.push('server');
+cmd.addHelp('Prints the guild settings');
+cmd.minLvl = levels.ADMIN;
+cmd.reqDB = true;
+cmd.execution = function(client, msg, suffix) {
 
+    // @TODO Work on this formatting and stuff
+    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+        if (err) return utils.sendAndDelete(msg.channel, err);
+        if (!guildData) return utils.sendAndDelete(msg.channel, "Guild has no settings!");
+
+        var out = "";
+        if (guildData.hasOwnProperty('roles')) {
+            var roles = [];
+            out += "Roles available are: ";
+            for (var roleID of guildData.roles) {
+                var role = msg.guild.roles.find('id', roleID);
+                if (role) {
+                    roles.push(role.name);
+                }
+            }
+            out += roles.join(", ");
+            out += "\n";
+        }
+        if (guildData.hasOwnProperty('limitedcolors')) {
+            if (guildData.limitedcolors) {
+                out += "Colors are limited";
+            } else {
+                out += "Colors are unlimited";
+            }
+            out += "\n";
+        }
+
+        msg.channel.sendCode('xl', out);
+
+    });
+}
+commands.push(cmd);
 ////////////////////////////////////////////////////////////
 
 module.exports = commands;

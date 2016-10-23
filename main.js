@@ -26,6 +26,7 @@ client.on('ready', () => {
     console.log('Ready to operate! (' + interval + 'ms)');
     //Load all the timers
     loadTimers();
+    //removeChills();
 });
 
 // create an event listener for messages
@@ -53,7 +54,7 @@ client.on('message', msg => {
                 var disabledCats = guildData.disabled;
                 if (disabledCats && !disabledCats.includes(commands[cmdName].category.toLowerCase())) {
                     console.log("Running " + cmdName);
-                    commands[cmdName].run(client, msg, suffix);
+                    commands[cmdName].run(client, msg, suffix);;
                 } else {
                     console.log("Running " + cmdName);
                     commands[cmdName].run(client, msg, suffix);
@@ -165,3 +166,10 @@ function loadTimers() {
         });
     }
 }
+/*
+function removeChills(){
+    for(var guild of client.guilds.array()){
+        guild.roles.find(r => r.name == )
+    }
+}
+*/

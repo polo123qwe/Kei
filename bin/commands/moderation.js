@@ -36,7 +36,7 @@ cmd.execution = function(client, msg, suffix) {
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "warning", reason, 0, function() {});
         });
-    });
+    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ cmd.execution = function(client, msg, suffix) {
         setTimeout(() => {
             member.removeRole(role).catch(console.log);
         }, 120000);
-    });
+    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -100,15 +100,15 @@ cmd.execution = function(client, msg, suffix) {
                     "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (" + time + " day/s)");
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "mute", reason, time, function() {});
-            dbUtils.insertTimer(Date.now(), time*24*3600*1000, member.user.id, role.id, msg.guild.id, function() {});
+            dbUtils.insertTimer(Date.now(), time * 24 * 3600 * 1000, member.user.id, role.id, msg.guild.id, function() {});
         });
         setTimeout(() => {
             member.removeRole(r).then(() => {
-    console.log(member.user.username + " unmuted.")
-});
+                console.log(member.user.username + " unmuted.")
+            });
             dbUtils.removeTimer(member.user.id, r.id, function() {});
-        }, time*24*3600*1000);
-    });
+        }, time * 24 * 3600 * 1000);
+    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -120,22 +120,24 @@ cmd.execution = function(client, msg, suffix) {
     var amount = suffix[0];
     var user = suffix[1];
 
-    if(!amount || amount <= 1) return utils.sendAndDelete(msg.channel, "Specify an amount!");
-    if(amount > 50){
+    if (!amount || amount <= 1) return utils.sendAndDelete(msg.channel, "Specify an amount!");
+    if (amount > 50) {
         amount = 50;
     }
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
 
-    msg.channel.fetchMessages({limit: amount}).then((msgs) => {
+    msg.channel.fetchMessages({
+        limit: amount
+    }).then((msgs) => {
         var toremove = msgs.array();
-        if(member){
+        if (member) {
             var toremove = msgs.filter(function(m) {
                 return m.author.id == member.user.id;
             });
         }
         msg.channel.bulkDelete(toremove).catch(console.log);
-    }).catch(console.log);
+    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 
 
 }
@@ -155,15 +157,15 @@ cmd.execution = function(client, msg, suffix) {
         msg.guild.fetchInvites().then((invites) => {
             var invite = invites.find("code", inviteCode);
 
-            if(invite){
-                 invite.delete().then((inv) => {
-                     msg.channel.sendMessage("Invite " + inviteCode +
-                     " removed successfully");
-                 })
+            if (invite) {
+                invite.delete().then((inv) => {
+                    msg.channel.sendMessage("Invite " + inviteCode +
+                        " removed successfully");
+                })
             } else {
                 utils.sendAndDelete(msg.channel, "Invite not found!");
             }
-        })
+        });
     }
 }
 commands.push(cmd);
@@ -177,13 +179,13 @@ cmd.execution = function(client, msg, suffix) {
     var messageID = suffix[0];
     var reason = suffix.splice(1, suffix.length).join(" ");
 
-    discordUtils.findLogsChannel(msg.guild, function(channel){
-        if(channel){
+    discordUtils.findLogsChannel(msg.guild, function(channel) {
+        if (channel) {
             channel.fetchMessage(messageID).then((m) => {
-                if(m && m.author.id == client.user.id && m.content.includes(messageID)){
-                    var outmsg = m.content.replace(messageID, msg.author.username
-                        + "#" + msg.author.discriminator + " (" + msg.author.id + ")");
-                    if(reason){
+                if (m && m.author.id == client.user.id && m.content.includes(messageID)) {
+                    var outmsg = m.content.replace(messageID, msg.author.username +
+                        "#" + msg.author.discriminator + " (" + msg.author.id + ")");
+                    if (reason) {
                         outmsg = outmsg.replace(messageID, reason);
                     } else {
                         outmsg = outmsg.replace(messageID, "No reason specified");
@@ -196,7 +198,7 @@ cmd.execution = function(client, msg, suffix) {
                 utils.sendAndDelete(msg.channel, "Message not found!");
             });
         }
-    });
+    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -222,10 +224,7 @@ cmd.execution = function(client, msg, suffix) {
                             dbUtils.addTopic(msg.guild.id, topic, m.channel, m.id);
                         });
                     })
-                    .catch((e) => {
-                        console.log(e);
-                        //utils.sendAndDelete(msg.channel, "Not enough permissions!");
-                    });
+                    .catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
             } else {
                 utils.sendAndDelete(msg.channel, "Topic channel is not valid!");
             }

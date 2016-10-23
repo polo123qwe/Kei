@@ -53,7 +53,8 @@ cmd.execution = function(client, msg, suffix) {
                 return;
             }
         default:
-            utils.sendAndDelete(msg.channel, "You can't access that field!");
+            //Todo, automate this
+            utils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: roles, limitedcolors and topicchannel");
             return;
     }
 
@@ -112,44 +113,6 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('guild', 'Setup', 'dev');
-cmd.alias.push('server');
-cmd.addHelp('Prints the guild settings');
-cmd.minLvl = levels.ADMIN;
-cmd.reqDB = true;
-cmd.execution = function(client, msg, suffix) {
 
-    // @TODO Work on this formatting and stuff
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return utils.sendAndDelete(msg.channel, err);
-        if (!guildData) return utils.sendAndDelete(msg.channel, "Guild has no settings!");
-
-        var out = "";
-        if (guildData.hasOwnProperty('roles')) {
-            var roles = [];
-            for (var roleID of guildData.roles) {
-                var role = msg.guild.roles.find('id', roleID);
-                if (role) {
-                    roles.push(role);
-                }
-            }
-            out += roles.join(", ");
-            out += "\n";
-        }
-        if (guildData.hasOwnProperty('colors')) {
-            if (guildData.colorRoles) {
-                out += "Colors are limited";
-            } else {
-                out += "Colors are unlimited";
-            }
-            out += "\n";
-        }
-
-        msg.channel.sendCode('xl', out);
-
-    });
-}
-commands.push(cmd);
-////////////////////////////////////////////////////////////
 
 module.exports = commands;

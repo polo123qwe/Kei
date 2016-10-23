@@ -17,7 +17,7 @@ try{
 var cmd;
 ////////////////////////////////////////////////////////////
 cmd = new Command('join', 'User Customization');
-cmd.addHelp('Adds the user to the given roles');
+cmd.addHelp('Adds the user to the given roles (separated by commas)');
 cmd.addUsage('<role1>, [role2], [role3]');
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
@@ -44,7 +44,7 @@ cmd.execution = function(client, msg, suffix) {
             }
             //If no role was found, print out all the possibilities for the user to choose
             if(rolesToAdd.length < 1){
-                var out = "Error, you have to choose one of the following roles: \n";
+                var out = "Error, choose one of the following: ";
                 var possibleRoles = [];
                 for(var roleID of guildData.roles){
                     var role = msg.guild.roles.find((r) => {return r.id == roleID});
@@ -57,7 +57,7 @@ cmd.execution = function(client, msg, suffix) {
             }
             msg.member.addRoles(rolesToAdd).then((memb) => {
                 msg.channel.sendMessage(msg.author.username + " added successfully!");
-            });
+            }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
         } else {
             utils.sendAndDelete(msg.channel, "This guild has no optional roles!", 2000);
         }
@@ -95,7 +95,7 @@ cmd.execution = function(client, msg, suffix) {
         if(rolesToRemove.length < 1) return utils.sendAndDelete(msg.channel, "Nothing to remove!");
         msg.member.removeRoles(rolesToRemove).then((memb) => {
             msg.channel.sendMessage(msg.author.username + " removed successfully!");
-        });
+        }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
     });
 }
 commands.push(cmd);
