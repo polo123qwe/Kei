@@ -100,12 +100,12 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('color', 'User Customization', 'dev');
+cmd = new Command('color', 'User Customization', 'on');
 cmd.alias.push("colour")
 cmd.addHelp('Sets the color of a user');
 cmd.addUsage('<color code>');
 cmd.cd = 30;
-cmd.minLvl = levels.DEFAULT;
+cmd.minLvl = levels.USER;
 cmd.execution = function(client, msg, suffix) {
 
     var value, index;
