@@ -87,7 +87,7 @@ cmd.execution = function(client, msg, suffix) {
             }
         } else {
             operation = {
-                $push: {
+                $addToSet: {
                     roles: role.id
                 }
             }

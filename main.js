@@ -140,7 +140,7 @@ function loadTimers() {
                     setTimeout(function() {
                         member.removeRole(timer.role_id).then(() => {
                             console.log(member.user.username + " unmuted.")
-                        });
+                        }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
                         dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
                     }, timer.time - span);
                 }
@@ -163,7 +163,7 @@ function loadTimers() {
             dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
                 removeTimers();
             });
-        });
+        }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
     }
 }
 /*

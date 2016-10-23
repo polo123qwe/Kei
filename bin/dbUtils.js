@@ -103,6 +103,7 @@ exports.removeTimer = function(user_id, role_id, callback) {
         return callback(err, res);
     });
 }
+
 exports.tagAsDeleted = function(message_id) {
 
     var db = Connection.getDB();
