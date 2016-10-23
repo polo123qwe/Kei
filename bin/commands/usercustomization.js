@@ -104,7 +104,7 @@ cmd = new Command('color', 'User Customization', 'on');
 cmd.alias.push("colour")
 cmd.addHelp('Sets the color of a user');
 cmd.addUsage('<color code>');
-cmd.cd = 30;
+cmd.cd = 10;
 cmd.minLvl = levels.USER;
 cmd.execution = function(client, msg, suffix) {
 
@@ -135,7 +135,7 @@ cmd.execution = function(client, msg, suffix) {
                 }
             }
 
-            msg.channel.sendFile('consts/colors.png', 'colors.png', 'Error, the colors available are:');
+            msg.channel.sendFile('./consts/colors.png', 'colors.png', 'Error, the colors available are:');
             return;
 
         } else {
