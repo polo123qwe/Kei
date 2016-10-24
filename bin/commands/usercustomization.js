@@ -1,4 +1,4 @@
-var fs = require('fs');
+const path = require('path');
 var Command = require('../commandTemplate');
 var Connection = require('../dbConnection');
 var levels = require('../../consts/levels.json');
@@ -142,7 +142,11 @@ cmd.execution = function(client, msg, suffix) {
                 }
             }
 
-            msg.channel.sendFile(path.resolve(__dirname, 'consts/colors.png'), 'colors.png', 'Error, the colors available are:');
+            var loc = path.join(__dirname, '..', '..', 'consts/colors.png')
+
+            console.log(loc);
+
+            msg.channel.sendFile(loc,'colors.png', 'Error, the colors available are:');
             return;
 
         } else {
