@@ -7,9 +7,13 @@ guilds:
 	_id: guild_id
 	logs: channel
     roles: [role_id]
-    disabled: []
     color: boolean
     topicchannel: channel_id
+
+channels:
+    _id: channel_id,
+    guild_id: guild_id
+    disabled: []
 
 topics:
     guild_id: guild_id

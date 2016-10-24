@@ -45,13 +45,13 @@ client.on('message', msg => {
         cmdName = cmdName.substring(0, splitted[0].length - 1);
         cmdName = cmdName.toLowerCase();
         if (commands.hasOwnProperty(cmdName)) {
-            dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+            dbUtils.fetchChannel(msg.channel.id, function(err, channelData) {
                 if (err) {
                     console.log(err);
                 }
-                if (!guildData) return commands[cmdName].run(client, msg, suffix);
+                if (!channelData) return commands[cmdName].run(client, msg, suffix);
 
-                var disabledCats = guildData.disabled;
+                var disabledCats = channelData.disabled;
                 //If the module is disabled
                 if (disabledCats && disabledCats.includes(commands[cmdName].category.toLowerCase())) {
                     utils.sendAndDelete(msg.channel, 'Module disabled in this channel!', 2000);

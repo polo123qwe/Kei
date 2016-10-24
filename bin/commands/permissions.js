@@ -139,7 +139,7 @@ cmd.execution = function(client, msg, suffix) {
     if(notAllowed.includes(modl)) return utils.sendAndDelete(msg,channel, "You cannout disable that!")
 
     var db = Connection.getDB();
-    var collection = db.collection('guilds');
+    var collection = db.collection('channels');
 
     if(bool == true){
         enabledmsg = "enabled";
@@ -151,7 +151,7 @@ cmd.execution = function(client, msg, suffix) {
     } else {
         enabledmsg = "disabled";
         operation = {
-            $push: {
+            $addToSet: {
                 disabled: modl.toLowerCase()
             }
         }
