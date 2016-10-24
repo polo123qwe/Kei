@@ -144,8 +144,6 @@ cmd.execution = function(client, msg, suffix) {
 
             var loc = path.join(__dirname, '..', '..', 'consts/colors.png')
 
-            console.log(loc);
-
             msg.channel.sendFile(loc,'colors.png', 'Error, the colors available are:');
             return;
 
@@ -185,7 +183,7 @@ cmd.execution = function(client, msg, suffix) {
             if (role.members.array().length < 1) {
                 role.delete().then(() => {
                     return removeExistingRoles(callback);
-                }).catch(console.log);
+                }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
             } else {
                 return removeExistingRoles(callback);
             }
@@ -207,7 +205,7 @@ cmd.execution = function(client, msg, suffix) {
             }
             msg.guild.createRole(options).then((r) => {
                 addUser(r);
-            }).catch(console.log);
+            }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
         } else {
             addUser(role);
         }
@@ -215,7 +213,7 @@ cmd.execution = function(client, msg, suffix) {
         function addUser(roleToAdd) {
             msg.member.addRole(roleToAdd).then(() => {
                 msg.channel.sendMessage(msg.author.username + ' successfully added to #' + name);
-            }).catch(console.log);
+            }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
         }
     }
 

@@ -52,16 +52,15 @@ client.on('message', msg => {
                 if (!guildData) return commands[cmdName].run(client, msg, suffix);
 
                 var disabledCats = guildData.disabled;
-                if (disabledCats && !disabledCats.includes(commands[cmdName].category.toLowerCase())) {
-                    console.log("Running " + cmdName);
-                    commands[cmdName].run(client, msg, suffix);;
+                //If the module is disabled
+                if (disabledCats && disabledCats.includes(commands[cmdName].category.toLowerCase())) {
+                    utils.sendAndDelete(msg.channel, 'Module disabled in this channel!', 2000);
                 } else {
                     console.log("Running " + cmdName);
                     commands[cmdName].run(client, msg, suffix);
                 }
             });
         }
-
     }
 });
 
