@@ -8,16 +8,12 @@ guilds:
 	logs: channel
     roles: [role_id]
     color: boolean
-    topicchannel: channel_id
+    topicchannel: channel_id channel_id
 
 channels:
     _id: channel_id,
     guild_id: guild_id
     disabled: []
-
-topics:
-    guild_id: guild_id
-    topics: []
 
 logs:
 	_id: message_id

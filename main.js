@@ -14,6 +14,7 @@ const client = new Discord.Client({
 });
 const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
+//const ai = require('./bin/ai');
 var utils = require('./bin/utils');
 var dbUtils = require('./bin/dbUtils');
 var discordUtils = require('./bin/discordUtils');
@@ -61,6 +62,10 @@ client.on('message', msg => {
                 }
             });
         }
+    } else if(msg.mentions.users.exists('id', client.user.id)){
+        //We check if the bot was pinged
+        //console.log("Bot was pinged!");
+        //ai(client, msg);
     }
 });
 

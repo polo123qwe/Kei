@@ -192,13 +192,14 @@ cmd.execution = function(client, msg, suffix) {
                     }
                     m.edit(outmsg);
                 } else {
-                    utils.sendAndDelete(msg.channel, "Cannot edit that message!");
+                    var outmsg = m.content.replace(/Reason: .*/, 'Reason: ' + reason + ' (edited)');
+                    m.edit(outmsg);
                 }
             }).catch(() => {
                 utils.sendAndDelete(msg.channel, "Message not found!");
             });
         }
-    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    });
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////

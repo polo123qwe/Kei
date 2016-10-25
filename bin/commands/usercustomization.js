@@ -149,7 +149,7 @@ cmd.execution = function(client, msg, suffix) {
 
         } else {
             //Not limited
-            if (suffix[0] && value) {
+            if (value) {
                 return setupColor(value);
             } else {
                 msg.channel.sendMessage('Write a hexadecimal value! eg: #FFFFFF');
