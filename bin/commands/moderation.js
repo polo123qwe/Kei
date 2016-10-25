@@ -19,7 +19,16 @@ cmd.execution = function(client, msg, suffix) {
      * we add a user to the role and after its added we send a message to the
      * logs channel if its found.
      */
-    var reason = suffix.splice(1, suffix.length).join(" ");
+
+    var isnum = /^\d+$/.test(suffix[1]);
+    var time = '--';
+    var reason;
+    if (isnum) {
+        time = parseInt(suffix[1], 10);
+        reason = suffix.splice(2, suffix.length).join(" ");
+    } else {
+        reason = suffix.splice(1, suffix.length).join(" ");
+    }
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
     var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "warned");
@@ -32,7 +41,7 @@ cmd.execution = function(client, msg, suffix) {
                     member.user.username + "#" + member.user.discriminator +
                     "(" + member.user.id + ")\n" + "Mod:    " + msg.author.username +
                     "#" + msg.author.discriminator + "(" + msg.author.id + ")\n" +
-                    "Reason: " + reason);
+                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (" + time + " day(s))");
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "warning", reason, 0, function() {});
         });
@@ -80,11 +89,13 @@ cmd.execution = function(client, msg, suffix) {
 
     var isnum = /^\d+$/.test(suffix[1]);
     var time = 3;
+    var reason;
     if (isnum) {
-        time = parseInt(suffix[1]);
+        time = parseInt(suffix[1], 10);
+        reason = suffix.splice(2, suffix.length).join(" ");
+    } else {
+        reason = suffix.splice(1, suffix.length).join(" ");
     }
-
-    var reason = suffix.splice(2, suffix.length).join(" ");
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
     var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "muted");
@@ -192,8 +203,12 @@ cmd.execution = function(client, msg, suffix) {
                     }
                     m.edit(outmsg);
                 } else {
-                    var outmsg = m.content.replace(/Reason: .*/, 'Reason: ' + reason + ' (edited)');
-                    m.edit(outmsg);
+                    if (m.content.includes(msg.author.id)) {
+                        var outmsg = m.content.replace(/Reason: .*/, 'Reason: ' + reason + ' (edited)');
+                        m.edit(outmsg);
+                    } else {
+                        utils.sendAndDelete(msg.channel, 'Not your message!');
+                    }
                 }
             }).catch(() => {
                 utils.sendAndDelete(msg.channel, "Message not found!");

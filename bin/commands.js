@@ -71,7 +71,7 @@ cmd.execution = function(client, msg, suffix) {
 
             helpString += "**" + categ + "**\n";
             for (var cmd in helpCmds[categ]) {
-                helpString += "\t-> " + helpCmds[categ][cmd] + "\n";
+                helpString += "\t⇾ " + helpCmds[categ][cmd] + "\n";
             }
         }
         //Print the help
