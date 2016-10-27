@@ -36,6 +36,7 @@ function Command(name, cat, mode) {
     this.reqDB = false;
     this.del = false;
     this.cd = 0;
+    this.dm = false;
 
     this.run = function(client, msg, suffix) {
 

@@ -36,21 +36,25 @@ cmd.execution = function(client, msg, suffix) {
     var db = Connection.getDB();
     var collection = db.collection('roles');
 
-    dbUtils.getLevel(msg.guild, msg.member, function(err, res) {
+    dbUtils.getLevel(msg.guild, msg.member, function(err, userLevel) {
         if (err) return console.log(err);
-        if (res && parseInt(res) < parseInt(lvl)) {
-            utils.sendAndDelete(msg.channel,
-                "You cannot assign a higher role than your own! " + res + ", " + lvl, 8000);
-            return;
+        //If we find the level and the
+        if (userLevel == null && msg.author.id != msg.guild.ownerID) {
+            return utils.sendAndDelete(msg.channel, "You have no level!");
+        } else if (msg.author.id != msg.guild.ownerID || (parseInt(userLevel, 10) - 1) < parseInt(lvl, 10)) {
+            //If its not owner and it has less permissions
+            return utils.sendAndDelete(msg.channel,
+                "You cannot assign a higher role than your own! " + userLevel + " (yours), " + lvl + " (target)", 8000);
         }
         collection.findOne({
             _id: role.id
-        }, function(err, res2) {
+        }, function(err, roleLevel) {
             if (err) return console.log(err);
-            if(!owners.includes(msg.author.id)){
-                if (!res2 || res2.level && parseInt(lvl) < parseInt(res2.level)) {
+            if (!owners.includes(msg.author.id)) {
+                //If the role has a previous role greater than the one the user wants to set
+                if (roleLevel != null && roleLevel.level && parseInt(lvl, 10) < parseInt(roleLevel.level)) {
                     utils.sendAndDelete(msg.channel,
-                        "You cannot edit a role with higher rank than yours! " + lvl + ", " + res.level, 8000);
+                        "You cannot edit a role with higher rank than yours! " + userLevel + " (yours), " + roleLevel.level + " (role level)", 8000);
                     return;
                 }
             }
@@ -109,10 +113,12 @@ cmd.execution = function(client, msg, suffix) {
                     out += role.name;
                     out += " has level access " + rol.level + "\n";
                 } else {
-                    collection.findOneAndDelete({_id: rol._id});
+                    collection.findOneAndDelete({
+                        _id: rol._id
+                    });
                 }
             }
-            if(!out) {
+            if (!out) {
                 out = "No roles are set up!";
             }
             msg.channel.sendCode('md', out);
@@ -134,14 +140,14 @@ cmd.execution = function(client, msg, suffix) {
     var operation;
     var enabledmsg = "";
 
-    if(!modl) return utils.sendAndDelete(msg.channel, "Specify a module!");
+    if (!modl) return utils.sendAndDelete(msg.channel, "Specify a module!");
     var notAllowed = ["debugging", "core"];
-    if(notAllowed.includes(modl)) return utils.sendAndDelete(msg,channel, "You cannout disable that!")
+    if (notAllowed.includes(modl)) return utils.sendAndDelete(msg, channel, "You cannout disable that!")
 
     var db = Connection.getDB();
     var collection = db.collection('channels');
 
-    if(bool == true){
+    if (bool == true) {
         enabledmsg = "enabled";
         operation = {
             $pull: {
@@ -166,7 +172,7 @@ cmd.execution = function(client, msg, suffix) {
         function(err, res) {
             if (err) return console.log(err);
             if (res.ok == 1) {
-                utils.sendAndDelete(msg.channel, "Module " + modl + " successfully "+ enabledmsg + ".", 10000);
+                utils.sendAndDelete(msg.channel, "Module " + modl + " successfully " + enabledmsg + ".", 10000);
             } else {
                 console.log(res);
                 utils.sendAndDelete(msg.channel, res)

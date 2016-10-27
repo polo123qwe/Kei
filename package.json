@@ -21,7 +21,8 @@
   "dependencies": {
     "discord.js": "^9.2.0",
     "mongo": "^0.1.0",
-    "require-directory": "^2.1.1"
+    "require-directory": "^2.1.1",
+    "unirest": "^0.5.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",

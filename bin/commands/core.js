@@ -12,6 +12,7 @@ var cmd;
 cmd = new Command('ping', 'Others');
 cmd.addHelp('Returns pong and delay');
 cmd.cd = 5;
+cmd.dm = true;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var time = Date.now();
@@ -24,6 +25,7 @@ commands.push(cmd);
 cmd = new Command('eval', 'Debugging');
 cmd.addHelp('Evals some code');
 cmd.addUsage('<code>');
+cmd.dm = true;
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg, suffix) {
     var result;
@@ -39,8 +41,6 @@ cmd.execution = function(client, msg, suffix) {
     msg.channel.sendMessage(result) /*.catch(console.log)*/ ;
 }
 commands.push(cmd);
-////////////////////////////////////////////////////////////
-
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////

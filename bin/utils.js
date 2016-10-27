@@ -1,3 +1,4 @@
+var unirest = require('unirest');
 var DELAY = require('../config.json').DELETEAFTER;
 
 exports.sendAndDelete = function(channel, content, delay) {
@@ -89,15 +90,19 @@ exports.unixToTime = function(UNIX_timestamp) {
 
 //Generates a hastebin document
 exports.generateHasteBin = function(data, callback) {
-    // @TODO Fix
-    /*unirest.post('http://hastebin.com/documents')
+
+    unirest.post('http://hastebin.com/documents')
         .send(data)
         .end(function(response) {
             if (typeof callback === "function")
                 return callback("http://hastebin.com/" + response.body.key + ".txt");
-        });*/
+        });
 }
 
 exports.getRandom = function(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
+}
+
+exports.isNumber = function(text){
+    return /^\d+$/.test(text);
 }

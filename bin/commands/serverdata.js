@@ -43,14 +43,87 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-// @TODO getlogs
+cmd = new Command('getlogs', 'Server Data', 'dev');
+cmd.alias.push('getlog', 'logs');
+cmd.addHelp('Retrieves the logs, X messages or since X time ago (m for messages)');
+cmd.addUsage('[m] <time(hrs)/number>');
+cmd.minLvl = levels.MODERATOR;
+cmd.reqDB = true;
+cmd.params.push(paramtypes.PARAM);
+cmd.execution = function(client, msg, suffix) {
+
+    if (utils.isNumber(suffix[0])) {
+        //If its a number we use it as time in hours
+        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, suffix[0] * 3600000, true, (err, arr) => {
+            //We retrieve the data from the log and parse it.
+            if (err) return console.log(err);
+            if (arr.length < 1) return;
+
+            var parsedData = parseLogData(arr);
+            utils.generateHasteBin(parsedData, url => {
+                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ` + url);
+            })
+        });
+    } else if (suffix[0] == 'm' && utils.isNumber(suffix[1])) {
+        //If the first param is the keyword m and the second one is a nubmer
+        //means we want the amount of messages back
+        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, suffix[1], false, (err, arr) => {
+            //We retrieve the data from the log and parse it.
+            if (err) return console.log(err);
+            if (arr.length < 1) return;
+
+            var parsedData = parseLogData(arr);
+            utils.generateHasteBin(parsedData, url => {
+                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ` + url);
+            })
+        });
+    } else {
+        //User input is incorrect
+        utils.sendAndDelete(msg.channel, 'Error, parameters are not valid!');
+    }
+
+    function parseLogData(arr) {
+        var guild = client.guilds.find("id", arr[0].guild_id);
+        var channel = guild.channels.find("id", arr[0].channel_id);
+
+        var outStr = `Last ${arr.length} messages in #${channel.name} [${guild.name}]:\n\n`;
+
+        for (var elem of arr) {
+
+            var user = client.users.find("id", elem.author_id);
+            var userName;
+            if (user) {
+                userName = `(${user.id}) ${user.username}#${user.discriminator}`;
+            } else {
+                username = "###Missing Name###";
+            }
+
+            outStr += `[${utils.unixToTime(elem.timestamp)}] [${userName}]`;
+
+            if (elem.edited) {
+                outStr += ` (edited)`;
+            }
+
+            if (elem.deleted) {
+                outStr += ` (deleted)`;
+            }
+
+            if (elem.attachments) {
+                outStr += ` (${elem.attachments} attachments)`;
+            }
+            outStr += ": " + elem.content + "\n";
+        }
+        return outStr;
+    }
+}
+commands.push(cmd);
 ////////////////////////////////////////////////////////////
 // @TODO get name history
 ////////////////////////////////////////////////////////////
 cmd = new Command('guild', 'Server Data', 'dev');
 cmd.alias.push('server');
 cmd.addHelp('Prints the guild settings');
-cmd.minLvl = levels.ADMIN;
+cmd.minLvl = levels.MODERATOR;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 

@@ -12,8 +12,9 @@ var cmd;
 cmd = new Command('urban', 'External Data');
 cmd.addHelp('Returns the urban dictionary definition of the word');
 cmd.addUsage('<word(s)>')
-cmd.minLvl = levels.DEFAULT;
+cmd.dm = true;
 cmd.cd = 5;
+cmd.minLvl = levels.DEFAULT;
 cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
 

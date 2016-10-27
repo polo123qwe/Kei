@@ -39,7 +39,11 @@ module.exports = function(client, msg, suffix, cmd, callback) {
     function runChecks() {
         var param = checkParams(client, msg, suffix, cmd);
         if (param == -1) {
-            return callback(null, checkTime(msg, cmd));
+            if(msg.guild == null){
+                return callback(null, true);
+            } else {
+                return callback(null, checkTime(msg, cmd));
+            }
         }
         return callback('Incorrect parameters, use help! ' + cmd.name, false);
     }
@@ -72,8 +76,7 @@ function checkParams(client, msg, suffix, cmd) {
                     return i;
                 }
             case paramtypes.LEVEL:
-                var isnum = /^\d+$/.test(suffix[i]);
-                if (!isnum) {
+                if (!utils.isNumber(suffix[i])) {
                     var lvl = paramtypes[suffix[i].toUpperCase()];
                     if(lvl){
                         suffix[i] = lvl;
@@ -83,8 +86,7 @@ function checkParams(client, msg, suffix, cmd) {
                     }
                 }
             case paramtypes.NUMBER:
-                var isnum = /^\d+$/.test(suffix[i]);
-                if (!isnum) {
+                if (!utils.isNumber(suffix[i])) {
                     return i;
                 }
                 break;

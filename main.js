@@ -46,6 +46,10 @@ client.on('message', msg => {
         cmdName = cmdName.substring(0, splitted[0].length - 1);
         cmdName = cmdName.toLowerCase();
         if (commands.hasOwnProperty(cmdName)) {
+            //If the command was typed in a dm and the command doesn't allow DM calling, notify user
+            if (commands[cmdName].dm == false && msg.guild == null) {
+                return utils.sendAndDelete(msg.channel, "Cannot execute that command on a DM!");
+            }
             dbUtils.fetchChannel(msg.channel.id, function(err, channelData) {
                 if (err) {
                     console.log(err);
@@ -62,7 +66,7 @@ client.on('message', msg => {
                 }
             });
         }
-    } else if(msg.mentions.users.exists('id', client.user.id)){
+    } else if (msg.mentions.users.exists('id', client.user.id)) {
         //We check if the bot was pinged
         //console.log("Bot was pinged!");
         //ai(client, msg);
@@ -144,7 +148,7 @@ function loadTimers() {
                     setTimeout(function() {
                         member.removeRole(timer.role_id).then(() => {
                             console.log(member.user.username + " unmuted.")
-                        }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+                        });
                         dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
                     }, timer.time - span);
                 }
@@ -162,12 +166,18 @@ function loadTimers() {
         console.log(timer);
         var guild = client.guilds.find("id", timer.guild_id);
         var member = guild.members.find("id", timer.user_id);
-        member.removeRole(timer.role_id).then(() => {
-            console.log(member.user.username + " unmuted.")
+        if (member) {
+            member.removeRole(timer.role_id).then(() => {
+                console.log(member.user.username + " unmuted.")
+                dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
+                    removeTimers();
+                });
+            });
+        } else {
             dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
                 removeTimers();
             });
-        }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+        }
     }
 }
 /*

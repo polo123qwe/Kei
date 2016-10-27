@@ -14,6 +14,8 @@ exports.getLevel = function(guild, member, callback) {
 
     var collection = db.collection('roles');
 
+    if(guild == null) return callback(null, levels.MASTER);
+
     if (owners.includes(member.user.id)) {
         return callback(null, levels.MASTER);
     }
@@ -193,6 +195,45 @@ exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id) 
     if (isNick) toInsert.guild_id = guild_id;
 
     collection.insertOne(toInsert);
+}
+
+exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callback) {
+
+    var search = {
+        channel_id: channel_id,
+        guild_id: guild_id
+    }
+
+    if (retrieveTime) {
+        var time = Date.now() - amount;
+        //time
+        search['$where'] = function() { return (this.timestamp < time) };
+    } else {
+        //amount of msg
+    }
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('logs');
+
+    collection.find(search, function(err, cur) {
+        if (err) return callback(err, null);
+
+        if (retrieveTime) {
+            cur.sort({
+                timestamp: -1
+            }).toArray().then(arr => {
+                return callback(null, arr.reverse());
+            }).catch(console.log);
+        } else {
+            cur.sort({
+                timestamp: -1
+            }).limit(parseInt(amount, 10)).toArray().then(arr => {
+                return callback(null, arr.reverse());
+            }).catch(console.log);
+        }
+    });
 }
 
 exports.fetchChannel = function(channel_id, callback) {

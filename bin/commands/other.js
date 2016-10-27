@@ -12,6 +12,7 @@ var cmd;
 cmd = new Command('timer', 'Utils');
 cmd.addHelp('sets a timer in minutes');
 cmd.addUsage('<time> [message]');
+cmd.dm = true;
 cmd.minLvl = levels.DEFAULT;
 cmd.params.push(paramtypes.NUMBER);
 cmd.execution = function(client, msg, suffix) {

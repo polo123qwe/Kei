@@ -20,10 +20,9 @@ cmd.execution = function(client, msg, suffix) {
      * logs channel if its found.
      */
 
-    var isnum = /^\d+$/.test(suffix[1]);
     var time = '--';
     var reason;
-    if (isnum) {
+    if (utils.isNumber(suffix[1])) {
         time = parseInt(suffix[1], 10);
         reason = suffix.splice(2, suffix.length).join(" ");
     } else {
@@ -87,10 +86,9 @@ cmd.minLvl = levels.MODERATOR;
 cmd.params.push(paramtypes.MENTIONORID);
 cmd.execution = function(client, msg, suffix) {
 
-    var isnum = /^\d+$/.test(suffix[1]);
     var time = 3;
     var reason;
-    if (isnum) {
+    if (utils.isNumber(suffix[1])) {
         time = parseInt(suffix[1], 10);
         reason = suffix.splice(2, suffix.length).join(" ");
     } else {

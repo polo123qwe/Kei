@@ -1,5 +1,6 @@
 var directory = require('require-directory');
 var Command = require('./commandTemplate');
+var utils = require('./utils');
 var allCmds = directory(module, './commands/');
 
 var commands = {};

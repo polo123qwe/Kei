@@ -1,3 +1,5 @@
+var owners = require('../config.json').owners;
+
 var lastTimeRan = {};
 
 module.exports = function(userID, serverID, cmd) {
@@ -5,10 +7,9 @@ module.exports = function(userID, serverID, cmd) {
         return ':warning: There was an error processing the command. Try again.';
     }
     var cmdName = cmd.name;
+
     /* If userID is master, he can run the command */
-    /*if (config.permissions.owner.indexOf(userID) != -1) {
-        return '';
-    }*/
+    if(owners.includes(userID)) return '';
 
     if (!lastTimeRan.hasOwnProperty(serverID)) {
         lastTimeRan[serverID] = {};
