@@ -40,7 +40,7 @@ cmd.execution = function(client, msg, suffix) {
         member = members[utils.getRandom(0, members.length - 1)];
     }
 
-    msg.channel.sendMessage(`${member.username} has been selected!`);
+    msg.channel.sendMessage(`${member.user.username} has been selected!`);
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
