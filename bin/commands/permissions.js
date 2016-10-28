@@ -38,18 +38,22 @@ cmd.execution = function(client, msg, suffix) {
 
     dbUtils.getLevel(msg.guild, msg.member, function(err, userLevel) {
         if (err) return console.log(err);
-        //If we find the level and the
+
+        //Check the conditions to allow the user to execute the command
         if (userLevel == null && msg.author.id != msg.guild.ownerID) {
             return utils.sendAndDelete(msg.channel, "You have no level!");
+
         } else if (msg.author.id != msg.guild.ownerID || (parseInt(userLevel, 10) - 1) < parseInt(lvl, 10)) {
             //If its not owner and it has less permissions
             return utils.sendAndDelete(msg.channel,
                 "You cannot assign a higher role than your own! " + userLevel + " (yours), " + lvl + " (target)", 8000);
+
         }
         collection.findOne({
             _id: role.id
         }, function(err, roleLevel) {
             if (err) return console.log(err);
+
             if (!owners.includes(msg.author.id)) {
                 //If the role has a previous role greater than the one the user wants to set
                 if (roleLevel != null && roleLevel.level && parseInt(lvl, 10) < parseInt(roleLevel.level)) {

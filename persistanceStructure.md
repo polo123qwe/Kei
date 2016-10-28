@@ -25,6 +25,7 @@ logs:
     edited: false
     deleted: boolean
     attachments: int
+    edits: []
 
 lognames:
     _id: ?

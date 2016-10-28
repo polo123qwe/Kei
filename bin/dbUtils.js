@@ -106,20 +106,34 @@ exports.removeTimer = function(user_id, role_id, callback) {
     });
 }
 
-exports.tagAsDeleted = function(message_id) {
+exports.tagMessageAs = function(message_id, edited, edit) {
 
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
 
     var collection = db.collection('logs');
 
+    var operation = {};
+    if(edited){
+        operation = {
+            $set: {
+                edited: true
+            },
+            $push: {
+                edits: edit
+            }
+        }
+    } else {
+        operation = {
+            $set: {
+                deleted: true
+            }
+        }
+    }
+
     collection.findOneAndUpdate({
         _id: message_id
-    }, {
-        $set: {
-            deleted: true
-        }
-    }, function(err, res) {
+    }, operation, function(err, res) {
         if (err) return console.log(err);
     });
 }

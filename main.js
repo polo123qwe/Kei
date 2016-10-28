@@ -88,14 +88,21 @@ client.on('presenceUpdate', (oldUser, newUser) => {
     }
 });
 
-client.on('guildMemberUpdate', (guild, oldMember, newMember) => {
-    dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, guild.id);
+client.on('guildMemberUpdate', (oldMember, newMember) => {
+    if(oldMember.nickname != newMember.nickname){
+        dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
+    }
 });
 ///////////////////////////////////////////////////////////////////
-//If a message was deleted, tag that message as deleted
+////////////////////// Message edits //////////////////////////////
 client.on('messageDelete', (message) => {
-    dbUtils.tagAsDeleted(message.id);
+    dbUtils.tagMessageAs(message.id, false);
 });
+
+client.on('messageUpdate', (oldMessage, newMessage) => {
+    dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
+});
+///////////////////////////////////////////////////////////////////
 
 client.on('guildBanAdd', (guild, user) => {
     discordUtils.findLogsChannel(guild, (channel) => {
