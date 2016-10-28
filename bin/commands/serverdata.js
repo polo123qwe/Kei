@@ -37,8 +37,8 @@ cmd.execution = function(client, msg, suffix) {
     //console.log(mentionedMember.user.username);
     var member = (mentionedMember != null) ? mentionedMember : msg.member;
     var out = member.user.username + "#" + member.user.discriminator + ': "' +
-        utils.unixToTime(member.joinDate) + '"\n';
-    out += utils.convertUnixToDate(Date.now() - member.joinDate.getTime());
+        utils.unixToTime(member.joinedAt) + '"\n';
+    out += utils.convertUnixToDate(Date.now() - member.joinedAt.getTime());
     msg.channel.sendCode("xl", out);
 }
 commands.push(cmd);
