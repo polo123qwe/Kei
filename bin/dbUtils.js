@@ -182,7 +182,7 @@ exports.storeMessage = function(msg) {
         author_id: msg.author.id,
         channel_id: msg.channel.id,
         guild_id: guild,
-        timestamp: msg.timestamp,
+        timestamp: msg.createdAt,
         content: msg.content,
         edited: false,
         deleted: false,
