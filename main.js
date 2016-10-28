@@ -89,7 +89,7 @@ client.on('presenceUpdate', (oldUser, newUser) => {
 });
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
-    if(oldMember.nickname != newMember.nickname){
+    if (oldMember.nickname != newMember.nickname) {
         dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
     }
 });
@@ -144,7 +144,7 @@ function loadTimers() {
 
             for (var timer of arr) {
                 var span = Date.now() - timer.timestamp;
-                //console.log((timer.time - span)/(3600*1000));
+
                 if (span > timer.time) {
                     //Remove timers that are expired
                     expiredTimers.push(timer);
