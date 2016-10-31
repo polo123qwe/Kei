@@ -75,7 +75,7 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('getlogs', 'Server Data', 'dev');
+cmd = new Command('getlogs', 'Server Data');
 cmd.alias.push('getlog', 'logs');
 cmd.addHelp('Retrieves the logs, X messages or since X time ago (m for messages)');
 cmd.addUsage('[m] <time(hrs)/number>');

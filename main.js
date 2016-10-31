@@ -54,12 +54,16 @@ client.on('message', msg => {
             if (commands[cmdName].dm == false && msg.guild == null) {
                 return utils.sendAndDelete(msg.channel, "Cannot execute that command in a DM!");
             }
+
+            console.log("here 1");
             dbUtils.fetchChannel(msg.channel.id, function(err, channelData) {
                 if (err) {
                     console.log(err);
                 }
+
                 if (channelData == null) return commands[cmdName].run(client, msg, suffix);
                 var disabledCats = channelData.disabled;
+
                 //If the module is disabled
                 if (disabledCats != null && disabledCats.includes(commands[cmdName].category.toLowerCase())) {
                     utils.sendAndDelete(msg.channel, 'Module disabled in this channel!', 2000);
