@@ -168,7 +168,7 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     collection.findOneAndUpdate({
-            _id: msg.guild.id
+            _id: msg.channel.id
         }, operation, {
             returnOriginal: false,
             upsert: true
