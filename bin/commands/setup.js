@@ -144,7 +144,8 @@ cmd.execution = function(client, msg, suffix) {
                 utils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
             } else {
                 console.log(res);
-                utils.sendAndDelete(msg.channel, res)
+                utils.sendAndDelete(msg.channel, res);
+                msg.delete();
             }
         }
     );

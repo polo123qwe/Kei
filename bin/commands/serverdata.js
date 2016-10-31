@@ -86,6 +86,8 @@ cmd.execution = function(client, msg, suffix) {
     var time = 2;
     if(suffix.length > 1){
         time = suffix[0];
+    } else {
+        time = 2;
     }
 
     if (utils.isNumber(time)) {
@@ -112,6 +114,7 @@ cmd.execution = function(client, msg, suffix) {
             var parsedData = parseLogData(arr);
             utils.generateHasteBin(parsedData, url => {
                 msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${url}`);
+                msg.delete();
             })
         });
     } else {
