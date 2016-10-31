@@ -101,6 +101,7 @@ cmd.execution = function(client, msg, suffix) {
             var parsedData = parseLogData(arr);
             utils.generateHasteBin(parsedData, url => {
                 msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${url}`);
+                msg.delete();
             })
         });
     } else if (suffix[0] == 'm' && utils.isNumber(suffix[1])) {

@@ -55,7 +55,6 @@ client.on('message', msg => {
                 return utils.sendAndDelete(msg.channel, "Cannot execute that command in a DM!");
             }
 
-            console.log("here 1");
             dbUtils.fetchChannel(msg.channel.id, function(err, channelData) {
                 if (err) {
                     console.log(err);
