@@ -34,7 +34,39 @@ cmd.execution = function(client, msg, suffix) {
             }
         }
     }
-    //console.log(mentionedMember.user.username);
+    var member = (mentionedMember != null) ? mentionedMember : msg.member;
+    var out = member.user.username + "#" + member.user.discriminator + ': "' +
+        utils.unixToTime(member.joinedAt) + '"\n';
+    out += utils.convertUnixToDate(Date.now() - member.joinedAt.getTime());
+    msg.channel.sendCode("xl", out);
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+cmd = new Command('ava', 'Server Data');
+cmd.addHelp('Returns the avatar of the user');
+cmd.addUsage('[username/nick/id]');
+cmd.cd = 5;
+cmd.minLvl = levels.DEFAULT;
+cmd.execution = function(client, msg, suffix) {
+    //TODO Fetch Data from DB
+    var mentionedMembers;
+    if (suffix) {
+        if (msg.mentions.users.array().length != 0) {
+            mentionedMember = msg.mentions.users[0];
+        } else {
+            var name = suffix.join(" ");
+            if (name.length > 0) {
+                mentionedMember = msg.guild.members.find((m) => {
+                    return utils.isUser(name, m, true);
+                });
+                if (!mentionedMember) {
+                    mentionedMember = msg.guild.members.find((m) => {
+                        return utils.isUser(name, m, false);
+                    });
+                }
+            }
+        }
+    }
     var member = (mentionedMember != null) ? mentionedMember : msg.member;
     var out = member.user.username + "#" + member.user.discriminator + ': "' +
         utils.unixToTime(member.joinedAt) + '"\n';
@@ -49,19 +81,24 @@ cmd.addHelp('Retrieves the logs, X messages or since X time ago (m for messages)
 cmd.addUsage('[m] <time(hrs)/number>');
 cmd.minLvl = levels.MODERATOR;
 cmd.reqDB = true;
-cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
 
-    if (utils.isNumber(suffix[0])) {
+    var time = 2;
+    if(suffix.length > 1){
+        time = suffix[0];
+    }
+
+    if (utils.isNumber(time)) {
+        if(time > 72) time = 72;
         //If its a number we use it as time in hours
-        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, suffix[0] * 3600000, true, (err, arr) => {
+        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, time * 3600000, true, (err, arr) => {
             //We retrieve the data from the log and parse it.
             if (err) return console.log(err);
             if (arr.length < 1) return;
 
             var parsedData = parseLogData(arr);
             utils.generateHasteBin(parsedData, url => {
-                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ` + url);
+                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${url}`);
             })
         });
     } else if (suffix[0] == 'm' && utils.isNumber(suffix[1])) {
@@ -74,7 +111,7 @@ cmd.execution = function(client, msg, suffix) {
 
             var parsedData = parseLogData(arr);
             utils.generateHasteBin(parsedData, url => {
-                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ` + url);
+                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${url}`);
             })
         });
     } else {

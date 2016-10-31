@@ -41,6 +41,10 @@ client.on('message', msg => {
     //Log the message in the DB
     dbUtils.storeMessage(msg);
 
+    if(msg.guild != null){
+        //checkInvLink(msg);
+    }
+
     //We check is its a command
     if (cmdName.endsWith(suf)) {
         cmdName = cmdName.substring(0, splitted[0].length - 1);
@@ -101,6 +105,7 @@ client.on('messageDelete', (message) => {
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
     dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
+    //checkInvLink(newMessage);
 });
 ///////////////////////////////////////////////////////////////////
 
@@ -187,10 +192,23 @@ function loadTimers() {
         }
     }
 }
-/*
-function removeChills(){
-    for(var guild of client.guilds.array()){
-        guild.roles.find(r => r.name == )
-    }
+
+function checkInvLink(msg){
+    //Retrieve from the db
+    dbUtils.fetchGuild(msg.guild.id, function(err, guildData){
+        if(err) return console.log(err);
+
+        //If the guild has the invites allowed (default) we dont delete it
+        if(guildData != null && guildData.hasOwnProperty('invites') && !guildData.invites){
+            //Check users who are whitelisted to see if the user is allowed to post an invite
+            if(guildData.hasOwnProperty('whitelisted') && !guildData.whitelisted.includes(msg.author.id)){
+                if(/discord\.gg.*\//.test(msg.content)){
+                    console.log(`Invite ${msg.content} deleted!`);
+                    msg.delete(() => {
+                        utils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
+                    })
+                }
+            }
+        }
+    });
 }
-*/

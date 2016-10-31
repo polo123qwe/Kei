@@ -9,6 +9,8 @@ guilds:
     roles: [role_id]
     color: boolean
     topicchannel: channel_id channel_id
+    invites: boolean
+    whitelisted: []
 
 channels:
     _id: channel_id,

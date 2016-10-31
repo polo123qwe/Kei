@@ -52,9 +52,12 @@ cmd.execution = function(client, msg, suffix) {
                 utils.sendAndDelete(msg.channel, "Error, try again.");
                 return;
             }
+        case "whitelisted":
+            linkremovalOperation();
+            break;
         default:
             //Todo, automate this
-            utils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: roles, limitedcolors and topicchannel");
+            utils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: roles, limitedcolors and topicchannel, whitelisted");
             return;
     }
 
@@ -89,6 +92,41 @@ cmd.execution = function(client, msg, suffix) {
             operation = {
                 $addToSet: {
                     roles: role.id
+                }
+            }
+        }
+    }
+
+    function linkremovalOperation() {
+        var user;
+        var invites = false;
+        if (suffix.length == 2){
+            operation = {
+                $set: {
+                    invites: true
+                }
+            }
+        } else {
+            if (suffix.length > 2 && suffix[1].toLowerCase() == "remove") {
+                user = suffix.splice(2, suffix.length).join(" ");
+            } else {
+                user = suffix.splice(1, suffix.length).join(" ");
+            }
+            //If the user specified the removal of the role
+            if (remove) {
+                operation = {
+                    $pull: {
+                        whitelisted: user
+                    }
+                }
+            } else {
+                operation = {
+                    $set: {
+                        invites: false
+                    },
+                    $addToSet: {
+                        whitelisted: user
+                    }
                 }
             }
         }
