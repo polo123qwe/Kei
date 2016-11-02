@@ -164,7 +164,9 @@ client.on('messageDelete', (message) => {
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
     dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
-    checkInvLink(newMessage);
+    if(msg.guild != null){
+        checkInvLink(newMessage);
+    }
 });
 ///////////////////////////////////////////////////////////////////
 
