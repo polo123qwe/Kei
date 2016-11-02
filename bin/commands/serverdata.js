@@ -49,26 +49,25 @@ cmd.cd = 5;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     //TODO Fetch Data from DB
-    var mentionedMembers;
-    if (suffix) {
-        if (msg.mentions.users.array().length != 0) {
-            mentionedMember = msg.mentions.users[0];
-        } else {
-            var name = suffix.join(" ");
-            if (name.length > 0) {
+    var mentionedMember, user;
+    if (msg.mentions.users.array().length != 0) {
+        user = msg.mentions.users.array()[0];
+    } else {
+        var name = suffix.join(" ");
+        if (name.length > 0) {
+            mentionedMember = msg.guild.members.find((m) => {
+                return utils.isUser(name, m, true);
+            });
+            if (!mentionedMember) {
                 mentionedMember = msg.guild.members.find((m) => {
-                    return utils.isUser(name, m, true);
+                    return utils.isUser(name, m, false);
                 });
-                if (!mentionedMember) {
-                    mentionedMember = msg.guild.members.find((m) => {
-                        return utils.isUser(name, m, false);
-                    });
-                }
             }
         }
+        user = (mentionedMember != null) ? mentionedMember.user : msg.author;
     }
-    var member = (mentionedMember != null) ? mentionedMember : msg.member;
-    msg.sendMessage(`[${member.user.name}] ${member.user.avatarURL}`)
+
+    msg.channel.sendMessage(`[${user.username}] ${user.avatarURL}`)
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
