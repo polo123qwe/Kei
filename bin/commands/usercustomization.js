@@ -117,7 +117,7 @@ cmd.execution = function(client, msg, suffix) {
 
     var value, index;
     //If its a hex input
-    if (/^#?[0-9A-F]{6}$/.test(suffix[0].toUpperCase())) {
+    if (/^#?[0-9A-F]{6}$/i.test(suffix[0])) {
         value = suffix[0];
         //We remove the # if it starts with it
         if (value.startsWith("#")) value = value.substr(1, value.length);

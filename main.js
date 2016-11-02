@@ -41,8 +41,8 @@ client.on('message', msg => {
     //Log the message in the DB
     dbUtils.storeMessage(msg);
 
-    if(msg.guild != null){
-        //checkInvLink(msg);
+    if (msg.guild != null) {
+        checkInvLink(msg);
     }
 
     //We check is its a command
@@ -79,12 +79,65 @@ client.on('message', msg => {
     }
 });
 
-client.on('guildMemberAdd', (guild, member) => {
-    //do stuff
+client.on('guildMemberAdd', (member) => {
+    dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
+        if (err) console.log(err);
+
+        if(guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null){
+            return;
+        }
+
+        if(guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null){
+            member.guild.defaultChannel.sendMessage(processGreeting(guildData.greeting)).catch();
+        } else {
+            member.guild.defaultChannel.sendMessage(`Welcome to ${member.guild.name}, ${member.user.username}! Dont forget to read the rules!`).catch();
+        }
+
+    });
+
+    //This helper function replaces the $user and $guild elements with the corresponding values
+    function processGreeting(greeting){
+        var outStr = greeting;
+        var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
+        for(var setting of settings){
+            if(setting.includes("user")){
+                outStr = outStr.replace("$user", member.user);
+            } else if(setting.includes("guild")){
+                outStr = outStr.replace("$guild", member.guild.name);
+            }
+        }
+        return outStr
+    }
 });
 
-client.on('guildMemberRemove', (guild, member) => {
-    //do stuff
+client.on('guildMemberRemove', (member) => {
+    dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
+        if (err) console.log(err);
+
+        if(guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye == null){
+            return;
+        }
+
+        if(guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null){
+            member.guild.defaultChannel.sendMessage(processGreeting(guildData.goodbye));
+        } else {
+            member.guild.defaultChannel.sendMessage(`**${member.user.username} #${member.user.discriminator}** is now gone.`);
+        }
+
+    });
+
+    //This helper function replaces the $user element with the corresponding value
+    function processGreeting(goodbye){
+        console.log(goodbye);
+        var outStr = goodbye;
+        var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
+        for(var setting of settings){
+            if(setting.includes("user")){
+                outStr = outStr.replace("$user", member.user.username + "#" + member.user.discriminator);
+            }
+        }
+        return outStr;
+    }
 });
 
 ///////////////// Namechanges handling ////////////////////////////
@@ -107,7 +160,7 @@ client.on('messageDelete', (message) => {
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
     dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
-    //checkInvLink(newMessage);
+    checkInvLink(newMessage);
 });
 ///////////////////////////////////////////////////////////////////
 
@@ -195,18 +248,19 @@ function loadTimers() {
     }
 }
 
-function checkInvLink(msg){
+function checkInvLink(msg) {
     //Retrieve from the db
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData){
-        if(err) return console.log(err);
+    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+        if (err) return console.log(err);
 
         //If the guild has the invites allowed (default) we dont delete it
-        if(guildData != null && guildData.hasOwnProperty('invites') && !guildData.invites){
+        if (guildData != null && guildData.hasOwnProperty('invites') && !guildData.invites) {
             //Check users who are whitelisted to see if the user is allowed to post an invite
-            if(guildData.hasOwnProperty('whitelisted') && !guildData.whitelisted.includes(msg.author.id)){
-                if(/discord\.gg.*\//.test(msg.content)){
+            if (guildData.hasOwnProperty('whitelisted') && !guildData.whitelisted.includes(msg.author.id)) {
+                //Delete the message if it has an invite
+                if (/discord\.gg.*\//i.test(msg.content)) {
                     console.log(`Invite ${msg.content} deleted!`);
-                    msg.delete(() => {
+                    msg.delete().then(() => {
                         utils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
                     })
                 }

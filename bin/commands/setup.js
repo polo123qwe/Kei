@@ -10,8 +10,9 @@ var commands = [];
 var cmd;
 ////////////////////////////////////////////////////////////
 cmd = new Command('set', 'Setup');
+cmd.alias.push('setup');
 cmd.addHelp('Sets a parameter for the guild');
-cmd.addUsage('<field> ["remove"] <value>');
+cmd.addUsage('<field> ["-r"] <value>');
 cmd.minLvl = levels.ADMIN;
 cmd.reqDB = true;
 cmd.params.push(paramtypes.PARAM);
@@ -19,108 +20,123 @@ cmd.execution = function(client, msg, suffix) {
 
     var db = Connection.getDB();
     var collection = db.collection('guilds');
-    var operation = {};
+    var operation;
 
     //We check which operation the user is trying to execute
     var option = suffix[0].toLowerCase();
-    switch (option) {
-        case "role":
-        case "roles":
-            rolesOperation();
-            break;
-        case "limitedcolors":
+
+    //Remove if "-r" was in the message and set the message to remove
+    var remove = false;
+    var index = suffix.indexOf("-r");
+    if (index > -1) {
+        suffix.splice(index, 1);
+        remove = true;
+    }
+
+    if (operations.hasOwnProperty(option)) {
+        operation = operations[option](msg, suffix, remove);
+    } else {
+        var arr = [];
+        for (var o in operations) {
+            arr.push(o);
+        }
+        utils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: " + arr.join(", "), 8000);
+    }
+
+    if (operation != null) {
+        collection.findOneAndUpdate({
+                _id: msg.guild.id
+            }, operation, {
+                returnOriginal: false,
+                upsert: true
+            },
+            function(err, res) {
+                if (err) return console.log(err);
+                if (res.ok == 1) {
+                    utils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
+                } else {
+                    console.log(res);
+                    utils.sendAndDelete(msg.channel, res);
+                }
+                msg.delete();
+            }
+        );
+    }
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+
+/*
+ * This object handles all the options the user can execute to modify the database
+ * for the specified guild
+ */
+var operations = {
+        role: function(msg, suffix, remove) {
+            /*
+             * This funciton tries to find the appropiate role and adds it / removes it
+             * from the pool of roles available for the user
+             */
+            var roleName;
+            var retObject = {};
+
+            roleName = suffix.splice(1, suffix.length).join(" ");
+
+            var role = discordUtils.getRole(msg.guild, roleName);
+
+            if (!role) {
+                utils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
+                return null;
+            }
+            //If the user specified the removal of the role
+            if (remove) {
+                retObject["$pull"] = {
+                    roles: role.id
+                };
+            } else {
+                retObject["$addToSet"] = {
+                    roles: role.id
+                };
+            }
+            return retObject;
+        },
+        limitedcolors: function(msg, suffix) {
             if (suffix.length > 1) {
-                operation = {
+                return {
                     $set: {
                         limitedcolors: (suffix[1] == true)
                     }
                 }
-                break;
             } else {
                 utils.sendAndDelete(msg.channel, "Error, try again.");
-                return;
+                return null;
             }
-        case "topicchannel":
+        },
+        topicchannel: function(msg, suffix) {
+            if (suffix.length < 2) return null;
+
             if (msg.guild.channels.exists('id', suffix[1])) {
-                operation = {
+                return {
                     $set: {
                         topicchannel: suffix[1]
                     }
                 }
-                break;
             } else {
                 utils.sendAndDelete(msg.channel, "Error, try again.");
-                return;
+                return null;
             }
-        case "whitelisted":
-            linkremovalOperation();
-            break;
-        default:
-            //Todo, automate this
-            utils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: roles, limitedcolors and topicchannel, whitelisted");
-            return;
-    }
+        },
+        whitelisted: function(msg, suffix, remove) {
 
-    /*
-     * This funciton tries to find the appropiate role and adds it / removes it
-     * from the pool of roles available for the user
-     */
-    function rolesOperation() {
-        var roleName;
-        var remove = false;
-        if (suffix.length > 2 && suffix[1].toLowerCase() == "remove") {
-            roleName = suffix.splice(2, suffix.length).join(" ");
-            remove = true;
-        } else {
-            roleName = suffix.splice(1, suffix.length).join(" ");
-        }
+            var user = suffix.splice(1, suffix.length).join(" ");
 
-        var role = discordUtils.getRole(msg.guild, roleName);
-
-        if (!role) {
-            utils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
-            return;
-        }
-        //If the user specified the removal of the role
-        if (remove) {
-            operation = {
-                $pull: {
-                    roles: role.id
-                }
-            }
-        } else {
-            operation = {
-                $addToSet: {
-                    roles: role.id
-                }
-            }
-        }
-    }
-
-    function linkremovalOperation() {
-        var user;
-        var invites = false;
-        if (suffix.length == 2){
-            operation = {
-                $set: {
-                    invites: true
-                }
-            }
-        } else {
-            if (suffix.length > 2 && suffix[1].toLowerCase() == "remove") {
-                user = suffix.splice(2, suffix.length).join(" ");
-            } else {
-                user = suffix.splice(1, suffix.length).join(" ");
-            }
-            //If the user specified the removal of the role
             if (remove) {
-                operation = {
+                return {
                     $pull: {
                         whitelisted: user
                     }
                 }
             } else {
-                operation = {
+                return {
                     $set: {
                         invites: false
                     },
@@ -129,29 +145,50 @@ cmd.execution = function(client, msg, suffix) {
                     }
                 }
             }
-        }
-    }
-
-    collection.findOneAndUpdate({
-            _id: msg.guild.id
-        }, operation, {
-            returnOriginal: false,
-            upsert: true
         },
-        function(err, res) {
-            if (err) return console.log(err);
-            if (res.ok == 1) {
-                utils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
-            } else {
-                console.log(res);
-                utils.sendAndDelete(msg.channel, res);
-                msg.delete();
-            }
-        }
-    );
-}
-commands.push(cmd);
-////////////////////////////////////////////////////////////
+        allowinvites: function(msg, suffix, remove) {
 
+            var setting = suffix.splice(1, suffix.length).join(" ");
+
+            return {
+                $set: {
+                    invites: (setting == true)
+                }
+            }
+        },
+        greeting: function(msg, suffix, remove) {
+
+            if (remove) {
+                return {
+                    $set: {
+                        greeting: null
+                    }
+                }
+            } else {
+                return {
+                    $set: {
+                        greeting: suffix.splice(1, suffix.length).join(" ")
+                    }
+                }
+            }
+        },
+        goodbye: function(msg, suffix, remove) {
+
+            if (remove) {
+                return {
+                    $set: {
+                        goodbye: null
+                    }
+                }
+            } else {
+                return {
+                    $set: {
+                        goodbye: suffix.splice(1, suffix.length).join(" ")
+                    }
+                }
+            }
+        },
+    }
+    ////////////////////////////////////////////////////////////
 
 module.exports = commands;

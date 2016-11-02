@@ -68,10 +68,7 @@ cmd.execution = function(client, msg, suffix) {
         }
     }
     var member = (mentionedMember != null) ? mentionedMember : msg.member;
-    var out = member.user.username + "#" + member.user.discriminator + ': "' +
-        utils.unixToTime(member.joinedAt) + '"\n';
-    out += utils.convertUnixToDate(Date.now() - member.joinedAt.getTime());
-    msg.channel.sendCode("xl", out);
+    msg.sendMessage(`[${member.user.name}] ${member.user.avatarURL}`)
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
