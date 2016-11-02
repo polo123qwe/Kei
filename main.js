@@ -88,10 +88,14 @@ client.on('guildMemberAdd', (member) => {
         }
 
         if(guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null){
-            member.guild.defaultChannel.sendMessage(processGreeting(guildData.greeting)).catch();
-        } else {
-            member.guild.defaultChannel.sendMessage(`Welcome to ${member.guild.name}, ${member.user.username}! Dont forget to read the rules!`).catch();
+            //If you type default or an empty string it will use the default message
+            if(guildData.greeting.length == 0 || !guildData.greeting.includes("default")){
+                member.guild.defaultChannel.sendMessage(processGreeting(guildData.greeting)).catch();
+                return;
+            }
         }
+
+        member.guild.defaultChannel.sendMessage(`Welcome to ${member.guild.name}, ${member.user}! Dont forget to read the rules!`).catch();
 
     });
 
