@@ -79,8 +79,10 @@ cmd.minLvl = levels.MODERATOR;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 
+    console.log(msg.createdAt);
+
     var time = 2;
-    if(suffix.length > 1){
+    if(suffix.length > 0){
         time = suffix[0];
     } else {
         time = 2;
@@ -89,7 +91,7 @@ cmd.execution = function(client, msg, suffix) {
     if (utils.isNumber(time)) {
         if(time > 72) time = 72;
         //If its a number we use it as time in hours
-        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, time * 3600000, true, (err, arr) => {
+        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, time * 60 * 60 * 1000, true, (err, arr) => {
             //We retrieve the data from the log and parse it.
             if (err) return console.log(err);
             if (arr.length < 1) return;

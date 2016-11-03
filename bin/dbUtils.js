@@ -14,7 +14,7 @@ exports.getLevel = function(guild, member, callback) {
 
     var collection = db.collection('roles');
 
-    if(guild == null) return callback(null, levels.MASTER);
+    if (guild == null) return callback(null, levels.MASTER);
 
     if (owners.includes(member.user.id)) {
         return callback(null, levels.MASTER);
@@ -114,7 +114,7 @@ exports.tagMessageAs = function(message_id, edited, edit) {
     var collection = db.collection('logs');
 
     var operation = {};
-    if(edited){
+    if (edited) {
         operation = {
             $set: {
                 edited: true
@@ -214,14 +214,16 @@ exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id) 
 exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callback) {
 
     var search = {
-        channel_id: channel_id,
-        guild_id: guild_id
+        guild_id: guild_id,
+        channel_id: channel_id
     }
 
     if (retrieveTime) {
-        var time = Date.now() - amount;
+        var time = new Date((new Date()).getTime() - amount)
         //time
-        search['$where'] = function() { return (this.timestamp < time) };
+        search['timestamp'] = {
+            '$gte': time
+        };
     } else {
         //amount of msg
     }

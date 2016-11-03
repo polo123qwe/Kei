@@ -127,7 +127,7 @@ cmd.execution = function(client, msg, suffix) {
 
     dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return utils.sendAndDelete(msg.channel, err);
-        if (guildData.hasOwnProperty('limitedcolors') && guildData.limitedcolors) {
+        if (guildData != null && guildData.hasOwnProperty('limitedcolors') && guildData.limitedcolors) {
             //Limited colors
             if (suffix[0]) {
                 if (index) {
