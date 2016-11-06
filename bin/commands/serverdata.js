@@ -236,8 +236,9 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('friends', 'Server Data', 'dev');
+cmd = new Command('friends', 'Server Data');
 cmd.addHelp('Shows people with the same color as you have');
+cmd.cd = 30;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var role = msg.member.roles.find(r => r.name.startsWith("#"));
