@@ -1,5 +1,6 @@
 var unirest = require('unirest');
 var DELAY = require('../config.json').DELETEAFTER;
+var hastebin = require('../config.json').hastebin;
 
 exports.sendAndDelete = function(channel, content, delay) {
     var d = DELAY;
@@ -91,11 +92,10 @@ exports.unixToTime = function(UNIX_timestamp) {
 //Generates a hastebin document
 exports.generateHasteBin = function(data, callback) {
 
-    unirest.post('http://hastebin.com/documents')
+    unirest.post(`http://${hastebin}/documents`)
         .send(data)
         .end(function(response) {
-            if (typeof callback === "function")
-                return callback("http://hastebin.com/" + response.body.key + ".txt");
+            return callback(`http://${hastebin}/${response.body.key}.txt`);
         });
 }
 

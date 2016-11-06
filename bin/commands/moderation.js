@@ -11,7 +11,7 @@ var cmd;
 ////////////////////////////////////////////////////////////
 cmd = new Command('warn', 'Moderation');
 cmd.addHelp('Warns a user');
-cmd.addUsage('<mention/id> [reason]');
+cmd.addUsage('<mention/id> [time] [reason]');
 cmd.minLvl = levels.MODERATOR;
 cmd.params.push(paramtypes.MENTIONORID);
 cmd.execution = function(client, msg, suffix) {
@@ -71,6 +71,8 @@ cmd.execution = function(client, msg, suffix) {
                     "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (2 minutes)");
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
+            //Notify the userf
+            member.user.sendMessage(`You have been chilled! You are muted for 2 minutes in ${msg.guild}`)
         });
         setTimeout(() => {
             member.removeRole(role).catch(console.log);

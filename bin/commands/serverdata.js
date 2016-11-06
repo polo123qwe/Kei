@@ -79,46 +79,83 @@ cmd.minLvl = levels.MODERATOR;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 
-    console.log(msg.createdAt);
-
     var time = 2;
-    if(suffix.length > 0){
+    if (suffix.length > 0) {
         time = suffix[0];
     } else {
         time = 2;
     }
 
     if (utils.isNumber(time)) {
-        if(time > 72) time = 72;
+        if (time > 72) time = 72;
         //If its a number we use it as time in hours
-        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, time * 60 * 60 * 1000, true, (err, arr) => {
+        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, time * 60 * 60 * 1000, true, (err, dataArray) => {
             //We retrieve the data from the log and parse it.
             if (err) return console.log(err);
-            if (arr.length < 1) return;
+            if (dataArray.length < 1) return;
 
-            var parsedData = parseLogData(arr);
-            utils.generateHasteBin(parsedData, url => {
-                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${url}`);
-                msg.delete();
-            })
+            //We use this method to split the array because hastebin has a limit of 5000 lines
+            var chunk = 4500;
+            var dataChunks = [];
+            if (dataArray.length >= chunk) {
+                for (var i = 0, j = dataArray.length; i < j; i += chunk) {
+                    dataChunks.push(dataArray.slice(i, i + chunk));
+                }
+            } else {
+                dataChunks.push(dataArray);
+            }
+            console.log(`Original data size ${dataArray.length}, divided into ${dataChunks.length}`);
+            processHasteBinData(dataChunks, urls => {
+                urls = urls.reverse();
+                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
+                msg.delete().catch();
+            });
         });
     } else if (suffix[0] == 'm' && utils.isNumber(suffix[1])) {
         //If the first param is the keyword m and the second one is a nubmer
         //means we want the amount of messages back
-        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, suffix[1], false, (err, arr) => {
+        dbUtils.fetchLogs(msg.channel.id, msg.guild.id, suffix[1], false, (err, dataArray) => {
             //We retrieve the data from the log and parse it.
             if (err) return console.log(err);
-            if (arr.length < 1) return;
+            if (dataArray.length < 1) return;
 
-            var parsedData = parseLogData(arr);
-            utils.generateHasteBin(parsedData, url => {
-                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${url}`);
-                msg.delete();
-            })
+            //We use this method to split the array because hastebin has a limit of 5000 lines
+            var chunk = 4500;
+            var dataChunks = [];
+            if (dataArray.length >= chunk) {
+                for (var i = 0, j = dataArray.length; i < j; i += chunk) {
+                    dataChunks.push(dataArray.slice(i, i + chunk));
+                }
+            } else {
+                dataChunks.push(dataArray);
+            }
+
+            processHasteBinData(dataChunks, urls => {
+                urls = urls.reverse();
+                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
+                msg.delete().catch();
+            });
         });
     } else {
         //User input is incorrect
         utils.sendAndDelete(msg.channel, 'Error, parameters are not valid!');
+    }
+
+    /*
+     * This function will create an url for each chunk of the array and return it as a callback
+     */
+    function processHasteBinData(dataChunks, callback, urls) {
+        if(urls == null) urls = [];
+
+        if(dataChunks.length < 1) return callback(urls);
+
+        var data = dataChunks.pop();
+
+        var parsedData = parseLogData(data);
+        utils.generateHasteBin(parsedData, url => {
+            urls.push(url);
+            processHasteBinData(dataChunks, callback, urls);
+        })
     }
 
     function parseLogData(arr) {
@@ -196,6 +233,29 @@ cmd.execution = function(client, msg, suffix) {
         msg.channel.sendCode('xl', out);
 
     });
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+cmd = new Command('friends', 'Server Data', 'dev');
+cmd.addHelp('Shows people with the same color as you have');
+cmd.minLvl = levels.DEFAULT;
+cmd.execution = function(client, msg, suffix) {
+    var role = msg.member.roles.find(r => r.name.startsWith("#"));
+    if(role == null){
+        utils.sendAndDelete(msg.channel, "You have no color!");
+    } else {
+        var names = [];
+        role.members.every(member => {
+            if(member.user.id != msg.author.id){
+                names.push(member.user.username);
+            }
+        });
+        if(names.length < 1){
+            msg.channel.sendMessage(`:cry:`);
+        } else {
+            msg.channel.sendMessage(`Your friends are: ${names.join(", ")}`);
+        }
+    }
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
