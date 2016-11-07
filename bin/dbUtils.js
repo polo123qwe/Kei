@@ -29,7 +29,7 @@ exports.getLevel = function(guild, member, callback) {
         cur.sort({
             'level': -1
         }).toArray().then((arr) => {
-            //If the server has user has default perms
+            //If the guild has no level for the given member
             if (arr.length == 0) return callback(null, levels.DEFAULT);
             for (var el of arr) {
                 if (member.roles.exists('id', el._id)) {
@@ -135,34 +135,6 @@ exports.tagMessageAs = function(message_id, edited, edit) {
         _id: message_id
     }, operation, function(err, res) {
         if (err) return console.log(err);
-    });
-}
-
-exports.addTopic = function(guild_id, topic, channel, message_id) {
-
-    var db = Connection.getDB();
-    if (!db) return callback("Not connected to DB!");
-
-    var collection = db.collection('topics');
-
-    collection.findOneAndUpdate({
-        guild_id: guild_id
-    }, {
-        $set: {
-            last: message_id,
-        },
-        $push: {
-            topics: topic
-        }
-    }, {
-        upsert: true
-    }, function(err, res) {
-        if (err) return console.log(err);
-        if (res.value.hasOwnProperty('last')) {
-            channel.fetchMessage(res.value.last).then(m => {
-                m.unpin();
-            });
-        }
     });
 }
 

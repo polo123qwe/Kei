@@ -91,6 +91,12 @@ Command.prototype = {
         }
     },
 
+    addExample: function(example) {
+        if (typeof example === 'string') {
+            this.example = example;
+        }
+    },
+
     execution: function(client, msg, suffix) {
         console.log(this.name + " is pending implementation!");
     }

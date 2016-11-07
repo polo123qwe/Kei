@@ -218,39 +218,6 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('topic', 'Server Data');
-cmd.addHelp('Sets the topic for the topic channel');
-cmd.addUsage('<topic>');
-cmd.minLvl = levels.MODERATOR;
-cmd.params.push(paramtypes.PARAM);
-cmd.reqDB = true;
-cmd.execution = function(client, msg, suffix) {
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return utils.sendAndDelete(msg.channel, err);
-        if (!guildData) return utils.sendAndDelete(msg.channel, "Guild has no settings!");
-
-        if (guildData.hasOwnProperty('topicchannel')) {
-            var channel = msg.guild.channels.find('id', guildData.topicchannel);
-            if (channel) {
-                var topic = suffix.join(" ");
-                channel.setTopic("Today's topic: " + topic)
-                    .then(chan => {
-                        chan.sendMessage("Topic is now: ***" + topic + "***.").then(m => {
-                            m.pin();
-                            dbUtils.addTopic(msg.guild.id, topic, m.channel, m.id);
-                        });
-                    })
-                    .catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
-            } else {
-                utils.sendAndDelete(msg.channel, "Topic channel is not valid!");
-            }
-        } else {
-            utils.sendAndDelete(msg.channel, "Topic channel is not set!");
-        }
-    });
-}
-commands.push(cmd);
-////////////////////////////////////////////////////////////
 //MEMBER (New System?)
 ////////////////////////////////////////////////////////////
 

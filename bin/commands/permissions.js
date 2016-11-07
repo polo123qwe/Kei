@@ -187,5 +187,21 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
+cmd = new Command('mylevel', 'Permissions');
+cmd.addHelp('Prints level of the user');
+cmd.minLvl = levels.DEFAULT;
+cmd.reqDB = true;
+cmd.execution = function(client, msg, suffix) {
+
+    var db = Connection.getDB();
+    var collection = db.collection('roles');
+
+    dbUtils.getLevel(msg.guild, msg.member, (err, lvl) =>{
+        if(err) return utils.sendAndDelete(msg.channel, err);
+        msg.channel.sendMessage(`Your current level is ${lvl}`);
+    });
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
 
 module.exports = commands;

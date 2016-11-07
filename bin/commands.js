@@ -2,6 +2,7 @@ var directory = require('require-directory');
 var Command = require('./commandTemplate');
 var utils = require('./utils');
 var allCmds = directory(module, './commands/');
+var suf = require('../config.json').suf;
 
 var commands = {};
 
@@ -23,7 +24,7 @@ for (var cmds in allCmds) {
             if (!helpCmds.hasOwnProperty(command.category)) {
                 helpCmds[command.category] = {};
             }
-            helpCmds[command.category][command.name] = command.name;
+            helpCmds[command.category][command.name] = `${command.name}${suf}`;
 
             for (var alias of command.alias) {
                 commands[command.alias] = command;
@@ -33,16 +34,20 @@ for (var cmds in allCmds) {
             if (command.alias.length != 0) {
                 helpCmds[command.category][command.name] += " (" + command.alias.join("|") + ")";
             }
+            if (command.hasOwnProperty("usage")) {
+                helpCmds[command.category][command.name] += " " + command.usage;
+            }
             helpCmds[command.category][command.name] += ":";
 
             //We add the helpa and the usage to the command
             if (command.hasOwnProperty("help")) {
                 helpCmds[command.category][command.name] += " " + command.help + ".";
             }
-            if (command.hasOwnProperty("usage")) {
-                helpCmds[command.category][command.name] += " " + command.usage;
-            }
             helpCmds[command.category][command.name] += " (" + command.minLvl + ")";
+
+            if (command.hasOwnProperty("example")) {
+                helpCmds[command.category][command.name] += " `" + command.example + "`";
+            }
         }
     }
 }
