@@ -2,7 +2,7 @@ var directory = require('require-directory');
 var Command = require('./commandTemplate');
 var utils = require('./utils');
 var allCmds = directory(module, './commands/');
-var suf = require('../config.json').suf;
+var suf = require('../config.json').suffix;
 
 var commands = {};
 
@@ -24,7 +24,7 @@ for (var cmds in allCmds) {
             if (!helpCmds.hasOwnProperty(command.category)) {
                 helpCmds[command.category] = {};
             }
-            helpCmds[command.category][command.name] = `${command.name}${suf}`;
+            helpCmds[command.category][command.name] = `${command.name}`;
 
             for (var alias of command.alias) {
                 commands[command.alias] = command;
@@ -32,12 +32,13 @@ for (var cmds in allCmds) {
 
             //Adding alias (if any) to the help string
             if (command.alias.length != 0) {
-                helpCmds[command.category][command.name] += " (" + command.alias.join("|") + ")";
+                helpCmds[command.category][command.name] += ` (${command.alias.join("|")})`;
             }
             if (command.hasOwnProperty("usage")) {
                 helpCmds[command.category][command.name] += " " + command.usage;
             }
-            helpCmds[command.category][command.name] += ":";
+
+            helpCmds[command.category][command.name] += `${suf}:`;
 
             //We add the helpa and the usage to the command
             if (command.hasOwnProperty("help")) {
@@ -46,7 +47,7 @@ for (var cmds in allCmds) {
             helpCmds[command.category][command.name] += " (" + command.minLvl + ")";
 
             if (command.hasOwnProperty("example")) {
-                helpCmds[command.category][command.name] += " `" + command.example + "`";
+                helpCmds[command.category][command.name] += "Eg: `" + command.example + "`";
             }
         }
     }
@@ -54,7 +55,7 @@ for (var cmds in allCmds) {
 
 var cmd;
 ///////////////////////// HELP /////////////////////////////
-cmd = new Command('help', 'Core', 'on');
+cmd = new Command('help', 'Core');
 cmd.category = 'Core';
 cmd.addHelp('Returns all commands available.');
 cmd.addUsage('[command]');
@@ -72,17 +73,31 @@ cmd.execution = function(client, msg, suffix) {
             utils.sendAndDelete(msg.channel, "That command does not exist!", 8000);
         }
     } else {
-        var helpString = "Commands the bot is able to execute sorted by category\n\n";
+        //To avoid max chars we use an array and check the length of the message
+        var sendStrings = [];
+        var helpString = "Commands the bot is able to execute sorted by category. \n"+
+        "The number at the end represents the level required to run the command, to know"+
+        " your current level use the command mylevel\n\n";
 
         for (var categ in helpCmds) {
-
-            helpString += "**" + categ + "**\n";
+            var categHelp = "**" + categ + "**\n";
             for (var cmd in helpCmds[categ]) {
-                helpString += "\t⇾ " + helpCmds[categ][cmd] + "\n";
+                categHelp += "\t> " + helpCmds[categ][cmd] + "\n";
+            }
+
+            if(helpString.length + categHelp.length > 1800){
+                sendStrings.push(helpString);
+                helpString = categHelp;
+            } else {
+                helpString += categHelp;
             }
         }
-        //Print the help
-        msg.author.sendMessage(helpString);
+        sendStrings.push(helpString);
+
+        for(var str of sendStrings){
+            //Print the help
+            msg.author.sendMessage(str);
+        }
     }
 }
 commands[cmd.name] = cmd

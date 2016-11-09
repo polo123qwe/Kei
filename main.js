@@ -41,6 +41,11 @@ client.on('message', msg => {
     //Log the message in the DB
     dbUtils.storeMessage(msg);
 
+    //Ignore bot own commands
+    if(msg.author.id == client.user.id){
+        return;
+    }
+
     if (msg.guild != null) {
         checkInvLink(msg);
     }

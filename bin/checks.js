@@ -132,7 +132,6 @@ Call the cooldown processor with a given user, server and cmd
 function checkTime(msg, cmd) {
     var out = cooldown(msg.author.id, msg.guild.id, cmd);
 
-    //TODO Add ignore owner
     if (out) {
         utils.sendAndDelete(msg.channel, out);
         return false;
