@@ -45,7 +45,7 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('pull', 'Core');
+cmd = new Command('gpull', 'Core');
 cmd.addHelp('Updates local repo');
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
