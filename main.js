@@ -51,8 +51,9 @@ client.on('message', msg => {
         cmdName = cmdName.toLowerCase();
         if (commands.hasOwnProperty(cmdName)) {
             //If the command was typed in a dm and the command doesn't allow DM calling, notify user
+            //@TODO this should be done in checks
             if (commands[cmdName].dm == false && msg.guild == null) {
-                return utils.sendAndDelete(msg.channel, "Cannot execute that command in a DM!");
+                return msg.channel.sendMessage("Cannot execute that command in a DM!");
             }
 
             dbUtils.fetchChannel(msg.channel.id, function(err, channelData) {

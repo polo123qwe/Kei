@@ -59,6 +59,7 @@ cmd.category = 'Core';
 cmd.addHelp('Returns all commands available.');
 cmd.addUsage('[command]');
 cmd.cd = 5;
+cmd.dm = true;
 cmd.execution = function(client, msg, suffix) {
 
     var command = suffix[0];
