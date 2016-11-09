@@ -1,3 +1,5 @@
+var exec = require('child_process').exec;
+
 var Command = require('../commandTemplate');
 var Connection = require('../dbConnection');
 var levels = require('../../consts/levels.json');
@@ -6,6 +8,7 @@ var utils = require('../utils');
 var dbUtils = require('../dbUtils');
 var discordUtils = require('../discordUtils');
 var commands = [];
+
 
 var cmd;
 ////////////////////////////////////////////////////////////
@@ -42,7 +45,24 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
+cmd = new Command('pull', 'Core');
+cmd.addHelp('Updates local repo');
+cmd.minLvl = levels.MASTER;
+cmd.execution = function(client, msg) {
+    var cmd = 'git pull';
 
+    exec(cmd, function(error, stdout, stderr) {
+        if(error) return msg.channel.sendMessage(error);
+        if(stdout) console.log(stdout);
+        if(stderr) console.log(stderr);
+        msg.channel.sendMessage("Success!").then(() =>{
+            client.destroy().then(() => {
+                process.exit();
+            });
+        });
+    });
+}
+commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('kill', 'Core');
 cmd.addHelp('Kills the bot');
