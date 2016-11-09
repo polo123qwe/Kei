@@ -20,6 +20,10 @@ exports.getLevel = function(guild, member, callback) {
         return callback(null, levels.MASTER);
     }
 
+    if(member.user.id == guild.ownerID){
+        return callback(null, levels.OWNER);
+    }
+
     collection.find({
         'guild_id': guild.id
     }, function(err, cur) {

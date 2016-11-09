@@ -1,6 +1,6 @@
 {
     "MASTER": 1000,
-    "OWNER": 5,
+    "OWNER": 100,
     "ADMIN": 4,
     "MODERATOR": 3,
     "DM": 0,

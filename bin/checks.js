@@ -25,8 +25,7 @@ module.exports = function(client, msg, suffix, cmd, callback) {
 
             if (!cmd.hasOwnProperty('minLvl')) return runChecks();
 
-            //if user is owner, he has a default rank of 100
-            if (msg.author.id == msg.guild.ownerID || checkLevel(lvl, cmd.minLvl)) {
+            if (checkLevel(lvl, cmd.minLvl)) {
                 runChecks();
             } else {
                 //Not enough perms
