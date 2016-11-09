@@ -246,11 +246,14 @@ cmd.execution = function(client, msg, suffix) {
         utils.sendAndDelete(msg.channel, "You have no color!");
     } else {
         var names = [];
-        role.members.every(member => {
-            if(member.user.id != msg.author.id){
-                names.push(member.user.username);
+        for(var member of msg.guild.members.array()){
+            if(member.roles.exists(r => r.name == role.name)){
+                console.log(member.user.username);
+                if(member.user.id != msg.author.id){
+                    names.push(member.user.username);
+                }
             }
-        });
+        }
         if(names.length < 1){
             msg.channel.sendMessage(`:cry:`);
         } else {
