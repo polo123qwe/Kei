@@ -1,10 +1,12 @@
 var Connection = require('./dbConnection');
-var dbUtils = require('./dbUtils');
 var db;
 
 var paramtypes = require('../consts/paramtypes.json');
 var cooldown = require('./cooldown');
+
 var utils = require('./utils');
+var dbUtils = require('./dbUtils');
+var discordUtils = require('./discordUtils');
 
 try {
     var levels = require('../consts/levels.json');
@@ -133,7 +135,7 @@ function checkTime(msg, cmd) {
     var out = cooldown(msg.author.id, msg.guild.id, cmd);
 
     if (out) {
-        utils.sendAndDelete(msg.channel, out);
+        discordUtils.sendAndDelete(msg.channel, out);
         return false;
     } else {
         return true;

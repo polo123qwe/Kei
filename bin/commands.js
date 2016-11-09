@@ -1,6 +1,7 @@
 var directory = require('require-directory');
 var Command = require('./commandTemplate');
 var utils = require('./utils');
+var discordUtils = require('./discordUtils');
 var allCmds = directory(module, './commands/');
 var suf = require('../config.json').suffix;
 

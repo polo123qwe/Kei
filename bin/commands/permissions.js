@@ -29,7 +29,7 @@ cmd.execution = function(client, msg, suffix) {
     });
 
     if (!role) {
-        utils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
+        discordUtils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
         return;
     }
 
@@ -41,11 +41,11 @@ cmd.execution = function(client, msg, suffix) {
 
         //Check the conditions to allow the user to execute the command
         if (userLevel == null && msg.author.id != msg.guild.ownerID) {
-            return utils.sendAndDelete(msg.channel, "You have no level!");
+            return discordUtils.sendAndDelete(msg.channel, "You have no level!");
 
         } else if (msg.author.id != msg.guild.ownerID && (parseInt(userLevel, 10) - 1) < parseInt(lvl, 10)) {
             //If its not owner and it has less permissions
-            return utils.sendAndDelete(msg.channel,
+            return discordUtils.sendAndDelete(msg.channel,
                 "You cannot assign a higher role than your own! " + userLevel + " (yours), " + lvl + " (target)", 8000);
 
         }
@@ -57,7 +57,7 @@ cmd.execution = function(client, msg, suffix) {
             if (!owners.includes(msg.author.id)) {
                 //If the role has a previous role greater than the one the user wants to set
                 if (roleLevel != null && roleLevel.level && parseInt(lvl, 10) < parseInt(roleLevel.level)) {
-                    utils.sendAndDelete(msg.channel,
+                    discordUtils.sendAndDelete(msg.channel,
                         "You cannot edit a role with higher rank than yours! " + userLevel + " (yours), " + roleLevel.level + " (role level)", 8000);
                     return;
                 }
@@ -79,7 +79,7 @@ cmd.execution = function(client, msg, suffix) {
                         msg.channel.sendMessage("Role " + role.name + " updated with level " + lvl);
                     } else {
                         console.log(res);
-                        utils.sendAndDelete(msg.channel, res)
+                        discordUtils.sendAndDelete(msg.channel, res)
                     }
                 }
             );
@@ -144,9 +144,9 @@ cmd.execution = function(client, msg, suffix) {
     var operation;
     var enabledmsg = "";
 
-    if (!modl) return utils.sendAndDelete(msg.channel, "Specify a module!");
+    if (!modl) return discordUtils.sendAndDelete(msg.channel, "Specify a module!");
     var notAllowed = ["debugging", "core"];
-    if (notAllowed.includes(modl)) return utils.sendAndDelete(msg, channel, "You cannout disable that!")
+    if (notAllowed.includes(modl)) return discordUtils.sendAndDelete(msg, channel, "You cannout disable that!")
 
     var db = Connection.getDB();
     var collection = db.collection('channels');
@@ -176,10 +176,10 @@ cmd.execution = function(client, msg, suffix) {
         function(err, res) {
             if (err) return console.log(err);
             if (res.ok == 1) {
-                utils.sendAndDelete(msg.channel, "Module " + modl + " successfully " + enabledmsg + ".", 10000);
+                discordUtils.sendAndDelete(msg.channel, "Module " + modl + " successfully " + enabledmsg + ".", 10000);
             } else {
                 console.log(res);
-                utils.sendAndDelete(msg.channel, res)
+                discordUtils.sendAndDelete(msg.channel, res)
             }
         }
     );
@@ -197,7 +197,7 @@ cmd.execution = function(client, msg, suffix) {
     var collection = db.collection('roles');
 
     dbUtils.getLevel(msg.guild, msg.member, (err, lvl) =>{
-        if(err) return utils.sendAndDelete(msg.channel, err);
+        if(err) return discordUtils.sendAndDelete(msg.channel, err);
         msg.channel.sendMessage(`Your current level is ${lvl}`);
     });
 }

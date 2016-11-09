@@ -6,6 +6,7 @@ var Command;
 var levels = require('../consts/levels.json');
 var checks = require('./checks');
 var utils = require('./utils');
+var discordUtils = require('./discordUtils');
 var owners = require('../config.json').owners;
 var Connection = require('./dbConnection');
 
@@ -46,10 +47,10 @@ function Command(name, cat, mode) {
         if (this.mode == 'dev' && !owners.includes(msg.author.id)) return;
 
         this.check(client, msg, suffix, (err, res) => {
-            if (err) return utils.sendAndDelete(msg.channel, err);
+            if (err) return discordUtils.sendAndDelete(msg.channel, err);
             if (!res) return;
             if (this.reqDB && Connection.getDB() == null) {
-                utils.sendAndDelete(msg.channel, "Database not connected, can't run this command");
+                discordUtils.sendAndDelete(msg.channel, "Database not connected, can't run this command");
             } else {
                 this.execution(client, msg, suffix);
                 if (this.del) {

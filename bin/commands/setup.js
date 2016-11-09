@@ -40,7 +40,7 @@ cmd.execution = function(client, msg, suffix) {
         for (var o in operations) {
             arr.push(o);
         }
-        utils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: " + arr.join(", "), 8000);
+        discordUtils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: " + arr.join(", "), 8000);
     }
 
     if (operation != null) {
@@ -53,10 +53,10 @@ cmd.execution = function(client, msg, suffix) {
             function(err, res) {
                 if (err) return console.log(err);
                 if (res.ok == 1) {
-                    utils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
+                    discordUtils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
                 } else {
                     console.log(res);
-                    utils.sendAndDelete(msg.channel, res);
+                    discordUtils.sendAndDelete(msg.channel, res);
                 }
                 msg.delete();
             }
@@ -84,7 +84,7 @@ var operations = {
             var role = discordUtils.getRole(msg.guild, roleName);
 
             if (!role) {
-                utils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
+                discordUtils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
                 return null;
             }
             //If the user specified the removal of the role
@@ -107,7 +107,7 @@ var operations = {
                     }
                 }
             } else {
-                utils.sendAndDelete(msg.channel, "Error, try again.");
+                discordUtils.sendAndDelete(msg.channel, "Error, try again.");
                 return null;
             }
         },
@@ -121,7 +121,7 @@ var operations = {
                     }
                 }
             } else {
-                utils.sendAndDelete(msg.channel, "Error, try again.");
+                discordUtils.sendAndDelete(msg.channel, "Error, try again.");
                 return null;
             }
         },

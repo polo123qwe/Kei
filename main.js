@@ -71,7 +71,7 @@ client.on('message', msg => {
 
                 //If the module is disabled
                 if (disabledCats != null && disabledCats.includes(commands[cmdName].category.toLowerCase())) {
-                    utils.sendAndDelete(msg.channel, 'Module disabled in this channel!', 2000);
+                    discordUtils.sendAndDelete(msg.channel, 'Module disabled in this channel!', 2000);
                 } else {
                     console.log("Running " + cmdName);
                     commands[cmdName].run(client, msg, suffix);
@@ -85,6 +85,7 @@ client.on('message', msg => {
     }
 });
 
+///////////////// Join and leave member ///////////////////////////
 client.on('guildMemberAdd', (member) => {
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
@@ -273,7 +274,7 @@ function checkInvLink(msg) {
                 if (/discord\.gg.*\//i.test(msg.content)) {
                     console.log(`Invite ${msg.content} deleted!`);
                     msg.delete().then(() => {
-                        utils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
+                        discordUtils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
                     })
                 }
             }

@@ -35,7 +35,7 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return utils.sendAndDelete(msg.channel, err);
+        if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData.hasOwnProperty('roles')) {
             for (var roleID of guildData.roles) {
                 var role = rolesFound.find((r) => {
@@ -58,13 +58,13 @@ cmd.execution = function(client, msg, suffix) {
                     }
                 }
                 out += possibleRoles.join(", ");
-                return utils.sendAndDelete(msg.channel, out);
+                return discordUtils.sendAndDelete(msg.channel, out);
             }
             msg.member.addRoles(rolesToAdd).then((memb) => {
                 msg.channel.sendMessage(msg.author.username + " added successfully!");
-            }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
         } else {
-            utils.sendAndDelete(msg.channel, "This guild has no optional roles!", 2000);
+            discordUtils.sendAndDelete(msg.channel, "This guild has no optional roles!", 2000);
         }
     });
 }
@@ -88,7 +88,7 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return utils.sendAndDelete(msg.channel, err);
+        if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData.roles) {
             for (var roleID of guildData.roles) {
                 var role = rolesFound.find((r) => {
@@ -99,10 +99,10 @@ cmd.execution = function(client, msg, suffix) {
                 }
             }
         }
-        if (rolesToRemove.length < 1) return utils.sendAndDelete(msg.channel, "Nothing to remove!");
+        if (rolesToRemove.length < 1) return discordUtils.sendAndDelete(msg.channel, "Nothing to remove!");
         msg.member.removeRoles(rolesToRemove).then((memb) => {
             msg.channel.sendMessage(msg.author.username + " removed successfully!");
-        }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
     });
 }
 commands.push(cmd);
@@ -126,7 +126,7 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return utils.sendAndDelete(msg.channel, err);
+        if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData != null && guildData.hasOwnProperty('limitedcolors') && guildData.limitedcolors) {
             //Limited colors
             if (suffix[0]) {
@@ -183,7 +183,7 @@ cmd.execution = function(client, msg, suffix) {
             if (role.members.array().length < 1) {
                 role.delete().then(() => {
                     return removeExistingRoles(callback);
-                }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+                }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
             } else {
                 return removeExistingRoles(callback);
             }
@@ -205,7 +205,7 @@ cmd.execution = function(client, msg, suffix) {
             }
             msg.guild.createRole(options).then((r) => {
                 addUser(r);
-            }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
         } else {
             addUser(role);
         }
@@ -213,7 +213,7 @@ cmd.execution = function(client, msg, suffix) {
         function addUser(roleToAdd) {
             msg.member.addRole(roleToAdd).then(() => {
                 msg.channel.sendMessage(msg.author.username + ' successfully added to #' + name);
-            }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
         }
     }
 

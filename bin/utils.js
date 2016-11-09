@@ -2,44 +2,6 @@ var unirest = require('unirest');
 var DELAY = require('../config.json').DELETEAFTER;
 var hastebin = require('../config.json').hastebin;
 
-exports.sendAndDelete = function(channel, content, delay) {
-    var d = DELAY;
-    if (delay) {
-        d = delay;
-    }
-    channel.sendMessage(content).then((reply) => {
-        setTimeout(() => {
-            reply.delete();
-        }, d);
-    });
-}
-
-//Perform various tests to find out if the value sent is a user, checking name,
-//nick and ID of given user. We use filter as a boolean to accept partial matches
-exports.isUser = function(value, m, filter) {
-    //We get all the values to ease handling
-    value = value.toLowerCase();
-    var username = m.user.username.toLowerCase();
-    var nick = m.nickname;
-    var bool = false;
-    if (filter) { //If we only want strict matches
-        bool = (username + "#" + m.user.discriminator) == value;
-        bool = bool || username == value;
-        if (nick) {
-            nick = nick.toLowerCase();
-            bool = bool || nick == value;
-        }
-    } else {
-        bool = username.includes(value);
-        if (nick) {
-            nick = nick.toLowerCase();
-            bool = bool || nick.includes(value);
-        }
-    }
-    bool = bool || m.user.id == value;
-    //console.log(m.user.username + " " + bool);
-    return bool;
-}
 
 //Function to convert a timespan into a readable time
 exports.convertUnixToDate = function(t) {

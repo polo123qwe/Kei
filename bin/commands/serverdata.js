@@ -24,11 +24,11 @@ cmd.execution = function(client, msg, suffix) {
             var name = suffix.join(" ");
             if (name.length > 0) {
                 mentionedMember = msg.guild.members.find((m) => {
-                    return utils.isUser(name, m, true);
+                    return discordUtils.isUser(name, m, true);
                 });
                 if (!mentionedMember) {
                     mentionedMember = msg.guild.members.find((m) => {
-                        return utils.isUser(name, m, false);
+                        return discordUtils.isUser(name, m, false);
                     });
                 }
             }
@@ -56,11 +56,11 @@ cmd.execution = function(client, msg, suffix) {
         var name = suffix.join(" ");
         if (name.length > 0) {
             mentionedMember = msg.guild.members.find((m) => {
-                return utils.isUser(name, m, true);
+                return discordUtils.isUser(name, m, true);
             });
             if (!mentionedMember) {
                 mentionedMember = msg.guild.members.find((m) => {
-                    return utils.isUser(name, m, false);
+                    return discordUtils.isUser(name, m, false);
                 });
             }
         }
@@ -138,7 +138,7 @@ cmd.execution = function(client, msg, suffix) {
         });
     } else {
         //User input is incorrect
-        utils.sendAndDelete(msg.channel, 'Error, parameters are not valid!');
+        discordUtils.sendAndDelete(msg.channel, 'Error, parameters are not valid!');
     }
 
     /*
@@ -205,8 +205,8 @@ cmd.execution = function(client, msg, suffix) {
 
     // @TODO Work on this formatting and stuff
     dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return utils.sendAndDelete(msg.channel, err);
-        if (!guildData) return utils.sendAndDelete(msg.channel, "Guild has no settings!");
+        if (err) return discordUtils.sendAndDelete(msg.channel, err);
+        if (!guildData) return discordUtils.sendAndDelete(msg.channel, "Guild has no settings!");
 
         var out = "";
         if (guildData.hasOwnProperty('roles')) {
@@ -243,7 +243,7 @@ cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var role = msg.member.roles.find(r => r.name.startsWith("#"));
     if(role == null){
-        utils.sendAndDelete(msg.channel, "You have no color!");
+        discordUtils.sendAndDelete(msg.channel, "You have no color!");
     } else {
         var names = [];
         for(var member of msg.guild.members.array()){

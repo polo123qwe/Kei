@@ -32,7 +32,7 @@ cmd.execution = function(client, msg, suffix) {
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
     var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "warned");
 
-    if (!role) return utils.sendAndDelete(msg.channel, "Role not found!");
+    if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
         discordUtils.findLogsChannel(msg.guild, (channel) => {
             if (channel) {
@@ -44,7 +44,7 @@ cmd.execution = function(client, msg, suffix) {
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "warning", reason, 0, function() {});
         });
-    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ cmd.execution = function(client, msg, suffix) {
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
     var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "muted");
 
-    if (!role) return utils.sendAndDelete(msg.channel, "Role not found!");
+    if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
         discordUtils.findLogsChannel(msg.guild, (channel) => {
             if (channel) {
@@ -77,7 +77,7 @@ cmd.execution = function(client, msg, suffix) {
         setTimeout(() => {
             member.removeRole(role).catch(console.log);
         }, 120000);
-    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ cmd.execution = function(client, msg, suffix) {
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
     var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "muted");
 
-    if (!role) return utils.sendAndDelete(msg.channel, "Role not found!");
+    if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
         discordUtils.findLogsChannel(msg.guild, (channel) => {
             if (channel) {
@@ -119,7 +119,7 @@ cmd.execution = function(client, msg, suffix) {
             });
             dbUtils.removeTimer(member.user.id, r.id, function() {});
         }, time * 24 * 3600 * 1000);
-    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ cmd.execution = function(client, msg, suffix) {
     var amount = suffix[0];
     var user = suffix[1];
 
-    if (!amount || amount <= 1) return utils.sendAndDelete(msg.channel, "Specify an amount!");
+    if (!amount || amount <= 1) return discordUtils.sendAndDelete(msg.channel, "Specify an amount!");
     if (amount > 50) {
         amount = 50;
     }
@@ -148,7 +148,7 @@ cmd.execution = function(client, msg, suffix) {
             });
         }
         msg.channel.bulkDelete(toremove).catch(console.log);
-    }).catch(err => utils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 
 
 }
@@ -163,7 +163,7 @@ cmd.execution = function(client, msg, suffix) {
     var inviteCode = suffix[0];
 
     //if no invite id is sent
-    if (!inviteCode) return utils.sendAndDelete(msg.channel, "Invite not found!");
+    if (!inviteCode) return discordUtils.sendAndDelete(msg.channel, "Invite not found!");
     else {
         msg.guild.fetchInvites().then((invites) => {
             var invite = invites.find("code", inviteCode);
@@ -174,7 +174,7 @@ cmd.execution = function(client, msg, suffix) {
                         " removed successfully");
                 })
             } else {
-                utils.sendAndDelete(msg.channel, "Invite not found!");
+                discordUtils.sendAndDelete(msg.channel, "Invite not found!");
             }
         });
     }
@@ -207,11 +207,11 @@ cmd.execution = function(client, msg, suffix) {
                         var outmsg = m.content.replace(/Reason: .*/, 'Reason: ' + reason + ' (edited)');
                         m.edit(outmsg);
                     } else {
-                        utils.sendAndDelete(msg.channel, 'Not your message!');
+                        discordUtils.sendAndDelete(msg.channel, 'Not your message!');
                     }
                 }
             }).catch(() => {
-                utils.sendAndDelete(msg.channel, "Message not found!");
+                discordUtils.sendAndDelete(msg.channel, "Message not found!");
             });
         }
     });
