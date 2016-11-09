@@ -1,7 +1,5 @@
 var unirest = require('unirest');
-var DELAY = require('../config.json').DELETEAFTER;
 var hastebin = require('../config.json').hastebin;
-
 
 //Function to convert a timespan into a readable time
 exports.convertUnixToDate = function(t) {

@@ -79,11 +79,11 @@ cmd.minLvl = levels.MODERATOR;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 
-    var time = 2;
+    var time;
     if (suffix.length > 0) {
         time = suffix[0];
     } else {
-        time = 2;
+        time = "2";
     }
 
     if (utils.isNumber(time)) {
@@ -104,7 +104,7 @@ cmd.execution = function(client, msg, suffix) {
             } else {
                 dataChunks.push(dataArray);
             }
-            console.log(`Original data size ${dataArray.length}, divided into ${dataChunks.length}`);
+            //console.log(`Original data size ${dataArray.length}, divided into ${dataChunks.length}`);
             processHasteBinData(dataChunks, urls => {
                 urls = urls.reverse();
                 msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);

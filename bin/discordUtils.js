@@ -1,5 +1,7 @@
 var Connection = require('./dbConnection');
 
+var DELAY = require('../config.json').DELETEAFTER;
+
 //Find mentions and IDs
 exports.getMembersFromMessage = function(msg, suffix){
     var members = [];
