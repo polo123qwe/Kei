@@ -112,9 +112,9 @@ cmd.execution = function(client, msg, suffix) {
      * This function will create an url for each chunk of the array and return it as a callback
      */
     function processHasteBinData(dataChunks, callback, urls) {
-        if(urls == null) urls = [];
+        if (urls == null) urls = [];
 
-        if(dataChunks.length < 1) return callback(urls);
+        if (dataChunks.length < 1) return callback(urls);
 
         var data = dataChunks.pop();
 
@@ -163,21 +163,29 @@ commands.push(cmd);
 ////////////////////////////////////////////////////////////
 // @TODO get name history
 cmd = new Command('names', 'Server Data');
-cmd.addHelp('Retrieves names a given user had in the past');
+cmd.addHelp('Retrieves last 5 names/nicknames a user had in the past (-all shows all)');
 cmd.addUsage('[-a] [username/nick/id]')
 cmd.minLvl = levels.USER;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 
+    //Remove if "-a" was in the message and set the message to all
+    var all = false;
+    var index = suffix.indexOf("-all");
+    if (index > -1) {
+        suffix.splice(index, 1);
+        all = true;
+    }
+
     var user = discordUtils.getOneMemberFromMessage(msg, suffix).user;
 
-    dbUtils.fetchNameChanges(user.id, msg.guild.id, (err, arr) =>{
-        if(err) return console.log(err);
+    dbUtils.fetchNameChanges(user.id, msg.guild.id, (err, arr) => {
+        if (err) return console.log(err);
         var names = [];
         var nicks = [];
-        for(var change of arr){
-            if(change.isNick){
-                if(change.oldName != null){
+        for (var change of arr) {
+            if (change.isNick) {
+                if (change.oldName != null) {
                     nicks.push(change.oldName);
                 }
             } else {
@@ -185,17 +193,23 @@ cmd.execution = function(client, msg, suffix) {
             }
         }
         var out = "";
-        if(names.length < 1){
-            out += `No name changes recorded for ${user.username}`;
+        if (names.length < 1) {
+            out += `No name changes recorded for ${user.username}#${user.discriminator}`;
         } else {
-            out += `The previous names for the user ${user.username} are: ${names.join(", ")}`;
+            if(!all){
+                names = names.slice(0, 5);
+            }
+            out += `The previous names for the user ${user.username}#${user.discriminator} are = ${names.join(", ")}`;
         }
-        if(nicks.length < 1){
+        if (nicks.length < 1) {
             out += "\nNo nicknames recorded."
         } else {
-            out += `\nNicknames: ${nicks.join(", ")}`;
+            if(!all){
+                nicks = nicks.slice(0, 5);
+            }
+            out += `\nNicknames = ${nicks.join(", ")}`;
         }
-        msg.channel.sendMessage(out);
+        msg.channel.sendCode("fix", out);
     });
 }
 commands.push(cmd);
@@ -246,19 +260,19 @@ cmd.cd = 30;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var role = msg.member.roles.find(r => r.name.startsWith("#"));
-    if(role == null){
+    if (role == null) {
         discordUtils.sendAndDelete(msg.channel, "You have no color!");
     } else {
         var names = [];
-        for(var member of msg.guild.members.array()){
-            if(member.roles.exists(r => r.name == role.name)){
+        for (var member of msg.guild.members.array()) {
+            if (member.roles.exists(r => r.name == role.name)) {
                 console.log(member.user.username);
-                if(member.user.id != msg.author.id){
+                if (member.user.id != msg.author.id) {
                     names.push(member.user.username);
                 }
             }
         }
-        if(names.length < 1){
+        if (names.length < 1) {
             msg.channel.sendMessage(`:cry:`);
         } else {
             msg.channel.sendMessage(`Your friends are: ${names.join(", ")}`);
