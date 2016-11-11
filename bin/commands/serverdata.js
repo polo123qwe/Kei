@@ -192,24 +192,24 @@ cmd.execution = function(client, msg, suffix) {
                 names.push(change.oldName);
             }
         }
-        var out = "";
+        var out = `${user.username}#${user.discriminator}\n`;
         if (names.length < 1) {
-            out += `No name changes recorded for ${user.username}#${user.discriminator}`;
+            out += `"No name changes recorded"`;
         } else {
             if(!all){
                 names = names.slice(0, 5);
             }
-            out += `The previous names for the user ${user.username}#${user.discriminator} are = ${names.join(", ")}`;
+            out += `"The previous names for the user ${user.username}#${user.discriminator} are": ${names.join(", ")}`;
         }
         if (nicks.length < 1) {
-            out += "\nNo nicknames recorded."
+            out += '\n"No nicknames recorded."';
         } else {
             if(!all){
                 nicks = nicks.slice(0, 5);
             }
-            out += `\nNicknames = ${nicks.join(", ")}`;
+            out += `\n"Nicknames": ${nicks.join(", ")}`;
         }
-        msg.channel.sendCode("fix", out);
+        msg.channel.sendCode("bash", out);
     });
 }
 commands.push(cmd);
