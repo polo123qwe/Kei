@@ -16,25 +16,8 @@ cmd.cd = 5;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     //TODO Fetch Data from DB
-    var mentionedMember;
-    if (suffix) {
-        if (msg.mentions.users.array().length != 0) {
-            mentionedMember = msg.mentions.users[0];
-        } else {
-            var name = suffix.join(" ");
-            if (name.length > 0) {
-                mentionedMember = msg.guild.members.find((m) => {
-                    return discordUtils.isUser(name, m, true);
-                });
-                if (!mentionedMember) {
-                    mentionedMember = msg.guild.members.find((m) => {
-                        return discordUtils.isUser(name, m, false);
-                    });
-                }
-            }
-        }
-    }
-    var member = (mentionedMember != null) ? mentionedMember : msg.member;
+    var member = discordUtils.getOneMemberFromMessage(msg, suffix);
+
     var out = member.user.username + "#" + member.user.discriminator + ': "' +
         utils.unixToTime(member.joinedAt) + '"\n';
     out += utils.convertUnixToDate(Date.now() - member.joinedAt.getTime());
@@ -48,24 +31,8 @@ cmd.addUsage('[username/nick/id]');
 cmd.cd = 5;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
-    //TODO Fetch Data from DB
-    var mentionedMember, user;
-    if (msg.mentions.users.array().length != 0) {
-        user = msg.mentions.users.array()[0];
-    } else {
-        var name = suffix.join(" ");
-        if (name.length > 0) {
-            mentionedMember = msg.guild.members.find((m) => {
-                return discordUtils.isUser(name, m, true);
-            });
-            if (!mentionedMember) {
-                mentionedMember = msg.guild.members.find((m) => {
-                    return discordUtils.isUser(name, m, false);
-                });
-            }
-        }
-        user = (mentionedMember != null) ? mentionedMember.user : msg.author;
-    }
+
+    var user = discordUtils.getOneMemberFromMessage(msg, suffix).user;
 
     msg.channel.sendMessage(`[${user.username}] ${user.avatarURL}`)
 }
@@ -195,6 +162,53 @@ cmd.execution = function(client, msg, suffix) {
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
 // @TODO get name history
+cmd = new Command('names', 'Server Data');
+cmd.addHelp('Retrieves names a given user had in the past (-all shows nicknames too)');
+cmd.addUsage('[-a] [username/nick/id]')
+cmd.minLvl = levels.USER;
+cmd.reqDB = true;
+cmd.execution = function(client, msg, suffix) {
+
+    //Remove if "-a" was in the message and set the message to all
+    var all = false;
+    var index = suffix.indexOf("-a");
+    if (index > -1) {
+        suffix.splice(index, 1);
+        all = true;
+    }
+
+    var user = discordUtils.getOneMemberFromMessage(msg, suffix).user;
+
+    dbUtils.fetchNameChanges(msg.author.id, msg.guild.id, (err, arr) =>{
+        if(err) return console.log(err);
+        var names = [];
+        var nicks = [];
+        for(var change of arr){
+            if(change.isNick){
+                if(change.oldName != null){
+                    nicks.push(change.oldName);
+                }
+            } else {
+                names.push(change.oldName);
+            }
+        }
+        var out = "";
+        if(names.length < 1){
+            out += `No name changes recorded for ${user.username}`;
+        } else {
+            out += `The previous names for the user ${user.username} are: ${names.join(", ")}`;
+        }
+        if(all){
+            if(nicks.length < 1){
+                out += "\nNo nicknames recorded."
+            } else {
+                out += `\nNicknames: ${nicks.join(", ")}`;
+            }
+        }
+        msg.channel.sendMessage(out);
+    });
+}
+commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('guild', 'Server Data', 'dev');
 cmd.alias.push('server');

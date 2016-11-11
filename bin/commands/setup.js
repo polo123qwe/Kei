@@ -188,6 +188,19 @@ var operations = {
                 }
             }
         },
+        log: function(msg, suffix, remove) {
+            var logs = msg.guild.channels.find("id", suffix[1]);
+            if(logs != null){
+                return {
+                    $set: {
+                        log: logs.id
+                    }
+                }
+            } else {
+                discordUtils.sendAndDelete(msg.channel, "Channel with given id not found!");
+                return null;
+            }
+        },
     }
     ////////////////////////////////////////////////////////////
 

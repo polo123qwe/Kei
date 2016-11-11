@@ -8,6 +8,11 @@
         "port": "PORT",
 		"db": "bot"
     },
+    "apis": {
+
+    },
+    "hastebin": "hastebin.com",
     "DELETEAFTER": 3000,
-    "owners": ["USERID"]
+    "owners": ["USERID"],
+    "logging": false
 }

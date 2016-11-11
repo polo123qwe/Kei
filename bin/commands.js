@@ -35,11 +35,14 @@ for (var cmds in allCmds) {
             if (command.alias.length != 0) {
                 helpCmds[command.category][command.name] += ` (${command.alias.join("|")})`;
             }
+            
+            helpCmds[command.category][command.name] += `${suf}`;
+
             if (command.hasOwnProperty("usage")) {
                 helpCmds[command.category][command.name] += " " + command.usage;
             }
 
-            helpCmds[command.category][command.name] += `${suf}:`;
+            helpCmds[command.category][command.name] += ":";
 
             //We add the helpa and the usage to the command
             if (command.hasOwnProperty("help")) {

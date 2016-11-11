@@ -18,7 +18,7 @@ cmd.params.push(paramtypes.NUMBER);
 cmd.execution = function(client, msg, suffix) {
     var time = suffix[0];
     if(time < 0) time = 1;
-    var alert = "<@" + msg.author.id + "> ";
+    var alert = "" + msg.author;
     if(suffix.length > 1){
         alert += suffix.splice(1, suffix.length).join(" ");
     } else {
@@ -30,7 +30,6 @@ cmd.execution = function(client, msg, suffix) {
     }, time * 60 * 1000);
 }
 commands.push(cmd);
-//commands.push(cmd);
 ////////////////////////////////////////////////////////////
 
 module.exports = commands;

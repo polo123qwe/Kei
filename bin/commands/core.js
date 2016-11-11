@@ -51,16 +51,18 @@ cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
     var cmd = 'git pull';
 
-    exec(cmd, function(error, stdout, stderr) {
-        if(error) return msg.channel.sendMessage(error);
-        if(stdout) console.log(stdout);
-        if(stderr) console.log(stderr);
-        msg.channel.sendMessage("Success!").then(() =>{
-            client.destroy().then(() => {
-                process.exit();
+    msg.channel.sendMessage("Updating..").then(() =>{
+        exec(cmd, function(error, stdout, stderr) {
+            if(error) return msg.channel.sendMessage(error);
+            if(stdout) console.log(stdout);
+            if(stderr) console.log(stderr);
+            msg.channel.sendMessage("Nothing to update").then(() =>{
+                client.destroy().then(() => {
+                    process.exit();
+                });
             });
         });
-    });
+    })
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////

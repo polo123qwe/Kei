@@ -20,7 +20,7 @@ exports.getLevel = function(guild, member, callback) {
         return callback(null, levels.MASTER);
     }
 
-    if(member.user.id == guild.ownerID){
+    if (member.user.id == guild.ownerID) {
         return callback(null, levels.OWNER);
     }
 
@@ -180,11 +180,36 @@ exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id) 
         user_id: user_id,
         oldName: oldName,
         newName: newName,
-        isNick: isNick
+        isNick: isNick,
+        timestamp: Date.now()
     }
     if (isNick) toInsert.guild_id = guild_id;
 
     collection.insertOne(toInsert);
+}
+
+exports.fetchNameChanges = function(user_id, guild_id, callback) {
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('lognames');
+
+    collection.find({
+            user_id: user_id,
+            $or: [{
+                guild_id: {
+                    $exists: false
+                }
+            }, {
+                guild_id: guild_id
+            }]
+        },
+        function(err, cur) {
+            cur.toArray().then(arr => {
+                callback(err, arr);
+            })
+        });
 }
 
 exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callback) {
@@ -196,7 +221,7 @@ exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callbac
 
     if (retrieveTime) {
         var time = new Date((new Date()).getTime() - amount)
-        //time
+            //time
         search['timestamp'] = {
             '$gte': time
         };

@@ -14,6 +14,7 @@ const client = new Discord.Client({
 });
 const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
+const logging = require('./config.json').logging;
 //const ai = require('./bin/ai');
 var utils = require('./bin/utils');
 var dbUtils = require('./bin/dbUtils');
@@ -39,10 +40,12 @@ client.on('message', msg => {
     var suffix = msg.content.substr(cmdName.length + 1).split(" ");
 
     //Log the message in the DB
-    dbUtils.storeMessage(msg);
+    if (logging) {
+        dbUtils.storeMessage(msg);
+    }
 
     //Ignore bot own commands
-    if(msg.author.id == client.user.id){
+    if (msg.author.id == client.user.id) {
         return;
     }
 
@@ -90,13 +93,13 @@ client.on('guildMemberAdd', (member) => {
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-        if(guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null){
+        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) {
             return;
         }
 
-        if(guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null){
+        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
             //If you type default or an empty string it will use the default message
-            if(guildData.greeting.length == 0 || !guildData.greeting.includes("default")){
+            if (guildData.greeting.length == 0 || !guildData.greeting.includes("default")) {
                 member.guild.defaultChannel.sendMessage(processGreeting(guildData.greeting)).catch();
                 return;
             }
@@ -107,13 +110,13 @@ client.on('guildMemberAdd', (member) => {
     });
 
     //This helper function replaces the $user and $guild elements with the corresponding values
-    function processGreeting(greeting){
+    function processGreeting(greeting) {
         var outStr = greeting;
         var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
-        for(var setting of settings){
-            if(setting.includes("user")){
+        for (var setting of settings) {
+            if (setting.includes("user")) {
                 outStr = outStr.replace("$user", member.user);
-            } else if(setting.includes("guild")){
+            } else if (setting.includes("guild")) {
                 outStr = outStr.replace("$guild", member.guild.name);
             }
         }
@@ -125,11 +128,11 @@ client.on('guildMemberRemove', (member) => {
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-        if(guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye == null){
+        if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye == null) {
             return;
         }
 
-        if(guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null){
+        if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
             member.guild.defaultChannel.sendMessage(processGreeting(guildData.goodbye));
         } else {
             member.guild.defaultChannel.sendMessage(`**${member.user.username} #${member.user.discriminator}** is now gone.`);
@@ -138,12 +141,12 @@ client.on('guildMemberRemove', (member) => {
     });
 
     //This helper function replaces the $user element with the corresponding value
-    function processGreeting(goodbye){
+    function processGreeting(goodbye) {
         console.log(goodbye);
         var outStr = goodbye;
         var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
-        for(var setting of settings){
-            if(setting.includes("user")){
+        for (var setting of settings) {
+            if (setting.includes("user")) {
                 outStr = outStr.replace("$user", member.user.username + "#" + member.user.discriminator);
             }
         }
@@ -153,26 +156,30 @@ client.on('guildMemberRemove', (member) => {
 
 ///////////////// Namechanges handling ////////////////////////////
 client.on('presenceUpdate', (oldUser, newUser) => {
-    if (oldUser.username != newUser.username) {
+    if (logging && oldUser.username != newUser.username) {
         dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
     }
 });
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
-    if (oldMember.nickname != newMember.nickname) {
+    if (logging && oldMember.nickname != newMember.nickname) {
         dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
     }
 });
 ///////////////////////////////////////////////////////////////////
 ////////////////////// Message edits //////////////////////////////
 client.on('messageDelete', (message) => {
-    dbUtils.tagMessageAs(message.id, false);
+    if (logging) {
+        dbUtils.tagMessageAs(message.id, false);
+    }
 });
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
-    dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
-    if(newMessage.guild != null){
-        checkInvLink(newMessage);
+    if (logging) {
+        dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
+        if (newMessage.guild != null) {
+            checkInvLink(newMessage);
+        }
     }
 });
 ///////////////////////////////////////////////////////////////////
