@@ -163,23 +163,15 @@ commands.push(cmd);
 ////////////////////////////////////////////////////////////
 // @TODO get name history
 cmd = new Command('names', 'Server Data');
-cmd.addHelp('Retrieves names a given user had in the past (-all shows nicknames too)');
+cmd.addHelp('Retrieves names a given user had in the past');
 cmd.addUsage('[-a] [username/nick/id]')
 cmd.minLvl = levels.USER;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 
-    //Remove if "-a" was in the message and set the message to all
-    var all = false;
-    var index = suffix.indexOf("-a");
-    if (index > -1) {
-        suffix.splice(index, 1);
-        all = true;
-    }
-
     var user = discordUtils.getOneMemberFromMessage(msg, suffix).user;
 
-    dbUtils.fetchNameChanges(msg.author.id, msg.guild.id, (err, arr) =>{
+    dbUtils.fetchNameChanges(user.id, msg.guild.id, (err, arr) =>{
         if(err) return console.log(err);
         var names = [];
         var nicks = [];
@@ -198,12 +190,10 @@ cmd.execution = function(client, msg, suffix) {
         } else {
             out += `The previous names for the user ${user.username} are: ${names.join(", ")}`;
         }
-        if(all){
-            if(nicks.length < 1){
-                out += "\nNo nicknames recorded."
-            } else {
-                out += `\nNicknames: ${nicks.join(", ")}`;
-            }
+        if(nicks.length < 1){
+            out += "\nNo nicknames recorded."
+        } else {
+            out += `\nNicknames: ${nicks.join(", ")}`;
         }
         msg.channel.sendMessage(out);
     });
