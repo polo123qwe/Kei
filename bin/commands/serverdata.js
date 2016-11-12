@@ -164,7 +164,7 @@ commands.push(cmd);
 // @TODO get name history
 cmd = new Command('names', 'Server Data');
 cmd.addHelp('Retrieves last 5 names/nicknames a user had in the past (-all shows all)');
-cmd.addUsage('[-a] [username/nick/id]')
+cmd.addUsage('[-all] [username/nick/id]')
 cmd.minLvl = levels.USER;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
