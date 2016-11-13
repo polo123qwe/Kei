@@ -53,7 +53,7 @@ cmd.execution = function(client, msg, suffix) {
     var num = utils.getRandom(1, 1000);
     var time;
     if(num == 1){
-        time = 3600;
+        time = 3600 * 1000;
     } else{
         time = num/2 * 1000;
     }
