@@ -16,7 +16,7 @@ cmd.dm = true;
 cmd.minLvl = levels.DEFAULT;
 cmd.params.push(paramtypes.NUMBER);
 cmd.execution = function(client, msg, suffix) {
-    var time = suffix[0];
+    var time = parseInt(suffix[0], 10);
     if(time < 0) time = 1;
     var alert = msg.author + " Reminder: ";
     if(suffix.length > 1){
