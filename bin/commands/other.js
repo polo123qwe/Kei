@@ -27,7 +27,7 @@ cmd.execution = function(client, msg, suffix) {
     discordUtils.sendAndDelete(msg.channel, "Alarm set! " + time + " min");
     setTimeout(() => {
         msg.channel.sendMessage(alert);
-    }, time * 60 * 1000);
+    }, parseInt(time * 60 * 1000, 10));
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
