@@ -47,7 +47,7 @@ commands.push(cmd);
 cmd = new Command('suicide', 'Fun');
 cmd.alias.push('die');
 cmd.addHelp('Mutes a user for a random time');
-cmd.minLvl = levels.MODERATOR;
+cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
 
     var num = utils.getRandom(1, 1000);
