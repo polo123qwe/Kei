@@ -69,7 +69,10 @@ client.on('message', msg => {
                     console.log(err);
                 }
 
-                if (channelData == null) return commands[cmdName].run(client, msg, suffix);
+                if (channelData == null){
+                    console.log("Running " + cmdName);
+                    return commands[cmdName].run(client, msg, suffix);
+                }
                 var disabledCats = channelData.disabled;
 
                 //If the module is disabled
@@ -197,13 +200,6 @@ client.on('guildBanAdd', (guild, user) => {
     });
 });
 
-//Try to connect to DB and to log the client
-Connection((err, db) => {
-    if (err) console.log(err.message);
-    client.manager.setupKeepAlive(300000);
-    client.login(token);
-});
-
 /*
  * This funciton loads the timers from the database and then checks if they have
  * expired, if they have the role is removed from the user, if now, we create a
@@ -289,3 +285,10 @@ function checkInvLink(msg) {
         }
     });
 }
+
+//Try to connect to DB and to log the client
+Connection((err, db) => {
+    if (err) console.log(err.message);
+    client.manager.setupKeepAlive(300000);
+    client.login(token);
+});

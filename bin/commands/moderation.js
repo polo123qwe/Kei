@@ -114,7 +114,7 @@ cmd.execution = function(client, msg, suffix) {
             dbUtils.insertTimer(Date.now(), time * 24 * 3600 * 1000, member.user.id, role.id, msg.guild.id, function() {});
         });
         setTimeout(() => {
-            member.removeRole(r).then(() => {
+            member.removeRole(role).then(() => {
                 console.log(member.user.username + " unmuted.")
             });
             dbUtils.removeTimer(member.user.id, r.id, function() {});
