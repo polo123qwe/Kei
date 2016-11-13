@@ -18,7 +18,7 @@ cmd.params.push(paramtypes.NUMBER);
 cmd.execution = function(client, msg, suffix) {
     var time = suffix[0];
     if(time < 0) time = 1;
-    var alert = "" + msg.author;
+    var alert = msg.author + " Reminder: ";
     if(suffix.length > 1){
         alert += suffix.splice(1, suffix.length).join(" ");
     } else {
