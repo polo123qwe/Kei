@@ -131,7 +131,7 @@ cmd.execution = function(client, msg, suffix) {
     var amount = suffix[0];
     var user = suffix[1];
 
-    if (!amount || amount <= 1) return discordUtils.sendAndDelete(msg.channel, "Specify an amount!");
+    if (!amount || amount <= 2) return discordUtils.sendAndDelete(msg.channel, "Specify an amount!");
     if (amount > 50) {
         amount = 50;
     }
@@ -143,7 +143,7 @@ cmd.execution = function(client, msg, suffix) {
     }).then((msgs) => {
         var toremove = msgs.array();
         if (member) {
-            var toremove = msgs.filter(function(m) {
+            toremove = msgs.filter(function(m) {
                 return m.author.id == member.user.id;
             });
         }

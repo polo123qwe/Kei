@@ -70,6 +70,29 @@ exports.insertLog = function(user_id, moderator_id, type, reason, time, callback
 
 }
 
+exports.getMessagesFromUser = function(channel_id, guild_id, amount, user_id, callback) {
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('logs');
+
+    collection.find({
+        guild_id: guild_id,
+        channel_id: channel_id,
+        user_id: user_id
+    }, function(err, cur) {
+        if (err) return callback(err, null);
+
+        cur.sort({
+            timestamp: -1
+        }).limit(parseInt(amount, 10)).toArray().then(arr => {
+            return callback(null, arr.reverse());
+        }).catch(console.log);
+
+    });
+}
+
 exports.insertTimer = function(timestamp, time, user_id, role_id, guild_id, callback) {
 
     var db = Connection.getDB();
@@ -253,6 +276,37 @@ exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callbac
     });
 }
 
+exports.fetchUserActivity = function(guild_id, user_id, callback) {
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('logs');
+
+    collection.aggregate([{
+        "$match": {
+            "author_id": user_id,
+            "timestamp": {
+                "$gte": new Date(Date.now() - 24 * 7 * 3600000)
+            },
+            "guild_id": guild_id
+        }
+    }, {
+        "$group": {
+            _id: {
+                $dayOfWeek: "$timestamp"
+            },
+            msgs: {
+                $sum: 1
+            }
+        }
+    }, {
+        "$sort": {
+            _id: 1
+        }
+    }], callback);
+}
+
 exports.fetchChannel = function(channel_id, callback) {
 
     var db = Connection.getDB();
@@ -262,9 +316,7 @@ exports.fetchChannel = function(channel_id, callback) {
 
     collection.findOne({
         _id: channel_id
-    }, function(err, res) {
-        callback(err, res);
-    });
+    }, callback);
 }
 
 exports.fetchGuild = function(guild_id, callback) {
@@ -276,7 +328,5 @@ exports.fetchGuild = function(guild_id, callback) {
 
     collection.findOne({
         _id: guild_id
-    }, function(err, res) {
-        callback(err, res);
-    });
+    }, callback);
 }

@@ -217,6 +217,19 @@ var operations = {
             }
         },
     },
+    automember: {
+        help: `Toggles if automatic membership. Eg: \`set${suf} automember 1\``,
+        run: function(msg, suffix, remove) {
+
+            var setting = suffix.splice(1, suffix.length).join(" ");
+
+            return {
+                $set: {
+                    automember: (setting == true)
+                }
+            }
+        },
+    },
 }
 var ops = [];
 for (var op in operations) {

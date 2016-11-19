@@ -24,6 +24,7 @@ cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var rolesFound = [];
     var rolesToAdd = [];
+    var displayHelp = false;
 
     //Roles are sepparated by commas
     var elements = suffix.join(" ").split(/ ?, ?/);
@@ -36,7 +37,7 @@ cmd.execution = function(client, msg, suffix) {
 
     dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
-        if (guildData.hasOwnProperty('roles')) {
+        if (guildData && guildData.hasOwnProperty('roles')) {
             for (var roleID of guildData.roles) {
                 var role = rolesFound.find((r) => {
                     return r.id == roleID
@@ -47,7 +48,6 @@ cmd.execution = function(client, msg, suffix) {
             }
             //If no role was found, print out all the possibilities for the user to choose
             if (rolesToAdd.length < 1) {
-                var out = "Error, choose one of the following: ";
                 var possibleRoles = [];
                 for (var roleID of guildData.roles) {
                     var role = msg.guild.roles.find((r) => {
@@ -57,8 +57,7 @@ cmd.execution = function(client, msg, suffix) {
                         possibleRoles.push(role.name);
                     }
                 }
-                out += possibleRoles.join(", ");
-                return discordUtils.sendAndDelete(msg.channel, out);
+                return discordUtils.sendAndDelete(msg.channel, `Error, choose one of the following: ${possibleRoles.join(", ")}`);
             }
             msg.member.addRoles(rolesToAdd).then((memb) => {
                 msg.channel.sendMessage(msg.author.username + " added successfully!");

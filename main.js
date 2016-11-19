@@ -1,13 +1,8 @@
-/*
-  A ping pong bot, whenever you send "ping", it replies "pong".
-*/
-
-// import the discord.js module
 const Discord = require('discord.js');
 
 var Command = require('./bin/commandTemplate');
 var commands = require('./bin/commands');
-// create an instance of a Discord Client, and call it bot
+
 const client = new Discord.Client({
     fetch_all_members: true,
     disable_everyone: true
@@ -20,6 +15,10 @@ var utils = require('./bin/utils');
 var dbUtils = require('./bin/dbUtils');
 var discordUtils = require('./bin/discordUtils');
 
+//Automatic membership processing
+var checkMembershipStatus = require('./bin/memberProcessor.js');
+
+//Database module
 const Connection = require('./bin/dbConnection');
 var time = Date.now();
 
@@ -42,6 +41,9 @@ client.on('message', msg => {
     //Log the message in the DB
     if (logging) {
         dbUtils.storeMessage(msg);
+        if (msg.guild != null) {
+            //checkMembershipStatus(client, msg.member);
+        }
     }
 
     //Ignore bot own commands
@@ -159,7 +161,6 @@ client.on('guildMemberRemove', (member) => {
 
 ///////////////// Namechanges handling ////////////////////////////
 client.on('userUpdate', (oldUser, newUser) => {
-    console.log(`${oldUser.username} and ${newUser.username}`);
     if (logging && oldUser.username != oldUser.username) {
         dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
     }
