@@ -57,7 +57,7 @@ cmd.execution = function(client, msg, suffix) {
                         possibleRoles.push(role.name);
                     }
                 }
-                return discordUtils.sendAndDelete(msg.channel, `Error, choose one of the following: ${possibleRoles.join(", ")}`);
+                return discordUtils.sendAndDelete(msg.channel, `Error, choose one of the following: ${possibleRoles.join(", ")}`, 8000);
             }
             msg.member.addRoles(rolesToAdd).then((memb) => {
                 msg.channel.sendMessage(msg.author.username + " added successfully!");

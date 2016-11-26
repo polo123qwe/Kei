@@ -42,7 +42,7 @@ client.on('message', msg => {
     if (logging) {
         dbUtils.storeMessage(msg);
         if (msg.guild != null) {
-            //checkMembershipStatus(client, msg.member);
+            checkMembershipStatus(client, msg.member);
         }
     }
 

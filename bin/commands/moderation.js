@@ -206,6 +206,7 @@ cmd.execution = function(client, msg, suffix) {
                     if (m.content.includes(msg.author.id)) {
                         var outmsg = m.content.replace(/Reason: .*/, 'Reason: ' + reason + ' (edited)');
                         m.edit(outmsg);
+                        msg.delete().catch(console.log);
                     } else {
                         discordUtils.sendAndDelete(msg.channel, 'Not your message!');
                     }
