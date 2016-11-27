@@ -41,9 +41,9 @@ client.on('message', msg => {
     //Log the message in the DB
     if (logging) {
         dbUtils.storeMessage(msg);
-        if (msg.guild != null) {
-            checkMembershipStatus(client, msg.member);
-        }
+    }
+    if (msg.guild != null) {
+        checkMembershipStatus(client, msg.member);
     }
 
     //Ignore bot own commands

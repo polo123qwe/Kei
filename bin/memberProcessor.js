@@ -1,4 +1,5 @@
 var dbUtils = require('./dbUtils');
+var discordUtils = require('./discordUtils');
 
 var memberRoleName = {};
 
@@ -43,6 +44,10 @@ module.exports = function(client, member){
                         member.addRole(memberRole).then(() => {
                             console.log("Membered " + member.user.username);
                             //@TODO Write this in the logChannel?
+                            var channel = discordUtils.findActivityChannel(member.guild);
+                            if(channel){
+                                channel.sendMessage(`Congratulations ${member} you are now a member!`);
+                            }
                         }).catch(console.log);
                     }
                 }

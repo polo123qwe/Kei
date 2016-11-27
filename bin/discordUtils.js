@@ -30,16 +30,16 @@ exports.isUser = function(value, m, filter) {
 }
 
 //Find mentions and IDs
-exports.getMembersFromMessage = function(msg, suffix){
+exports.getMembersFromMessage = function(msg, suffix) {
     var members = [];
     var users = msg.mentions.users.array();
 
-    for(var mention of users){
+    for (var mention of users) {
         members.push(msg.guild.members.find("id", mention.id));
     }
 
-    for(var element of suffix){
-        if(msg.guild.members.exists("id", element)){
+    for (var element of suffix) {
+        if (msg.guild.members.exists("id", element)) {
             members.push(msg.guild.members.find("id", element));
         }
     }
@@ -48,7 +48,7 @@ exports.getMembersFromMessage = function(msg, suffix){
     return members;
 }
 
-exports.getOneMemberFromMessage = function(msg, suffix){
+exports.getOneMemberFromMessage = function(msg, suffix) {
     var mentionedMember;
     if (suffix) {
         var users = msg.mentions.users.array();
@@ -71,7 +71,7 @@ exports.getOneMemberFromMessage = function(msg, suffix){
     return (mentionedMember != null) ? mentionedMember : msg.member;
 }
 
-exports.getRole = function(guild, roleName){
+exports.getRole = function(guild, roleName) {
     var role = guild.roles.find((r) => {
         return r.name.toLowerCase() == roleName.toLowerCase() ||
             r.id == roleName
@@ -79,26 +79,36 @@ exports.getRole = function(guild, roleName){
     return role;
 }
 
-exports.findLogsChannel = function(guild, callback){
+exports.findLogsChannel = function(guild, callback) {
     var db = Connection.getDB();
-    var logchannelName = "log";
+    var channelID;
 
-    if(db){
+    if (db) {
         var collection = db.collection('guilds');
 
-        collection.findOne({_id:guild.id}, function(err, res){
-            if(res && res.hasOwnProperty("log")){
-                logchannelName = res.logs;
+        collection.findOne({
+            _id: guild.id
+        }, function(err, res) {
+            if (res && res.hasOwnProperty("log")) {
+                channelID = res.log;
             }
             return fetchChannel();
         })
     } else {
         return fetchChannel();
     }
-    function fetchChannel(){
-        var channel = guild.channels.find("name", logchannelName);
-        callback(channel);
+
+    function fetchChannel() {
+        if (channelID) {
+            callback(guild.channels.find("id", channelID));
+        }
+        // Default channel name is log
+        callback(guild.channels.find("name", "log"));
     }
+}
+
+exports.findActivityChannel = function(guild) {
+    return guild.channels.find("name", "activity-log");
 }
 
 exports.sendAndDelete = function(channel, content, delay) {
