@@ -9,7 +9,6 @@ var dbUtils = require('../dbUtils');
 var discordUtils = require('../discordUtils');
 var commands = [];
 
-
 var cmd;
 ////////////////////////////////////////////////////////////
 cmd = new Command('ping', 'Others');
@@ -22,6 +21,7 @@ cmd.execution = function(client, msg, suffix) {
     msg.channel.sendMessage("Pong!").then((nMsg) => {
         nMsg.edit("Pong! (" + (Date.now() - time) + "ms)");
     });
+
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -51,12 +51,12 @@ cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
     var cmd = 'git pull';
 
-    msg.channel.sendMessage("Updating..").then(() =>{
+    msg.channel.sendMessage("Updating..").then(() => {
         exec(cmd, function(error, stdout, stderr) {
-            if(error) return msg.channel.sendMessage(error);
-            if(stdout) console.log(stdout);
-            if(stderr) console.log(stderr);
-            msg.channel.sendMessage("Nothing to update").then(() =>{
+            if (error) return msg.channel.sendMessage(error);
+            if (stdout) console.log(stdout);
+            if (stderr) console.log(stderr);
+            msg.channel.sendMessage("Nothing to update").then(() => {
                 client.destroy().then(() => {
                     process.exit();
                 });

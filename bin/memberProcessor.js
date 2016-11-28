@@ -14,7 +14,7 @@ module.exports = function(client, member){
         //We check if the server has a member role different from default
         if(!memberRoleName[member.guild.id]){
             memberRoleName[member.guild.id] = 'member';
-            if(guildData.hasOwnProperty('member')){
+            if(guildData && guildData.hasOwnProperty('member')){
                 memberRoleName[member.guild.id] = guildData.member;
             }
             //Check if user has the role already
