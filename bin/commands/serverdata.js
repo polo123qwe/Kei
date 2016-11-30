@@ -254,6 +254,31 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
+cmd = new Command('activity', 'Server Data', 'dev');
+cmd.addHelp('Shows how many someone has sent');
+cmd.addUsage('<number> [id]')
+cmd.minLvl = levels.DEFAULT;
+cmd.params.push(paramtypes.NUMBER);
+cmd.execution = function(client, msg, suffix) {
+    var time = suffix[0];
+    if(time <= 0){
+        time = 1;
+    }
+    var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
+    if(!member){
+        member = msg.member;
+    }
+    dbUtils.fetchUserActivity(msg.guild.id, member.user.id, time, (err, res) => {
+        if(err) return console.log(err);
+        var totalMsgs = 0;
+        for(var day of res){
+            totalMsgs += day.msgs;
+        }
+        msg.channel.sendMessage(`${member.user.username} has sent ${totalMsgs} messages in the last ${time} days`)
+    });
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
 cmd = new Command('friends', 'Server Data');
 cmd.addHelp('Shows people with the same color as you have');
 cmd.cd = 30;

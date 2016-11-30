@@ -5,12 +5,16 @@ roles:
 
 guilds:
 	_id: guild_id
-	logs: channel
+	log: channel
     roles: [role_id]
-    color: boolean
+    limitedcolors: boolean
     topicchannel: channel_id channel_id
     invites: boolean
     whitelisted: []
+    allowinvites: boolean
+    automember: boolean
+    greeting: string
+    goodbye: string
 
 channels:
     _id: channel_id,

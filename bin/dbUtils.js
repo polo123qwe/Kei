@@ -276,7 +276,25 @@ exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callbac
     });
 }
 
-exports.fetchUserActivity = function(guild_id, user_id, callback) {
+exports.fetchUserActivity = function(guild_id, user_id, weekly, callback) {
+
+    //Variables used to decide the type of retrieval
+    var match = {};
+    var grouping = {};
+    match.author_id = user_id;
+    match.guild_id = guild_id;
+    if(weekly == 7){
+        grouping['$dayOfWeek'] = "$timestamp";
+        match.timestamp = {
+            "$gte": new Date(Date.now() - 24 * 7 * 3600000)
+        };
+    } else {
+        grouping['$dayOfMonth'] = "$timestamp";
+        match.timestamp = {
+            "$gte": new Date(Date.now() - 24 * weekly * 3600000)
+        };
+    }
+
 
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
@@ -284,18 +302,10 @@ exports.fetchUserActivity = function(guild_id, user_id, callback) {
     var collection = db.collection('logs');
 
     collection.aggregate([{
-        "$match": {
-            "author_id": user_id,
-            "timestamp": {
-                "$gte": new Date(Date.now() - 24 * 7 * 3600000)
-            },
-            "guild_id": guild_id
-        }
+        "$match": match
     }, {
         "$group": {
-            _id: {
-                $dayOfWeek: "$timestamp"
-            },
+            _id: grouping,
             msgs: {
                 $sum: 1
             }

@@ -17,6 +17,7 @@ var discordUtils = require('./bin/discordUtils');
 
 //Automatic membership processing
 var checkMembershipStatus = require('./bin/memberProcessor.js');
+var memberRemoval = require('./bin/memberRemoval.js');
 
 //Database module
 const Connection = require('./bin/dbConnection');
@@ -27,7 +28,7 @@ client.on('ready', () => {
     console.log('Ready to operate! (' + interval + 'ms)');
     //Load all the timers
     loadTimers();
-    //removeChills();
+    memberRemoval(client);
 });
 
 // create an event listener for messages
