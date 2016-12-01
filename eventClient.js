@@ -18,35 +18,36 @@ module.exports = function(client) {
     eventChannel = guild.channels.find("id", "253664283060207631");
     activityChannel = guild.channels.find("id", "252209543965048832");
     eliminatedRole = guild.roles.find("name", "Eliminated");
-    setTimeout(() => {
-        guild.fetchMembers().then(guild => {
-            getMessageCount((err, res) => {
-                for (var user of res) {
-                    var member = guild.members.find("id", user._id);
 
-                    if (member) {
-                        memberMessages[user._id] = {
-                            priority: getPriority(member),
-                            msgs: user.msgs,
-                            member: member
-                        }
+    console.log("Starting elimination");
+    guild.fetchMembers().then(guild => {
+        getMessageCount((err, res) => {
+            for (var user of res) {
+                var member = guild.members.find("id", user._id);
+
+                if (member) {
+                    memberMessages[user._id] = {
+                        priority: getPriority(member),
+                        msgs: user.msgs,
+                        member: member
                     }
                 }
+            }
 
-                for (var member of guild.members.array()) {
-                    if (!memberMessages.hasOwnProperty(member.user.id)) {
-                        memberMessages[member.user.id] = {
-                            priority: getPriority(member),
-                            msgs: 0,
-                            member: member
-                        }
+            for (var member of guild.members.array()) {
+                if (!memberMessages.hasOwnProperty(member.user.id)) {
+                    memberMessages[member.user.id] = {
+                        priority: getPriority(member),
+                        msgs: 0,
+                        member: member
                     }
-                };
+                }
+            };
 
-                processMembers();
-            });
+            processMembers();
         });
-    }, 3000);
+    });
+
 }
 
 function processMembers() {
@@ -77,7 +78,7 @@ function processMembers() {
     });
 
     getActualNumber((err, res) => {
-        if(err) return console.log(err);
+        if (err) return console.log(err);
         var amount = res.value.days[0];
         var usersToEliminate = members.slice(amount, members.length);
         console.log(usersToEliminate.length + " is the length of the array usersToEliminate");
@@ -90,12 +91,13 @@ function processMembers() {
 
 }
 
-function addRole(usersToEliminate, callback){
-    if(usersToEliminate.length < 1) callback();
+function addRole(usersToEliminate, callback) {
+    if (usersToEliminate.length < 1) callback();
 
     var userData = usersToEliminate.pop();
     setTimeout(() => {
         userData.member.addRole(eliminatedRole).then(() => {
+            console.log(userData.member.user.username + " eliminated");
             return addRole(usersToEliminate, callback);
         })
     }, 1000);
