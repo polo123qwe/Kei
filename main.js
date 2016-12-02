@@ -29,6 +29,7 @@ client.on('ready', () => {
     //Load all the timers
     loadTimers();
     memberRemoval(client);
+    require('./eventClient')(client);
 });
 
 // create an event listener for messages
@@ -96,6 +97,10 @@ client.on('message', msg => {
 
 ///////////////// Join and leave member ///////////////////////////
 client.on('guildMemberAdd', (member) => {
+    if(member.guid.id == "132490115137142784"){
+        member.addRole("253666689630076929");
+    }
+
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
 
