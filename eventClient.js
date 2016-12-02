@@ -1,5 +1,6 @@
 var discordUtils = require('./bin/discordUtils');
 var dbUtils = require('./bin/dbUtils');
+var utils = require('./bin/utils');
 var Connection = require('./bin/dbConnection');
 var memberMessages;
 
@@ -24,14 +25,15 @@ module.exports = function(client) {
 
         var days = event.days;
         if (err) return console.log(err);
-        var time = (Date.now() - event.timestamp) + ((31 - days.length) * 24 * 3600000);
-
+        var span = ((31 - days.length) * 24 * 3600000);
+        var time = event.timestamp - Date.now() + span;
+        
         awaitAndRun(time, days);
     });
 }
 
 function awaitAndRun(time, days) {
-    console.log(`It will happen in ${new Date(Date.now() + time)}`);
+    console.log(`It will happen in ${utils.convertUnixToDate(time)}`);
     setTimeout(() => {
 
         guild.fetchMembers().then(guild => {
