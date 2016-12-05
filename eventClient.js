@@ -7,6 +7,7 @@ var memberMessages;
 var eliminatedRole;
 var eventChannel;
 var activityChannel;
+var botTesting;
 var guildM
 var guildID = "132490115137142784"
 var thisClient;
@@ -21,6 +22,7 @@ module.exports = function(client) {
         //Find all the data we will use
         eventChannel = guild.channels.find("id", "253664283060207631");
         activityChannel = guild.channels.find("id", "252209543965048832");
+        botTesting = guild.channels.find("id", "184984832219152387");
         eliminatedRole = guild.roles.find("name", "Eliminated");
 
         var days = event.days;
@@ -123,7 +125,12 @@ function addRole(usersToEliminate, callback) {
     setTimeout(() => {
         userData.member.addRole(eliminatedRole).then(() => {
             console.log(userData.member.user.username + " eliminated");
-            return addRole(usersToEliminate, callback);
+            botTesting.sendMessage(userData.member.user.username + " eliminated").then(() => {
+                return addRole(usersToEliminate, callback);
+            }).catch((err) => {
+                console.log(err);
+                return addRole(usersToEliminate, callback);
+            })
         }).catch(console.log)
     }, 1000);
 }
