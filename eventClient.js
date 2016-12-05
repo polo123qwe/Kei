@@ -27,7 +27,7 @@ module.exports = function(client) {
         if (err) return console.log(err);
         var span = ((31 - days.length) * 24 * 3600000);
         var time = event.timestamp - Date.now() + span;
-        
+
         awaitAndRun(time, days);
     });
 }
@@ -105,8 +105,7 @@ function processMembers(days) {
     }
     console.log(`After, its ${usersToEliminate.length}`);
     addRole(usersToEliminate, () => {
-        eventChannel.sendMessage(`**${usersToEliminate.length}** were eliminated today.`).then(() => {
-            activityChannel.sendMessage(`**${days[0]}** were eliminated today.`).then(() => {
+            activityChannel.sendMessage(`**${days[0]}** are remaining.`).then(() => {
                 getAndUpdate((err, event) => {
                     var days = event.value.days;
                     var time = (Date.now() - event.value.timestamp) + ((31 - days.length) * 24 * 3600000);
@@ -114,7 +113,6 @@ function processMembers(days) {
                     awaitAndRun(time, days);
                 })
             });
-        });
     });
 }
 
