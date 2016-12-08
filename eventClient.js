@@ -113,7 +113,9 @@ function processMembers(days) {
             activityChannel.sendMessage(`**${days[0]}** are remaining.`).then(() => {
                 getAndUpdate((err, event) => {
                     var days = event.value.days;
-                    var time = (Date.now() - event.value.timestamp) + ((31 - days.length) * 24 * 3600000);
+                    
+                    var span = ((31 - days.length) * 24 * 3600000);
+                    var time = span - (Date.now() - event.value.timestamp);
                     console.log(`It will happen in ${time}`);
                     awaitAndRun(time, days);
                 })
