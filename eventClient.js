@@ -38,7 +38,7 @@ module.exports = function(client) {
 
 function awaitAndRun(time, days) {
     console.log(`It will happen in ${utils.convertUnixToDate(time)}`);
-    if(time < 1) time = 0;
+    if(time < 1) time = 3000;
     timeout = setTimeout(() => {
 
         guild.fetchMembers().then(guild => {
