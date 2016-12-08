@@ -4,6 +4,7 @@ var utils = require('./bin/utils');
 var Connection = require('./bin/dbConnection');
 var memberMessages;
 
+var timeout;
 var eliminatedRole;
 var eventChannel;
 var activityChannel;
@@ -12,6 +13,7 @@ var guildM
 var guildID = "132490115137142784"
 var thisClient;
 module.exports = function(client) {
+    if(timeout != null) return;
 
     getValue((err, event) => {
         thisClient = client;
@@ -28,7 +30,7 @@ module.exports = function(client) {
         var days = event.days;
         if (err) return console.log(err);
         var span = ((31 - days.length) * 24 * 3600000);
-        var time = event.timestamp - Date.now() + span;
+        var time = span - (Date.now() - event.timestamp);
 
         awaitAndRun(time, days);
     });
@@ -36,7 +38,8 @@ module.exports = function(client) {
 
 function awaitAndRun(time, days) {
     console.log(`It will happen in ${utils.convertUnixToDate(time)}`);
-    setTimeout(() => {
+    if(time < 1) time = 0;
+    timeout = setTimeout(() => {
 
         guild.fetchMembers().then(guild => {
             console.log("Starting elimination");
