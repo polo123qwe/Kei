@@ -97,7 +97,7 @@ client.on('message', msg => {
 
 ///////////////// Join and leave member ///////////////////////////
 client.on('guildMemberAdd', (member) => {
-    if(member.guid.id == "132490115137142784"){
+    if(member.guild.id == "132490115137142784"){
         member.addRole("253666689630076929");
     }
 
