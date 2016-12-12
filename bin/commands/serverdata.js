@@ -16,12 +16,17 @@ cmd.cd = 5;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     //TODO Fetch Data from DB
-    var member = discordUtils.getOneMemberFromMessage(msg, suffix);
+    msg.guild.fetchMembers().then(processJoined).catch(processJoined);
 
-    var out = member.user.username + "#" + member.user.discriminator + ': "' +
-        utils.unixToTime(member.joinedAt) + '"\n';
-    out += utils.convertUnixToDate(Date.now() - member.joinedAt.getTime());
-    msg.channel.sendCode("xl", out);
+    function processJoined(){
+        var member = discordUtils.getOneMemberFromMessage(msg, suffix);
+
+        var out = member.user.username + "#" + member.user.discriminator + ': "' +
+            utils.unixToTime(member.joinedAt) + '"\n';
+        out += utils.convertUnixToDate(Date.now() - member.joinedAt.getTime());
+        msg.channel.sendCode("xl", out);
+    }
+
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -196,7 +201,7 @@ cmd.execution = function(client, msg, suffix) {
         if (names.length < 1) {
             out += `"No name changes recorded"`;
         } else {
-            if(!all){
+            if (!all) {
                 names = names.slice(0, 5);
             }
             out += `"The previous names for the user ${user.username}#${user.discriminator} are": ${names.join(", ")}`;
@@ -204,7 +209,7 @@ cmd.execution = function(client, msg, suffix) {
         if (nicks.length < 1) {
             out += '\n"No nicknames recorded."';
         } else {
-            if(!all){
+            if (!all) {
                 nicks = nicks.slice(0, 5);
             }
             out += `\n"Nicknames": ${nicks.join(", ")}`;
@@ -261,17 +266,17 @@ cmd.minLvl = levels.DEFAULT;
 cmd.params.push(paramtypes.NUMBER);
 cmd.execution = function(client, msg, suffix) {
     var time = suffix[0];
-    if(time <= 0){
+    if (time <= 0) {
         time = 1;
     }
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
-    if(!member){
+    if (!member) {
         member = msg.member;
     }
     dbUtils.fetchUserActivity(msg.guild.id, member.user.id, time, (err, res) => {
-        if(err) return console.log(err);
+        if (err) return console.log(err);
         var totalMsgs = 0;
-        for(var day of res){
+        for (var day of res) {
             totalMsgs += day.msgs;
         }
         msg.channel.sendMessage(`${member.user.username} has sent ${totalMsgs} messages in the last ${time} days`)

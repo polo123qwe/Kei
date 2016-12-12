@@ -62,12 +62,9 @@ client.on('message', msg => {
         cmdName = cmdName.substring(0, splitted[0].length - 1);
         cmdName = cmdName.toLowerCase();
         if (commands.hasOwnProperty(cmdName)) {
+            var location = msg.guild ? msg.guild.name : "DM";
 
-            if (commands[cmdName].dm == false && msg.guild == null) {
-                return msg.channel.sendMessage("Cannot execute that command in a DM!");
-            }
-
-            console.log("Running " + cmdName);
+            console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}. Parameters: ${suffix}`);
             commands[cmdName].run(client, msg, suffix);
 
         }
