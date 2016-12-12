@@ -62,31 +62,14 @@ client.on('message', msg => {
         cmdName = cmdName.substring(0, splitted[0].length - 1);
         cmdName = cmdName.toLowerCase();
         if (commands.hasOwnProperty(cmdName)) {
-            //If the command was typed in a dm and the command doesn't allow DM calling, notify user
-            //@TODO this should be done in checks
+
             if (commands[cmdName].dm == false && msg.guild == null) {
                 return msg.channel.sendMessage("Cannot execute that command in a DM!");
             }
 
-            dbUtils.fetchChannel(msg.channel.id, function(err, channelData) {
-                if (err) {
-                    console.log(err);
-                }
+            console.log("Running " + cmdName);
+            commands[cmdName].run(client, msg, suffix);
 
-                if (channelData == null){
-                    console.log("Running " + cmdName);
-                    return commands[cmdName].run(client, msg, suffix);
-                }
-                var disabledCats = channelData.disabled;
-
-                //If the module is disabled
-                if (disabledCats != null && disabledCats.includes(commands[cmdName].category.toLowerCase())) {
-                    discordUtils.sendAndDelete(msg.channel, 'Module disabled in this channel!', 2000);
-                } else {
-                    console.log("Running " + cmdName);
-                    commands[cmdName].run(client, msg, suffix);
-                }
-            });
         }
     } else if (msg.mentions.users.exists('id', client.user.id)) {
         //We check if the bot was pinged
@@ -97,7 +80,7 @@ client.on('message', msg => {
 
 ///////////////// Join and leave member ///////////////////////////
 client.on('guildMemberAdd', (member) => {
-    if(member.guild.id == "132490115137142784"){
+    if (member.guild.id == "132490115137142784") {
         member.addRole("253666689630076929");
     }
 

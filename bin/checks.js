@@ -27,8 +27,17 @@ module.exports = function(client, msg, suffix, cmd, callback) {
 
             if (!cmd.hasOwnProperty('minLvl')) return runChecks();
 
+            //We check if the level of the user is enough to execute the cmd
             if (checkLevel(lvl, cmd.minLvl)) {
-                runChecks();
+                //We check if the channel is disabled
+                checkDisabled(msg.guild, msg.channel, lvl, cmd, (msg, isEnabled) => {
+                    if(isEnabled){
+                        runChecks();
+                    }
+
+                    return callback(msg, false);
+                })
+
             } else {
                 //Not enough perms
                 return callback('You are not allowed to do that!', false);
@@ -38,6 +47,7 @@ module.exports = function(client, msg, suffix, cmd, callback) {
         runChecks();
     }
 
+    //This function calls all the other checks
     function runChecks() {
         var param = checkParams(client, msg, suffix, cmd);
         if (param == -1) {
@@ -165,4 +175,36 @@ function checkLevel(userLvl, cmdlvl) {
     } else {
         return true;
     }
+}
+
+/*
+Check if the cmd is disabled in the specific channel or dms
+*/
+function checkDisabled(guild, channel, userLvl, cmd, callback) {
+
+    if(cmd.dm == false && guild == null){
+        return callback("Cannot execute that command in a DM!", false);
+    }
+    dbUtils.fetchChannel(channel.id, function(err, channelData) {
+        if (err) {
+            console.log(err);
+        }
+
+        if (channelData == null){
+            return callback(null, true);
+        }
+
+        var disabledCats = channelData.disabled;
+
+        //If the module is disabled
+        if(userLvl >= levels.MODERATOR){
+            return callback(null, true);
+        } else {
+            if (disabledCats != null && disabledCats.includes(cmd.category.toLowerCase())) {
+                return callback("Module disabled in this channel!", false);
+            } else {
+                return callback(null, true);
+            }
+        }
+    });
 }
