@@ -115,7 +115,7 @@ function processMembers(days) {
                     var days = event.value.days;
 
                     var span = 1 * 24 * 3600000;
-                    console.log(`It will happen in ${time}`);
+                    console.log(`It will happen in ${span}`);
                     awaitAndRun(span, days);
                 })
             });

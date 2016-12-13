@@ -30,8 +30,10 @@ module.exports = function(client, msg, suffix, cmd, callback) {
             //We check if the level of the user is enough to execute the cmd
             if (checkLevel(lvl, cmd.minLvl)) {
                 //We check if the channel is disabled
+
                 checkDisabled(msg.guild, msg.channel, lvl, cmd, (msg, isEnabled) => {
-                    if(isEnabled){
+
+                    if (isEnabled) {
                         runChecks();
                     }
 
@@ -50,8 +52,9 @@ module.exports = function(client, msg, suffix, cmd, callback) {
     //This function calls all the other checks
     function runChecks() {
         var param = checkParams(client, msg, suffix, cmd);
+
         if (param == -1) {
-            if(msg.guild == null){
+            if (msg.guild == null) {
                 return callback(null, true);
             } else {
                 return callback(null, checkTime(msg, cmd));
@@ -75,10 +78,10 @@ function checkParams(client, msg, suffix, cmd) {
     for (var i = 0; i < cmd.params.length; i++) {
         switch (cmd.params[i]) {
             case paramtypes.PARAM:
-            if(suffix[i]){
-                break;
-            }
-            return i;
+                if (suffix[i]) {
+                    break;
+                }
+                return i;
             case paramtypes.MENTIONORID:
                 if (msg.mentions.users.array().length != 0) {
                     break;
@@ -90,7 +93,7 @@ function checkParams(client, msg, suffix, cmd) {
             case paramtypes.LEVEL:
                 if (!utils.isNumber(suffix[i])) {
                     var lvl = paramtypes[suffix[i].toUpperCase()];
-                    if(lvl){
+                    if (lvl) {
                         suffix[i] = lvl;
                         break;
                     } else {
@@ -103,7 +106,7 @@ function checkParams(client, msg, suffix, cmd) {
                 }
                 break;
             case paramtypes.USER:
-                if(i+1 >= suffix.length) return i;
+                if (i + 1 >= suffix.length) return i;
                 var userName = suffix.splice(i, suffix.length).join(" ");
                 var member = msg.guild.members.find((u) => {
                     return u.username.toLowerCase() == userName.toLowerCase() ||
@@ -121,7 +124,7 @@ function checkParams(client, msg, suffix, cmd) {
                     return i;
                 }
             case paramtypes.ROLE:
-                if(i+1 >= suffix.length) return i;
+                if (i + 1 >= suffix.length) return i;
                 var roleName = suffix.splice(i, suffix.length).join(" ");
                 var role = msg.guild.roles.find((r) => {
                     return r.name.toLowerCase() == roleName.toLowerCase() ||
@@ -142,6 +145,7 @@ function checkParams(client, msg, suffix, cmd) {
 Call the cooldown processor with a given user, server and cmd
 */
 function checkTime(msg, cmd) {
+
     var out = cooldown(msg.author.id, msg.guild.id, cmd);
 
     if (out) {
@@ -182,7 +186,7 @@ Check if the cmd is disabled in the specific channel or dms
 */
 function checkDisabled(guild, channel, userLvl, cmd, callback) {
 
-    if(cmd.dm == false && guild == null){
+    if (cmd.dm == false && guild == null) {
         return callback("Cannot execute that command in a DM!", false);
     }
     dbUtils.fetchChannel(channel.id, function(err, channelData) {
@@ -190,14 +194,14 @@ function checkDisabled(guild, channel, userLvl, cmd, callback) {
             console.log(err);
         }
 
-        if (channelData == null){
+        if (channelData == null) {
             return callback(null, true);
         }
 
         var disabledCats = channelData.disabled;
 
         //If the module is disabled
-        if(userLvl >= levels.MODERATOR){
+        if (userLvl >= levels.MODERATOR) {
             return callback(null, true);
         } else {
             if (disabledCats != null && disabledCats.includes(cmd.category.toLowerCase())) {

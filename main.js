@@ -274,9 +274,14 @@ function checkInvLink(msg) {
     });
 }
 
-//Try to connect to DB and to log the client
-Connection((err, db) => {
-    if (err) console.log(err.message);
-    client.manager.setupKeepAlive(300000);
-    client.login(token);
-});
+//Starts the bot
+function startBot() {
+    //Try to connect to DB and to log the client
+    Connection((err, db) => {
+        if (err) console.log(err.message);
+        client.manager.setupKeepAlive(300000);
+        client.login(token);
+    });
+}
+
+startBot();

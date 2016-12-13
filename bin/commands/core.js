@@ -56,7 +56,7 @@ cmd.execution = function(client, msg) {
             if (error) return msg.channel.sendMessage(error);
             if (stdout) console.log(stdout);
             if (stderr) console.log(stderr);
-            msg.channel.sendMessage("Nothing to update").then(() => {
+            msg.channel.sendMessage("Rebooting").then(() => {
                 client.destroy().then(() => {
                     process.exit();
                 });
@@ -70,7 +70,7 @@ cmd = new Command('kill', 'Core');
 cmd.addHelp('Kills the bot');
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
-    msg.channel.sendMessage('Goodbye!').then(() => {
+    msg.channel.sendMessage('*ded*!').then(() => {
         console.log('Shutting down...');
         client.destroy().then(() => {
             process.exit();
