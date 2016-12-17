@@ -70,7 +70,7 @@ cmd = new Command('kill', 'Core');
 cmd.addHelp('Kills the bot');
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
-    msg.channel.sendMessage('*ded*!').then(() => {
+    msg.channel.sendMessage('*ded*').then(() => {
         console.log('Shutting down...');
         client.destroy().then(() => {
             process.exit();

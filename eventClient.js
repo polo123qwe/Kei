@@ -8,7 +8,6 @@ var timeout;
 var eliminatedRole;
 var eventChannel;
 var activityChannel;
-var botTesting;
 var guildM
 var guildID = "132490115137142784"
 var thisClient;
@@ -16,6 +15,7 @@ module.exports = function(client) {
     if(timeout != null) return;
 
     getValue((err, event) => {
+        if (err) return console.log(err);
         thisClient = client;
 
         guild = thisClient.guilds.find("id", guildID);
@@ -24,11 +24,9 @@ module.exports = function(client) {
         //Find all the data we will use
         eventChannel = guild.channels.find("id", "253664283060207631");
         activityChannel = guild.channels.find("id", "252209543965048832");
-        botTesting = guild.channels.find("id", "184984832219152387");
         eliminatedRole = guild.roles.find("name", "Eliminated");
 
         var days = event.days;
-        if (err) return console.log(err);
         var span = ((31 - days.length) * 24 * 3600000);
         var time = span - (Date.now() - event.timestamp);
 
@@ -129,12 +127,7 @@ function addRole(usersToEliminate, callback) {
     setTimeout(() => {
         userData.member.addRole(eliminatedRole).then(() => {
             console.log(userData.member.user.username + " eliminated");
-            botTesting.sendMessage(userData.member.user.username + " eliminated").then(() => {
-                return addRole(usersToEliminate, callback);
-            }).catch((err) => {
-                console.log(err);
-                return addRole(usersToEliminate, callback);
-            })
+            return addRole(usersToEliminate, callback);
         }).catch(console.log)
     }, 1000);
 }
@@ -192,7 +185,7 @@ function getAndUpdate(callback) {
             days: -1
         }
     }, {
-        returnOriginal: true,
+        returnOriginal: false,
         upsert: true
     }, callback);
 }

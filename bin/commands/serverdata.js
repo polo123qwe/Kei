@@ -18,7 +18,7 @@ cmd.execution = function(client, msg, suffix) {
     //TODO Fetch Data from DB
     msg.guild.fetchMembers().then(processJoined).catch(processJoined);
 
-    function processJoined(){
+    function processJoined() {
         var member = discordUtils.getOneMemberFromMessage(msg, suffix);
 
         var out = member.user.username + "#" + member.user.discriminator + ': "' +
@@ -166,7 +166,6 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-// @TODO get name history
 cmd = new Command('names', 'Server Data');
 cmd.addHelp('Retrieves last 5 names/nicknames a user had in the past (-all shows all)');
 cmd.addUsage('[-all] [username/nick/id]')
@@ -219,14 +218,13 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-cmd = new Command('guild', 'Server Data', 'dev');
+//@TODO Remake this
+/*cmd = new Command('guild', 'Server Data', 'dev');
 cmd.alias.push('server');
 cmd.addHelp('Prints the guild settings');
 cmd.minLvl = levels.MODERATOR;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
-
-    // @TODO Work on this formatting and stuff
     dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (!guildData) return discordUtils.sendAndDelete(msg.channel, "Guild has no settings!");
@@ -257,7 +255,7 @@ cmd.execution = function(client, msg, suffix) {
 
     });
 }
-commands.push(cmd);
+commands.push(cmd);*/
 ////////////////////////////////////////////////////////////
 cmd = new Command('friends', 'Server Data');
 cmd.addHelp('Shows people with the same color as you have');
@@ -278,7 +276,7 @@ cmd.execution = function(client, msg, suffix) {
             }
         }
         if (names.length < 1) {
-            msg.channel.sendMessage(`:cry:`);
+            msg.channel.sendMessage(`:frowning:`);
         } else {
             msg.channel.sendMessage(`Your friends are: ${names.join(", ")}`);
         }
@@ -287,19 +285,27 @@ cmd.execution = function(client, msg, suffix) {
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('activity', 'Server Data');
-cmd.addHelp('Shows how many someone has sent');
+cmd.addHelp('Shows how many messages a user has sent');
 cmd.addUsage('<number> [id]')
 cmd.minLvl = levels.DEFAULT;
-cmd.params.push(paramtypes.NUMBER);
 cmd.execution = function(client, msg, suffix) {
-    var time = suffix[0];
+
+    var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
+
+    var time = 7;
+    if (suffix.length >= 2) {
+        time = suffix[suffix.length - 1];
+    } else if (suffix.length == 1 && member == null) {
+        time = suffix[0];
+    }
     if (time <= 0) {
         time = 1;
     }
-    var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
+
     if (!member) {
         member = msg.member;
     }
+
     dbUtils.fetchUserActivity(msg.guild.id, member.user.id, time, (err, res) => {
         if (err) return console.log(err);
         var totalMsgs = 0;
@@ -308,6 +314,49 @@ cmd.execution = function(client, msg, suffix) {
         }
         msg.channel.sendMessage(`${member.user.username} has sent ${totalMsgs} messages in the last ${time} days.`);
     });
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+cmd = new Command('role', 'Server Data');
+cmd.addHelp('Prints how many users are in a role, -r for users without the role');
+cmd.addUsage('<role name> [-r]')
+cmd.minLvl = levels.MODERATOR;
+cmd.params.push(paramtypes.PARAM);
+cmd.execution = function(client, msg, suffix) {
+
+    var index = suffix.indexOf("-r");
+    var findingUsersWithRole = true;
+    if (index > -1) {
+        suffix.splice(index, 1);
+        findingUsersWithRole = false;
+    }
+
+    var targetRole = discordUtils.getRole(msg.guild, suffix.join(" "));
+    var membersFound = [];
+
+    if (targetRole == null) {
+        utils.sendAndDelete(msg.channel, "Role not found!");
+    }
+
+    msg.guild.members.forEach(member => {
+        var hasRole = member.roles.exists(r => r.id == targetRole.id);
+        if(hasRole && findingUsersWithRole){
+            membersFound.push(member.user.username);
+        } else if(!hasRole && !findingUsersWithRole){
+            membersFound.push(member.user.username);
+        }
+    });
+
+    if(membersFound.length > 10){
+        var including = "with";
+        if(findingUsersWithRole == false){
+            including = "without";
+        }
+        msg.channel.sendMessage(`There are ${membersFound.length} users ${including} the role ${targetRole.name}`);
+    } else {
+        msg.channel.sendMessage(`The users ${including} the role ${targetRole.name} are: ${membersFound.join(", ")}.`);
+    }
+
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////

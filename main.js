@@ -36,9 +36,6 @@ client.on('ready', () => {
 client.on('message', msg => {
 
     var splitted = msg.content.split(" ");
-    //Remove suffix
-    var cmdName = splitted[0];
-    var suffix = msg.content.substr(cmdName.length + 1).split(" ");
 
     //Log the message in the DB
     if (logging) {
@@ -57,8 +54,16 @@ client.on('message', msg => {
         checkInvLink(msg);
     }
 
+    //Remove suffix
+    var cmdName = splitted[0];
+    var suffix = msg.content.substr(cmdName.length + 1);
+    if(suffix != ""){
+        suffix = suffix.split(" ");
+    }
+
     //We check is its a command
     if (cmdName.endsWith(suf)) {
+
         cmdName = cmdName.substring(0, splitted[0].length - 1);
         cmdName = cmdName.toLowerCase();
         if (commands.hasOwnProperty(cmdName)) {
