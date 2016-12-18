@@ -110,6 +110,7 @@ function processMembers(days) {
     addRole(usersToEliminate, () => {
             activityChannel.sendMessage(`**${days[0]}** are remaining.`).then(() => {
                 getAndUpdate((err, event) => {
+                    memberMessages = {};
                     var days = event.value.days;
 
                     var span = 1 * 24 * 3600000;
