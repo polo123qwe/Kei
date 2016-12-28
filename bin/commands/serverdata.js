@@ -292,18 +292,20 @@ cmd.execution = function(client, msg, suffix) {
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
 
-    var time = 7;
-    if (suffix.length >= 2) {
-        time = suffix[suffix.length - 1];
-    } else if (suffix.length == 1 && member == null) {
-        time = suffix[0];
-    }
-    if (time <= 0) {
-        time = 1;
+    var time = suffix[0];
+
+    if(!time || !utils.isNumber(time)) time = 7;
+
+    if(!member){
+        member = msg.member;
+    } else if(suffix.length == 1){
+        time = 7;
     }
 
-    if (!member) {
-        member = msg.member;
+    if (time <= 0) {
+        time = 1;
+    } else if (time > 365) {
+        time = 365;
     }
 
     dbUtils.fetchUserActivity(msg.guild.id, member.user.id, time, (err, res) => {

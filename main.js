@@ -69,7 +69,11 @@ client.on('message', msg => {
         if (commands.hasOwnProperty(cmdName)) {
             var location = msg.guild ? msg.guild.name : "DM";
 
-            console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}. Parameters: ${suffix}`);
+            if(suffix){
+                console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}. Parameters: ${suffix.join(" ")}`);
+            } else {
+                console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}`);
+            }
             commands[cmdName].run(client, msg, suffix);
 
         }

@@ -33,7 +33,7 @@ module.exports = function(client, member) {
         if (guildData && guildData.hasOwnProperty('automember') && guildData.automember) {
             dbUtils.fetchUserActivity(member.guild.id, member.user.id, 7, (err, res) => {
                 if (err) return console.log(err);
-                if (res.length >= 3) {
+                if (res.length >= 4) {
                     var promote = 0;
                     for (var day of res) {
                         if (day.msgs > 35) {

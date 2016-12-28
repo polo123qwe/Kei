@@ -72,7 +72,7 @@ exports.getOneMemberFromMessage = function(msg, suffix) {
 }
 
 exports.getRole = function(guild, roleName) {
-    if(roleName == null) return null;
+    if (roleName == null) return null;
     var role = guild.roles.find((r) => {
         return r.name.toLowerCase() == roleName.toLowerCase() ||
             r.id == roleName

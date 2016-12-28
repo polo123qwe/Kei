@@ -52,10 +52,10 @@ exports.unixToTime = function(UNIX_timestamp) {
 //Generates a hastebin document
 exports.generateHasteBin = function(data, callback) {
 
-    unirest.post(`http://${hastebin}/documents`)
+    unirest.post(`https://hastebin.com/documents`)
         .send(data)
         .end(function(response) {
-            return callback(`http://${hastebin}/${response.body.key}.txt`);
+            return callback(`https://hastebin.com/${response.body.key}.txt`);
         });
 }
 

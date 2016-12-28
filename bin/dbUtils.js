@@ -286,7 +286,7 @@ exports.fetchUserActivity = function(guild_id, user_id, time, callback) {
     var grouping = {};
     match.author_id = user_id;
     match.guild_id = guild_id;
-    if(time == 7){
+    if (time == 7) {
         grouping['$dayOfWeek'] = "$timestamp";
         match.timestamp = {
             "$gte": new Date(Date.now() - 24 * 7 * 3600000)
