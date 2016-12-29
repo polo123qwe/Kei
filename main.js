@@ -25,7 +25,7 @@ var time = Date.now();
 
 client.on('ready', () => {
     var interval = Date.now() - time;
-    console.log('Ready to operate! (' + interval + 'ms)');
+    console.log('Bot connected (' + interval + 'ms)');
     //Load all the timers
     loadTimers();
     memberRemoval(client);
@@ -156,7 +156,7 @@ client.on('guildMemberRemove', (member) => {
 
 ///////////////// Namechanges handling ////////////////////////////
 client.on('userUpdate', (oldUser, newUser) => {
-    if (logging && oldUser.username != oldUser.username) {
+    if (logging && oldUser.username != newUser.username) {
         dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
     }
 });
