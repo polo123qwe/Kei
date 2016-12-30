@@ -36,7 +36,7 @@ exports.getLevel = function(guild, member, callback) {
             //If the guild has no level for the given member
             if (arr.length == 0) return callback(null, levels.DEFAULT);
             for (var el of arr) {
-                if (member.roles.exists('id', el._id)) {
+                if (member.roles.has(el._id)) {
                     return callback(null, el.level);
                 }
             }

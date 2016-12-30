@@ -1,6 +1,6 @@
 {
-  "name": "chocolate",
-  "version": "0.0.1",
+  "name": "Chii",
+  "version": "0.1.0",
   "description": "A discord bot using discord.js",
   "main": "main.js",
   "scripts": {
@@ -10,17 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/polo123qwe/Chocolate.git"
+    "url": "git+https://github.com/polo123qwe/Kei.git"
   },
   "author": "Sergi",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/polo123qwe/Chocolate/issues"
+    "url": "https://github.com/polo123qwe/Kei/issues"
   },
-  "homepage": "https://github.com/polo123qwe/Chocolate#readme",
+  "homepage": "https://github.com/polo123qwe/Kei#readme",
   "dependencies": {
     "discord.js": "^x.x.x",
-    "mongo": "^0.1.0",
     "osu-api": "0.0.3",
     "require-directory": "^2.1.1",
     "unirest": "^0.5.1"
