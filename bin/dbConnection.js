@@ -4,7 +4,7 @@ var assert = require('assert');
 
 var Connection;
 
-var url = `mongodb://${dboptions.user}:${dboptions.password}@${dboptions.host}:${dboptions.port}/${dboptions.db}`;
+var url = `mongodb://${dboptions.username}:${dboptions.password}@${dboptions.host}:${dboptions.port}/`;
 var db = null;
 
 function Connection(callback) {
@@ -19,7 +19,7 @@ function Connection(callback) {
                     //console.log(err);
                     return callback(err);
                 } else {
-                    db = database;
+                    db = database.db(dboptions.db);
                     return callback(null, database);
                 }
             });

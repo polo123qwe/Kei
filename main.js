@@ -205,7 +205,7 @@ client.on('guildBanAdd', (guild, user) => {
 function loadTimers() {
 
     var db = Connection.getDB();
-    if (!db) return callback("Not connected to DB!");
+    if (!db) return console.log("Not connected to DB!");
     var collection = db.collection('timers');
 
     var expiredTimers = [];
