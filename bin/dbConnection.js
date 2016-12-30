@@ -4,7 +4,7 @@ var assert = require('assert');
 
 var Connection;
 
-var url = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.db;
+var url = `mongodb://${dboptions.user}:${dboptions.password}@${dboptions.host}:${dboptions.port}/${dboptions.db}`;
 var db = null;
 
 function Connection(callback) {

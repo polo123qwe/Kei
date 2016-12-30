@@ -2,16 +2,15 @@
     "token": "TOKEN",
     "suffix": "!",
     "db": {
-        "sshtunnel": {
-        },
         "host": "HOST",
         "port": "PORT",
-		"db": "bot"
+		"db": "bot",
+        "username": "",
+        "username": ""
     },
     "apis": {
 
     },
-    "hastebin": "hastebin.com",
     "DELETEAFTER": 3000,
     "owners": ["USERID"],
     "logging": false
