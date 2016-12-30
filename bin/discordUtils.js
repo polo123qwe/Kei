@@ -35,12 +35,12 @@ exports.getMembersFromMessage = function(msg, suffix) {
     var users = msg.mentions.users.array();
 
     for (var mention of users) {
-        members.push(msg.guild.members.find("id", mention.id));
+        members.push(msg.guild.members.get(mention.id));
     }
 
     for (var element of suffix) {
-        if (msg.guild.members.exists("id", element)) {
-            members.push(msg.guild.members.find("id", element));
+        if (msg.guild.members.has(element)) {
+            members.push(msg.guild.members.get(element));
         }
     }
     //console.log(members.length);
@@ -53,7 +53,7 @@ exports.getOneMemberFromMessage = function(msg, suffix) {
     if (suffix) {
         var users = msg.mentions.users.array();
         if (users.length != 0) {
-            mentionedMember = msg.guild.members.find("id", users[0].id);
+            mentionedMember = msg.guild.members.get(users[0].id);
         } else {
             var name = suffix.join(" ");
             if (name.length > 0) {
@@ -101,7 +101,7 @@ exports.findLogsChannel = function(guild, callback) {
 
     function fetchChannel() {
         if (channelID) {
-            callback(guild.channels.find("id", channelID));
+            callback(guild.channels.get(channelID));
         }
         // Default channel name is log
         callback(guild.channels.find("name", "log"));

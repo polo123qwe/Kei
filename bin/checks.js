@@ -85,7 +85,7 @@ function checkParams(client, msg, suffix, cmd) {
             case paramtypes.MENTIONORID:
                 if (msg.mentions.users.array().length != 0) {
                     break;
-                } else if (msg.guild.members.exists('id', suffix[i])) {
+                } else if (msg.guild.members.has(suffix[i])) {
                     break;
                 } else {
                     return i;
@@ -118,7 +118,7 @@ function checkParams(client, msg, suffix, cmd) {
                     return i;
                 }
             case paramtypes.ROLEID:
-                if (msg.guild.roles.exists('id', suffix[i])) {
+                if (msg.guild.roles.has(suffix[i])) {
                     break;
                 } else {
                     return i;

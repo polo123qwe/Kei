@@ -18,12 +18,12 @@ module.exports = function(client) {
         if (err) return console.log(err);
         thisClient = client;
 
-        guild = thisClient.guilds.find("id", guildID);
+        guild = thisClient.guilds.get(guildID);
         memberMessages = {};
 
         //Find all the data we will use
-        eventChannel = guild.channels.find("id", "253664283060207631");
-        activityChannel = guild.channels.find("id", "252209543965048832");
+        eventChannel = guild.channels.get("253664283060207631");
+        activityChannel = guild.channels.get("252209543965048832");
         eliminatedRole = guild.roles.find("name", "Eliminated");
 
         var days = event.days;
@@ -43,7 +43,7 @@ function awaitAndRun(time, days) {
             console.log("Starting elimination");
             getMessageCount((err, res) => {
                 for (var user of res) {
-                    var member = guild.members.find("id", user._id);
+                    var member = guild.members.get(user._id);
 
                     if (member) {
                         memberMessages[user._id] = {

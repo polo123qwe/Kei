@@ -77,7 +77,7 @@ client.on('message', msg => {
             commands[cmdName].run(client, msg, suffix);
 
         }
-    } else if (msg.mentions.users.exists('id', client.user.id)) {
+    } else if (msg.mentions.users.has(client.user.id)) {
         //We check if the bot was pinged
         //console.log("Bot was pinged!");
         //ai(client, msg);
@@ -224,8 +224,8 @@ function loadTimers() {
                     expiredTimers.push(timer);
                 } else {
                     //Add others to a timeout
-                    var guild = client.guilds.find("id", timer.guild_id);
-                    var member = guild.members.find("id", timer.user_id);
+                    var guild = client.guilds.get(timer.guild_id);
+                    var member = guild.members.get(timer.user_id);
                     setTimeout(function() {
                         member.removeRole(timer.role_id).then(() => {
                             console.log(member.user.username + " unmuted.")
@@ -245,8 +245,8 @@ function loadTimers() {
         if (expiredTimers.length <= 0) return;
         var timer = expiredTimers.pop();
         console.log(timer);
-        var guild = client.guilds.find("id", timer.guild_id);
-        var member = guild.members.find("id", timer.user_id);
+        var guild = client.guilds.get(timer.guild_id);
+        var member = guild.members.get(timer.user_id);
         if (member) {
             member.removeRole(timer.role_id).then(() => {
                 console.log(member.user.username + " unmuted.")

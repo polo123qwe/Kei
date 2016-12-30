@@ -113,7 +113,7 @@ cmd.execution = function(client, msg, suffix) {
         }).toArray().then((arr) => {
             var out = "";
             for (var rol of arr) {
-                var role = msg.guild.roles.find("id", rol._id);
+                var role = msg.guild.roles.get(rol._id);
                 if (role) {
                     out += role.name;
                     out += " has level access " + rol.level + "\n";

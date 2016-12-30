@@ -204,7 +204,7 @@ var operations = {
     log: {
         help: `Sets the channel the bot will log the warnings to. Eg: \`set${suf} log CHANNELID\``,
         run: function(msg, suffix, remove) {
-            var logs = msg.guild.channels.find("id", suffix[1]);
+            var logs = msg.guild.channels.get(suffix[1]);
             if (logs != null) {
                 return {
                     $set: {

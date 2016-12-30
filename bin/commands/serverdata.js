@@ -131,14 +131,14 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     function parseLogData(arr) {
-        var guild = client.guilds.find("id", arr[0].guild_id);
-        var channel = guild.channels.find("id", arr[0].channel_id);
+        var guild = client.guilds.get(arr[0].guild_id);
+        var channel = guild.channels.get(arr[0].channel_id);
 
         var outStr = `Last ${arr.length} messages in #${channel.name} [${guild.name}]:\n\n`;
 
         for (var elem of arr) {
 
-            var user = client.users.find("id", elem.author_id);
+            var user = client.users.get(elem.author_id);
             var userName;
             if (user) {
                 userName = `(${user.id}) ${user.username}#${user.discriminator}`;
