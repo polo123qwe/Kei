@@ -105,7 +105,7 @@ client.on('guildMemberAdd', (member) => {
             }
         }
 
-        member.guild.defaultChannel.sendMessage(`Welcome to ${member.guild.name}, ${member.user}! Dont forget to read the rules!`).catch();
+        member.guild.defaultChannel.sendMessage(`Wleocme to ${member.guild.name}, ${member.user}! Dont forget to read the rules!`).catch();
 
     });
 
