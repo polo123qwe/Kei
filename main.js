@@ -29,7 +29,6 @@ client.on('ready', () => {
     //Load all the timers
     loadTimers();
     memberRemoval(client);
-    require('./eventClient')(client);
 });
 
 // create an event listener for messages
