@@ -187,7 +187,7 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 client.on('guildBanAdd', (guild, user) => {
     discordUtils.findLogsChannel(guild, (channel) => {
         if (channel) {
-            channel.sendCode('diff', '').then((m) => {
+            channel.sendCode('diff', '.').then((m) => {
                 m.editCode('diff', "- ----------------BAN----------------- -\nUser:   " +
                     user.username + "#" + user.discriminator + "(" + user.id + ")\n" +
                     "Mod:    " + m.id + "\nReason: " + m.id + "\nTime:   " +

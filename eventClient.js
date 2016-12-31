@@ -12,7 +12,7 @@ var guildM
 var guildID = "132490115137142784"
 var thisClient;
 module.exports = function(client) {
-    if(timeout != null) return;
+    if (timeout != null) return;
 
     getValue((err, event) => {
         if (err) return console.log(err);
@@ -36,39 +36,25 @@ module.exports = function(client) {
 
 function awaitAndRun(time, days) {
     console.log(`It will happen in ${utils.convertUnixToDate(time)}`);
-    if(time < 1) time = 3000;
+    if (time < 1) time = 3000;
     timeout = setTimeout(() => {
 
-        guild.fetchMembers().then(guild => {
-            console.log("Starting elimination");
-            getMessageCount((err, res) => {
-                for (var user of res) {
-                    var member = guild.members.get(user._id);
+        console.log("Starting elimination");
+        getMessageCount((err, res) => {
+            for (var user of res) {
+                var member = guild.members.get(user._id);
 
-                    if (member) {
-                        memberMessages[user._id] = {
-                            priority: getPriority(member),
-                            msgs: user.msgs,
-                            member: member
-                        }
+                if (member && !member.roles.exists("name", "Eliminated")) {
+                    memberMessages[user._id] = {
+                        priority: getPriority(member),
+                        msgs: user.msgs,
+                        member: member
                     }
                 }
+            }
 
-                for (var member of guild.members.array()) {
-                    if (!memberMessages.hasOwnProperty(member.user.id)) {
-                        if (!member.roles.exists("name", "Eliminated")) {
-                            memberMessages[member.user.id] = {
-                                priority: getPriority(member),
-                                msgs: 0,
-                                member: member
-                            }
-                        }
-                    }
-                };
-
-                processMembers(days);
-            });
-        }).catch(console.log);
+            processMembers(days);
+        });
     }, time);
 }
 
@@ -108,16 +94,16 @@ function processMembers(days) {
     }
     console.log(`After, its ${usersToEliminate.length}`);
     addRole(usersToEliminate, () => {
-            activityChannel.sendMessage(`**${days[0]}** are remaining.`).then(() => {
-                getAndUpdate((err, event) => {
-                    memberMessages = {};
-                    var days = event.value.days;
+        activityChannel.sendMessage(`**${days[0]}** are remaining.`).then(() => {
+            getAndUpdate((err, event) => {
+                memberMessages = {};
+                var days = event.value.days;
 
-                    var span = 1 * 24 * 3600000;
-                    console.log(`It will happen in ${span}`);
-                    awaitAndRun(span, days);
-                })
-            });
+                var span = 1 * 24 * 3600000;
+                console.log(`It will happen in ${span}`);
+                awaitAndRun(span, days);
+            })
+        });
     });
 }
 

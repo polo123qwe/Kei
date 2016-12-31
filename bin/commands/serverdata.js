@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 var Command = require('../commandTemplate');
 var Connection = require('../dbConnection');
 var levels = require('../../consts/levels.json');
@@ -21,25 +22,41 @@ cmd.execution = function(client, msg, suffix) {
     function processJoined() {
         var member = discordUtils.getOneMemberFromMessage(msg, suffix);
 
-        var out = member.user.username + "#" + member.user.discriminator + ': "' +
-            utils.unixToTime(member.joinedAt) + '"\n';
-        out += utils.convertUnixToDate(Date.now() - member.joinedAt.getTime());
-        msg.channel.sendCode("xl", out);
+        var embed = new Discord.RichEmbed();
+        embed.setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.avatarURL, member.user.avatarURL);
+        embed.addField("Joined", utils.unixToTime(member.joinedAt), false);
+        embed.addField("Timespan", utils.convertUnixToDate(Date.now() - member.joinedAt.getTime()), false);
+        embed.setTimestamp();
+        var role = member.roles.find((r) => {
+            return r.hexColor != "#000000"
+        });
+        if (role) embed.setColor(role.hexColor);
+        embed.setThumbnail(member.user.avatarURL);
+        msg.channel.sendEmbed(embed);
     }
 
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('ava', 'Server Data');
+cmd.alias.push('avatar');
 cmd.addHelp('Returns the avatar of the user');
 cmd.addUsage('[username/nick/id]');
 cmd.cd = 5;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
 
-    var user = discordUtils.getOneMemberFromMessage(msg, suffix).user;
+    var member = discordUtils.getOneMemberFromMessage(msg, suffix);
 
-    msg.channel.sendMessage(`[${user.username}] ${user.avatarURL}`)
+    var embed = new Discord.RichEmbed();
+    embed.setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.avatarURL, member.user.avatarURL);
+    embed.setImage(member.user.avatarURL);
+    embed.setTimestamp();
+    var role = member.roles.find((r) => {
+        return r.hexColor != "#000000"
+    });
+    if (role) embed.setColor(role.hexColor);
+    msg.channel.sendEmbed(embed);
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -181,9 +198,9 @@ cmd.execution = function(client, msg, suffix) {
         all = true;
     }
 
-    var user = discordUtils.getOneMemberFromMessage(msg, suffix).user;
+    var member = discordUtils.getOneMemberFromMessage(msg, suffix);
 
-    dbUtils.fetchNameChanges(user.id, msg.guild.id, (err, arr) => {
+    dbUtils.fetchNameChanges(member.user.id, msg.guild.id, (err, arr) => {
         if (err) return console.log(err);
         var names = [];
         var nicks = [];
@@ -196,24 +213,45 @@ cmd.execution = function(client, msg, suffix) {
                 names.push(change.oldName);
             }
         }
-        var out = `${user.username}#${user.discriminator}\n`;
+
+        var embed = new Discord.RichEmbed();
+        embed.setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.avatarURL, member.user.avatarURL);
+        embed.setThumbnail(member.user.avatarURL);
+        embed.setTimestamp();
+        var role = member.roles.find((r) => {
+            return r.hexColor != "#000000"
+        });
+        var asynchronous = false;
+        if (role) embed.setColor(role.hexColor);
+
         if (names.length < 1) {
-            out += `"No name changes recorded"`;
+            embed.addField("Names", "No name changes recorded");
         } else {
             if (!all) {
                 names = names.slice(0, 5);
             }
-            out += `"The previous names for the user ${user.username}#${user.discriminator} are": ${names.join(", ")}`;
+            embed.addField("Names", `${member.user.username}#${member.user.discriminator} are": ${names.join(", ")}`);
         }
         if (nicks.length < 1) {
-            out += '\n"No nicknames recorded."';
+            embed.addField("Nicknames", "No nicknames recorded");
         } else {
             if (!all) {
                 nicks = nicks.slice(0, 5);
+                embed.addField("Nicknames", `${nicks.join(", ")}`);
+            } else if(nicks.length > 32){
+                asynchronous = true;
+                utils.generateHasteBin(`Nicks for ${member.user.username}#${member.user.discriminator}:\n${nicks.join("\n ")}`, (link) => {
+                    nicks = nicks.slice(0, 32);
+                    embed.addField("Nicknames", `[Full list](${link}), first 32: ${nicks.join(", ")}`);
+                    msg.channel.sendEmbed(embed);
+                })
+            } else {
+                embed.addField("Nicknames", `${nicks.join(", ")}`);
             }
-            out += `\n"Nicknames": ${nicks.join(", ")}`;
         }
-        msg.channel.sendCode("bash", out);
+        if(!asynchronous){
+            msg.channel.sendEmbed(embed);
+        }
     });
 }
 commands.push(cmd);
@@ -294,11 +332,11 @@ cmd.execution = function(client, msg, suffix) {
 
     var time = suffix[0];
 
-    if(!time || !utils.isNumber(time)) time = 7;
+    if (!time || !utils.isNumber(time)) time = 7;
 
-    if(!member){
+    if (!member) {
         member = msg.member;
-    } else if(suffix.length == 1){
+    } else if (suffix.length == 1) {
         time = 7;
     }
 
@@ -342,16 +380,16 @@ cmd.execution = function(client, msg, suffix) {
 
     msg.guild.members.forEach(member => {
         var hasRole = member.roles.exists(r => r.id == targetRole.id);
-        if(hasRole && findingUsersWithRole){
+        if (hasRole && findingUsersWithRole) {
             membersFound.push(member.user.username);
-        } else if(!hasRole && !findingUsersWithRole){
+        } else if (!hasRole && !findingUsersWithRole) {
             membersFound.push(member.user.username);
         }
     });
 
-    if(membersFound.length > 10){
+    if (membersFound.length > 10) {
         var including = "with";
-        if(findingUsersWithRole == false){
+        if (findingUsersWithRole == false) {
             including = "without";
         }
         msg.channel.sendMessage(`There are ${membersFound.length} users ${including} the role ${targetRole.name}`);
