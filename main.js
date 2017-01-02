@@ -197,7 +197,7 @@ client.on('guildBanAdd', (guild, user) => {
 });
 
 /*
- * This funciton loads the timers from the database and then checks if they have
+ * This function loads the timers from the database and then checks if they have
  * expired, if they have the role is removed from the user, if now, we create a
  * timeout with the time remaining
  */
