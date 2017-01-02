@@ -59,4 +59,21 @@ timers:
 	start_time: timestamp
 	length: int
 
-users
+members:
+    _id: guild_id
+    users: [
+        {
+            _id: user_id
+            is_in_guild: true
+            lastJoined: timestamp
+            lastleft: timestamp
+            joined: [timestamp]
+            left: [timestamp]
+            nicknams: []
+        }
+    ]
+
+users:
+    _id: user_id
+    usernames: [string]
+    coutry: string

@@ -167,7 +167,6 @@ exports.tagMessageAs = function(message_id, edited, edit) {
 
 exports.storeMessage = function(msg) {
 
-
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
 
@@ -234,6 +233,55 @@ exports.fetchNameChanges = function(user_id, guild_id, callback) {
             })
         });
 }
+
+////////////////////////////// USER RELATED UTILS //////////////////////////////
+exports.updateUserJoined = function(user_id, joinedTimestamp, callback) {
+    var operation = {
+        $set: {
+            lastJoined: joinedTimestamp
+        },
+        $push: {
+            joined: joinedTimestamp
+        }
+    }
+    insertIntoUsers(user_id, operation, callback);
+}
+
+exports.updateUserLeft = function(user_id, leftTimestamp, callback) {
+    var operation = {
+        $set: {
+            lastleft: leftTimestamp
+        },
+        $push: {
+            left: leftTimestamp
+        }
+    }
+    insertIntoUsers(user_id, operation, callback);
+}
+
+function insertIntoUsers(user_id, operation, callback){
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('users');
+
+    collection.updateOne({
+        _id: user_id
+    }, operation, {upsert: true}, callback);
+}
+
+exports.fetchUser = function(user_id, callback) {
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('users');
+
+    collection.findOne({
+        _id: user_id
+    }, callback);
+}
+////////////////////////////////////////////////////////////////////////////////
 
 exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callback) {
 
