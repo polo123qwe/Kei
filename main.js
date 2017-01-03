@@ -13,6 +13,7 @@ const logging = require('./config.json').logging;
 //const ai = require('./bin/ai');
 var utils = require('./bin/utils/utils');
 var dbUtils = require('./bin/db/dbUtils');
+var dbUsers = require('./bin/db/dbUsers');
 var discordUtils = require('./bin/utils/discordUtils');
 
 //Automatic membership processing
