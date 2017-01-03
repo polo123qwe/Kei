@@ -57,7 +57,7 @@ client.on('message', msg => {
     //Remove suffix
     var cmdName = splitted[0];
     var suffix = msg.content.substr(cmdName.length + 1);
-    if(suffix != ""){
+    if (suffix != "") {
         suffix = suffix.split(" ");
     }
 
@@ -69,7 +69,7 @@ client.on('message', msg => {
         if (commands.hasOwnProperty(cmdName)) {
             var location = msg.guild ? msg.guild.name : "DM";
 
-            if(suffix){
+            if (suffix) {
                 console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}. Parameters: ${suffix.join(" ")}`);
             } else {
                 console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}`);
@@ -87,8 +87,10 @@ client.on('message', msg => {
 ///////////////// Join and leave member ///////////////////////////
 client.on('guildMemberAdd', (member) => {
 
-    if(logging){
-        dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now());
+    if (logging) {
+        dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now(), () => {
+
+        });
     }
 
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
@@ -127,8 +129,10 @@ client.on('guildMemberAdd', (member) => {
 
 client.on('guildMemberRemove', (member) => {
 
-    if(logging){
-        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now());
+    if (logging) {
+        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now(), () => {
+
+        });
     }
 
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
@@ -164,14 +168,18 @@ client.on('guildMemberRemove', (member) => {
 client.on('userUpdate', (oldUser, newUser) => {
     if (logging && oldUser.username != newUser.username) {
         //dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
-        dbUsers.updateUsername(newUser.id, newUser.username);
+        dbUsers.updateUsername(newUser.id, newUser.username, () => {
+
+        });
     }
 });
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
     if (logging && oldMember.nickname != newMember.nickname) {
         //dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
-        dbUsers.updateNickname(newMember.guild.id, newMember.user.id, newMember.nickname);
+        dbUsers.updateNickname(newMember.guild.id, newMember.user.id, newMember.nickname, () => {
+
+        });
     }
 });
 ///////////////////////////////////////////////////////////////////

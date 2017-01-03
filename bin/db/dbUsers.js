@@ -124,8 +124,12 @@ exports.updateUsername = function(user_id, username, callback){
         upsert: true,
         returnOriginal: false
     }, (err, res) => {
-        if (err) return console.log(err);
+        if (err) {
+            console.log(err);
+            return callback(err);
+        }
         console.log(res);
+        callback(null);
     })
 }
 
@@ -143,8 +147,12 @@ exports.updateValue =  function(user_id, key, value, callback) {
         upsert: true,
         returnOriginal: false
     }, (err, res) => {
-        if (err) return console.log(err);
+        if (err) {
+            console.log(err);
+            return callback(err);
+        }
         console.log(res);
+        callback(null);
     })
 }
 
@@ -159,8 +167,12 @@ exports.fetchMember = function(guild_id, user_id, callback) {
         _id: guild_id,
         "users._id": user_id
     }, (err, res) => {
-        if (err) return console.log(err);
-        if (res && res.users[0]) console.log(res.users[0]);
+        if (err) {
+            console.log(err);
+            return callback(err);
+        }
+        console.log(res);
+        callback(null);
     });
 }
 
