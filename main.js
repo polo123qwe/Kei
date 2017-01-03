@@ -166,7 +166,7 @@ client.on('guildMemberRemove', (member) => {
 
 ///////////////// Namechanges handling ////////////////////////////
 client.on('userUpdate', (oldUser, newUser) => {
-    if (logging && oldUser.username != newUser.username) {
+    if (logging && oldUser.username != newUser.username && newUser.username != null) {
         //dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
         dbUsers.updateUsername(newUser.id, newUser.username, () => {
 
