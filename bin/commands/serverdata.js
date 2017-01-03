@@ -1,11 +1,11 @@
 const Discord = require('discord.js');
 var Command = require('../commandTemplate');
-var Connection = require('../dbConnection');
+var Connection = require('../db/dbConnection');
 var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
-var utils = require('../utils');
-var dbUtils = require('../dbUtils');
-var discordUtils = require('../discordUtils');
+var utils = require('../utils/utils');
+var dbUtils = require('../db/dbUtils');
+var discordUtils = require('../utils/discordUtils');
 var commands = [];
 
 var cmd;

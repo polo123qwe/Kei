@@ -5,10 +5,10 @@ var Command;
 
 var levels = require('../consts/levels.json');
 var checks = require('./checks');
-var utils = require('./utils');
-var discordUtils = require('./discordUtils');
+var utils = require('./utils/utils');
+var discordUtils = require('./utils/discordUtils');
 var owners = require('../config.json').owners;
-var Connection = require('./dbConnection');
+var Connection = require('./db/dbConnection');
 
 function Command(name, cat, mode) {
 

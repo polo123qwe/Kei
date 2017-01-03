@@ -11,16 +11,16 @@ const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
 const logging = require('./config.json').logging;
 //const ai = require('./bin/ai');
-var utils = require('./bin/utils');
-var dbUtils = require('./bin/dbUtils');
-var discordUtils = require('./bin/discordUtils');
+var utils = require('./bin/utils/utils');
+var dbUtils = require('./bin/db/dbUtils');
+var discordUtils = require('./bin/utils/discordUtils');
 
 //Automatic membership processing
 var checkMembershipStatus = require('./bin/memberProcessor.js');
 var memberRemoval = require('./bin/memberRemoval.js');
 
 //Database module
-const Connection = require('./bin/dbConnection');
+const Connection = require('./bin/db/dbConnection');
 var time = Date.now();
 
 client.on('ready', () => {
@@ -85,6 +85,11 @@ client.on('message', msg => {
 
 ///////////////// Join and leave member ///////////////////////////
 client.on('guildMemberAdd', (member) => {
+
+    if(logging){
+        dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now());
+    }
+
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
 
@@ -120,6 +125,11 @@ client.on('guildMemberAdd', (member) => {
 });
 
 client.on('guildMemberRemove', (member) => {
+
+    if(logging){
+        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now());
+    }
+
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
 
@@ -152,13 +162,15 @@ client.on('guildMemberRemove', (member) => {
 ///////////////// Namechanges handling ////////////////////////////
 client.on('userUpdate', (oldUser, newUser) => {
     if (logging && oldUser.username != newUser.username) {
-        dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
+        //dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
+        dbUsers.updateUsername(newUser.id, newUser.username);
     }
 });
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
     if (logging && oldMember.nickname != newMember.nickname) {
-        dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
+        //dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
+        dbUsers.updateNickname(newMember.guild.id, newMember.user.id, newMember.nickname);
     }
 });
 ///////////////////////////////////////////////////////////////////

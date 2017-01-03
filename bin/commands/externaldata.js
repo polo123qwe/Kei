@@ -1,10 +1,10 @@
 var Command = require('../commandTemplate');
-var Connection = require('../dbConnection');
+var Connection = require('../db/dbConnection');
 var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
-var utils = require('../utils');
-var discordUtils = require('../discordUtils');
-var dbUtils = require('../dbUtils');
+var utils = require('../utils/utils');
+var discordUtils = require('../utils/discordUtils');
+var dbUtils = require('../db/dbUtils');
 var commands = [];
 
 try {

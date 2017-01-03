@@ -1,6 +1,6 @@
-var Connection = require('./dbConnection');
+var Connection = require('../db/dbConnection');
 
-var DELAY = require('../config.json').DELETEAFTER;
+var DELAY = require('../../config.json').DELETEAFTER;
 
 //Perform various tests to find out if the value sent is a user, checking name,
 //nick and ID of given user. We use filter as a boolean to accept partial matches

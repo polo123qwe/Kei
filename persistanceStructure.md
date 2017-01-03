@@ -64,12 +64,12 @@ members:
     users: [
         {
             _id: user_id
-            is_in_guild: true
+            isInGuild: true
             lastJoined: timestamp
             lastleft: timestamp
             joined: [timestamp]
             left: [timestamp]
-            nicknams: []
+            nicknames: []
         }
     ]
 

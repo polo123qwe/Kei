@@ -1,5 +1,5 @@
 var unirest = require('unirest');
-var hastebin = require('../config.json').hastebin;
+var hastebin = require('../../config.json').hastebin;
 
 //Function to convert a timespan into a readable time
 exports.convertUnixToDate = function(t) {

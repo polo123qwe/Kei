@@ -1,5 +1,5 @@
-var dbUtils = require('./dbUtils');
-var discordUtils = require('./discordUtils');
+var dbUtils = require('./db/dbUtils');
+var discordUtils = require('./utils/discordUtils');
 
 var memberRoleName = {};
 

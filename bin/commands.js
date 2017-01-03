@@ -1,7 +1,7 @@
 var directory = require('require-directory');
 var Command = require('./commandTemplate');
-var utils = require('./utils');
-var discordUtils = require('./discordUtils');
+var utils = require('./utils/utils');
+var discordUtils = require('./utils/discordUtils');
 var allCmds = directory(module, './commands/');
 var suf = require('../config.json').suffix;
 
@@ -35,7 +35,7 @@ for (var cmds in allCmds) {
             if (command.alias.length != 0) {
                 helpCmds[command.category][command.name] += ` (${command.alias.join("|")})`;
             }
-            
+
             helpCmds[command.category][command.name] += `${suf}`;
 
             if (command.hasOwnProperty("usage")) {

@@ -1,5 +1,5 @@
 var MongoClient = require("mongodb").MongoClient;
-var dboptions = require('../config.json').db;
+var dboptions = require('../../config.json').db;
 var assert = require('assert');
 
 var Connection;
