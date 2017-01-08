@@ -6,6 +6,7 @@ var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var discordUtils = require('../utils/discordUtils');
+var suf = require('../../config.json').suffix;
 var commands = [];
 
 try {
@@ -20,6 +21,7 @@ var cmd;
 cmd = new Command('join', 'User Customization');
 cmd.addHelp('Adds the user to the given roles (separated by commas)');
 cmd.addUsage('<role1>, [role2], [role3]');
+cmd.addExample(`join${suf} lood`);
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var rolesFound = [];
@@ -72,6 +74,7 @@ commands.push(cmd);
 cmd = new Command('leave', 'User Customization');
 cmd.addHelp('Removes the user from the given roles');
 cmd.addUsage('<role1>, [role2], [role3]');
+cmd.addExample(`leave${suf} lood`);
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var rolesFound = [];
@@ -110,6 +113,7 @@ cmd = new Command('color', 'User Customization', 'on');
 cmd.alias.push("colour")
 cmd.addHelp('Sets the color of a user');
 cmd.addUsage('<color code>');
+cmd.addExample(`color${suf} e57373`);
 cmd.cd = 10;
 cmd.minLvl = levels.USER;
 cmd.execution = function(client, msg, suffix) {

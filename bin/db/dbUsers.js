@@ -75,15 +75,12 @@ function insertIntoMembers(guild_id, user_id, updateOperation, fields, callback)
         }
         if (res.matchedCount < 1) addElement();
         else {
-            console.log("We updated the document");
             callback(null);
         }
     });
 
     //If the element doesnt exist
     function addElement() {
-        console.log("We add a document");
-        console.log(insertObject);
         collection.updateOne({
             "_id": guild_id,
             "users.user_id": {
@@ -105,7 +102,7 @@ function insertIntoMembers(guild_id, user_id, updateOperation, fields, callback)
     }
 }
 
-exports.updateUsername = function(user_id, username, callback){
+exports.updateUsername = function(user_id, username, callback) {
 
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
@@ -133,7 +130,7 @@ exports.updateUsername = function(user_id, username, callback){
     })
 }
 
-exports.updateValue =  function(user_id, key, value, callback) {
+exports.updateValue = function(user_id, key, value, callback) {
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
 
@@ -162,21 +159,25 @@ exports.fetchMember = function(guild_id, user_id, callback) {
     if (!db) return callback("Not connected to DB!");
 
     var collection = db.collection('members');
-
+    console.log(user_id);
     collection.findOne({
         _id: guild_id,
         "users._id": user_id
     }, (err, res) => {
         if (err) {
-            console.log(err);
+            console.log(err, null);
             return callback(err);
+        } else if(res && res.hasOwnProperty('users')){
+            var out = res.users.find(u => u._id == user_id);
+            console.log(out);
+            return callback(null, out);
+        } else {
+            return callback(null, null);
         }
-        console.log(res);
-        callback(null);
     });
 }
 
-exports.fetchUser = function(guild_id, user_id, callback) {
+exports.fetchUser = function(user_id, callback) {
 
     var db = Connection.getDB();
     if (!db) return callback("Not connected to DB!");
@@ -186,7 +187,7 @@ exports.fetchUser = function(guild_id, user_id, callback) {
     collection.findOne({
         _id: user_id
     }, (err, res) => {
-        if (err) return console.log(err);
-        if (res) console.log(res);
+        if (err) return callback(err, null);
+            callback(null, res);
     });
 }

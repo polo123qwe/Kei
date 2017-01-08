@@ -5,7 +5,9 @@ var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
+var dbUsers = require('../db/dbUsers');
 var discordUtils = require('../utils/discordUtils');
+var suf = require('../../config.json').suffix;
 var commands = [];
 
 var cmd;
@@ -185,7 +187,8 @@ commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('names', 'Server Data');
 cmd.addHelp('Retrieves last 5 names/nicknames a user had in the past (-all shows all)');
-cmd.addUsage('[-all] [username/nick/id]')
+cmd.addUsage('[-all] [username/nick/id]');
+cmd.addExample(`names${suf} Ghost -all`);
 cmd.minLvl = levels.USER;
 cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
@@ -200,59 +203,68 @@ cmd.execution = function(client, msg, suffix) {
 
     var member = discordUtils.getOneMemberFromMessage(msg, suffix);
 
-    dbUtils.fetchNameChanges(member.user.id, msg.guild.id, (err, arr) => {
-        if (err) return console.log(err);
-        var names = [];
-        var nicks = [];
-        for (var change of arr) {
-            if (change.isNick) {
-                if (change.oldName != null) {
-                    nicks.push(change.oldName);
+    dbUsers.fetchMember(msg.guild.id, member.user.id, (err, memberData) => {
+        dbUsers.fetchUser(member.user.id, (err2, userData) => {
+            console.log("Member data");
+            console.log(memberData);
+            console.log("User data");
+            console.log(userData);
+
+            if (err) console.log(err);
+            else if (err2) console.log(err)
+            else {
+                var nicks = [];
+
+                if (memberData && memberData.hasOwnProperty("nicknames")) {
+                    var nicks = memberData.nicknames;
                 }
-            } else {
-                names.push(change.oldName);
-            }
-        }
+                var names = [];
+                if (userData && userData.hasOwnProperty("usernames")) {
+                    names = userData.usernames;
+                }
 
-        var embed = new Discord.RichEmbed();
-        embed.setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.avatarURL, member.user.avatarURL);
-        embed.setThumbnail(member.user.avatarURL);
-        embed.setTimestamp();
-        var role = member.roles.find((r) => {
-            return r.hexColor != "#000000"
-        });
-        var asynchronous = false;
-        if (role) embed.setColor(role.hexColor);
+                var embed = new Discord.RichEmbed();
+                embed.setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.avatarURL, member.user.avatarURL);
+                embed.setThumbnail(member.user.avatarURL);
+                embed.setTimestamp();
+                var role = member.roles.find((r) => {
+                    return r.hexColor != "#000000"
+                });
+                var asynchronous = false;
+                if (role) embed.setColor(role.hexColor);
 
-        if (names.length < 1) {
-            embed.addField("Names", "No name changes recorded");
-        } else {
-            if (!all) {
-                names = names.slice(0, 5);
-            }
-            embed.addField("Names", `${member.user.username}#${member.user.discriminator} are": ${names.join(", ")}`);
-        }
-        if (nicks.length < 1) {
-            embed.addField("Nicknames", "No nicknames recorded");
-        } else {
-            if (!all) {
-                nicks = nicks.slice(0, 5);
-                embed.addField("Nicknames", `${nicks.join(", ")}`);
-            } else if(nicks.length > 32){
-                asynchronous = true;
-                utils.generateHasteBin(`Nicks for ${member.user.username}#${member.user.discriminator}:\n${nicks.join("\n ")}`, (link) => {
-                    nicks = nicks.slice(0, 32);
-                    embed.addField("Nicknames", `[Full list](${link}), first 32: ${nicks.join(", ")}`);
+                if (names.length < 1) {
+                    embed.addField("Names", "No name changes recorded");
+                } else {
+                    if (!all) {
+                        names = names.slice(0, 5);
+                    }
+                    embed.addField("Names", `${names.join(", ")}`);
+                }
+                if (nicks.length < 1) {
+                    embed.addField("Nicknames", "No nicknames recorded");
+                } else {
+                    if (!all) {
+                        nicks = nicks.slice(0, 5);
+                        embed.addField("Nicknames", `${nicks.join(", ")}`);
+                    } else if (nicks.length > 32) {
+                        asynchronous = true;
+                        utils.generateHasteBin(`Nicks for ${member.user.username}#${member.user.discriminator}:\n${nicks.join("\n ")}`, (link) => {
+                            nicks = nicks.slice(0, 32);
+                            embed.addField("Nicknames", `[Full list](${link}), first 32: ${nicks.join(", ")}`);
+                            msg.channel.sendEmbed(embed);
+                        })
+                    } else {
+                        embed.addField("Nicknames", `${nicks.join(", ")}`);
+                    }
+                }
+                if (!asynchronous) {
                     msg.channel.sendEmbed(embed);
-                })
-            } else {
-                embed.addField("Nicknames", `${nicks.join(", ")}`);
+                }
             }
-        }
-        if(!asynchronous){
-            msg.channel.sendEmbed(embed);
-        }
+        });
     });
+
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////

@@ -51,7 +51,7 @@ for (var cmds in allCmds) {
             helpCmds[command.category][command.name] += " (" + command.minLvl + ")";
 
             if (command.hasOwnProperty("example")) {
-                helpCmds[command.category][command.name] += "Eg: `" + command.example + "`";
+                helpCmds[command.category][command.name] += " Eg: `" + command.example + "`";
             }
         }
     }
@@ -79,7 +79,8 @@ cmd.execution = function(client, msg, suffix) {
     } else {
         //To avoid max chars we use an array and check the length of the message
         var sendStrings = [];
-        var helpString = "Commands the bot is able to execute sorted by category. \n"+
+        var helpString = "Git Repo: <https://github.com/polo123qwe/Kei> \n"+
+        "Commands the bot is able to execute sorted by category. \n"+
         "The number at the end represents the level required to run the command, to know"+
         " your current level use the command mylevel\n\n";
 

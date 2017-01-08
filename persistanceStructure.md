@@ -65,8 +65,8 @@ members:
         {
             _id: user_id
             isInGuild: true
-            lastJoined: timestamp
-            lastleft: timestamp
+            last_joined: timestamp
+            last_left: timestamp
             joined: [timestamp]
             left: [timestamp]
             nicknames: []
