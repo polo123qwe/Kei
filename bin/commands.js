@@ -74,7 +74,7 @@ cmd.execution = function(client, msg, suffix) {
         if (commands.hasOwnProperty(suffix[0])) {
             msg.channel.sendMessage(helpCmds[commands[command].category][commands[command].name]);
         } else {
-            utils.sendAndDelete(msg.channel, "That command does not exist!", 8000);
+            discordUtils.sendAndDelete(msg.channel, "That command does not exist!", 8000);
         }
     } else {
         //To avoid max chars we use an array and check the length of the message
