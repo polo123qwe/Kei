@@ -4,10 +4,11 @@ var Command = require('../commandTemplate');
 var Connection = require('../db/dbConnection');
 var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
-var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var dbUsers = require('../db/dbUsers');
+var utils = require('../utils/utils');
 var discordUtils = require('../utils/discordUtils');
+var moderationUtils = require('../utils/moderationUtils');
 var commands = [];
 
 var cmd;

@@ -201,16 +201,33 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 ///////////////////////////////////////////////////////////////////
 
 client.on('guildBanAdd', (guild, user) => {
-    discordUtils.findLogsChannel(guild, (channel) => {
-        if (channel) {
-            channel.sendCode('diff', '.').then((m) => {
-                m.editCode('diff', "- ----------------BAN----------------- -\nUser:   " +
-                    user.username + "#" + user.discriminator + "(" + user.id + ")\n" +
-                    "Mod:    " + m.id + "\nReason: " + m.id + "\nTime:   " +
-                    utils.unixToTime(Date.now()));
-            });
-        }
-    });
+	setTimeout(() => {
+		discordUtils.findLogsChannel(guild, (logChannel) => {
+			if (logChannel) {
+				var foundSoftBan = false;
+				logChannel.fetchMessages({
+					limit: 10
+				})
+				.then(messages => {
+					var messageFound = messages.find(m => {
+						var embed = m.embeds[0];
+						if(embed){
+							for(var field of embed.fields){
+								if(field.name == "User" && field.value.includes(user.id)){
+									return true;
+								}
+							}
+						}
+						return false;
+					});
+					if(messageFound == null){
+						console.log("We log it");
+						moderationUtils.logPlaceholder(member.user, logChannel);
+					}
+				});
+			}
+		});
+	}, 2000);
 });
 
 /*

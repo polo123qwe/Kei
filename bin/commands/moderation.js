@@ -4,6 +4,7 @@ var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var discordUtils = require('../utils/discordUtils');
+var moderationUtils = require('../utils/moderationUtils');
 var dbUtils = require('../db/dbUtils');
 var commands = [];
 
@@ -34,13 +35,9 @@ cmd.execution = function(client, msg, suffix) {
 
     if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
-        discordUtils.findLogsChannel(msg.guild, (channel) => {
-            if (channel) {
-                channel.sendCode("xml", "< ----------------WARN---------------- >\nUser:   " +
-                    member.user.username + "#" + member.user.discriminator +
-                    "(" + member.user.id + ")\n" + "Mod:    " + msg.author.username +
-                    "#" + msg.author.discriminator + "(" + msg.author.id + ")\n" +
-                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (" + time + " day(s))");
+        discordUtils.findLogsChannel(msg.guild, (logChannel) => {
+            if (logChannel) {
+                moderationUtils.logMessage("WARN", msg.author, member.user, logChannel, reason);
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "warning", reason, 0, function() {});
         });
@@ -62,13 +59,9 @@ cmd.execution = function(client, msg, suffix) {
 
     if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
-        discordUtils.findLogsChannel(msg.guild, (channel) => {
-            if (channel) {
-                channel.sendCode("md", "<-----------------CHILL---------------->\nUser:   " +
-                    member.user.username + "#" + member.user.discriminator +
-                    "(" + member.user.id + ")\n" + "Mod:    " + msg.author.username +
-                    "#" + msg.author.discriminator + "(" + msg.author.id + ")\n" +
-                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (2 minutes)");
+        discordUtils.findLogsChannel(msg.guild, (logChannel) => {
+            if (logChannel) {
+                moderationUtils.logMessage("CHILL", msg.author, member.user, logChannel, reason);
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
             //Notify the userf
@@ -102,13 +95,9 @@ cmd.execution = function(client, msg, suffix) {
 
     if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
-        discordUtils.findLogsChannel(msg.guild, (channel) => {
-            if (channel) {
-                channel.sendCode("diff", "- ----------------MUTE---------------- -\nUser:   " +
-                    member.user.username + "#" + member.user.discriminator +
-                    "(" + member.user.id + ")\n" + "Mod:    " + msg.author.username +
-                    "#" + msg.author.discriminator + "(" + msg.author.id + ")\n" +
-                    "Reason: " + reason + "\nTime:   " + utils.unixToTime(Date.now()) + " (" + time + " day(s))");
+        discordUtils.findLogsChannel(msg.guild, (logChannel) => {
+            if (logChannel) {
+                moderationUtils.logMessage("MUTE", msg.author, member.user, logChannel, reason);
             }
             dbUtils.insertLog(member.user.id, msg.author.id, "mute", reason, time, function() {});
             dbUtils.insertTimer(Date.now(), time * 24 * 3600 * 1000, member.user.id, role.id, msg.guild.id, function() {});
@@ -194,28 +183,46 @@ cmd.execution = function(client, msg, suffix) {
         if (channel) {
             channel.fetchMessage(messageID).then((m) => {
                 if (m && m.author.id == client.user.id && m.content.includes(messageID)) {
-                    var outmsg = m.content.replace(messageID, msg.author.username +
-                        "#" + msg.author.discriminator + " (" + msg.author.id + ")");
-                    if (reason) {
-                        outmsg = outmsg.replace(messageID, reason);
-                    } else {
-                        outmsg = outmsg.replace(messageID, "No reason specified");
-                    }
-                    m.edit(outmsg);
+                    moderationUtils.editEmbed(m, msg.author, reason);
+                    msg.delete().catch(console.log);
                 } else {
-                    if (m.content.includes(msg.author.id)) {
-                        var outmsg = m.content.replace(/Reason: .*/, 'Reason: ' + reason + ' (edited)');
-                        m.edit(outmsg);
-                        msg.delete().catch(console.log);
-                    } else {
-                        discordUtils.sendAndDelete(msg.channel, 'Not your message!');
+                    for (var field of m.embeds[0].fields) {
+                        if (field.name == "Moderator" && field.value.includes(msg.author.id)) {
+                            moderationUtils.editEmbed(m, msg.author, reason);
+                            msg.delete().catch(console.log);
+                            return;
+                        }
                     }
+                    discordUtils.sendAndDelete(msg.channel, 'Not your message!');
+
                 }
             }).catch(() => {
                 discordUtils.sendAndDelete(msg.channel, "Message not found!");
             });
         }
     });
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+cmd = new Command('softban', 'Moderation');
+cmd.alias.push('sban')
+cmd.addHelp('Bans a user and then it unbans it');
+cmd.addUsage('<mention/id>');
+cmd.minLvl = levels.MODERATOR;
+cmd.params.push(paramtypes.MENTIONORID);
+cmd.execution = function(client, msg, suffix) {
+
+    var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
+    var reason = suffix.splice(1, suffix.length).join(" ");
+
+    msg.guild.ban(member, 1).then(user => {
+        msg.guild.unban(member.user).then(() => {
+            discordUtils.findLogsChannel(msg.guild, logChannel => {
+                moderationUtils.logMessage("SOFTBAN", msg.author, member.user, logChannel, reason);
+            });
+        });
+    });
+
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
