@@ -199,8 +199,8 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
     }
 });
 ///////////////////////////////////////////////////////////////////
-
 client.on('guildBanAdd', (guild, user) => {
+	//Timeout to dectect the softban message
 	setTimeout(() => {
 		discordUtils.findLogsChannel(guild, (logChannel) => {
 			if (logChannel) {
@@ -217,7 +217,7 @@ client.on('guildBanAdd', (guild, user) => {
 									return true;
 								}
 							}
-						}
+
 						return false;
 					});
 					if(messageFound == null){

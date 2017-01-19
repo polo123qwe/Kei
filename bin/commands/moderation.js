@@ -205,9 +205,9 @@ cmd.execution = function(client, msg, suffix) {
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('softban', 'Moderation');
-cmd.alias.push('sban')
+cmd.alias.push('sban', 'kick');
 cmd.addHelp('Bans a user and then it unbans it');
-cmd.addUsage('<mention/id>');
+cmd.addUsage('<mention/id> [reason]');
 cmd.minLvl = levels.MODERATOR;
 cmd.params.push(paramtypes.MENTIONORID);
 cmd.execution = function(client, msg, suffix) {
