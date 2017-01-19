@@ -56,10 +56,13 @@ exports.editEmbed = function(message, moderatorUser, reason){
 		}
 		if(field.name == "Moderator"){
 			found = true;
+			if(field.value == message.id){
+				embed.addField(field.name, `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, field.inline);
+			}
 		}
 	}
 	if(!found){
-		embed.addField("Moderator", moderatorUser.id)
+		embed.addField("Moderator", `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, true)
 	}
 	embed.setTimestamp(new Date(rawEmbed.createdTimestamp));
 	return message.edit("", {embed: embed});
