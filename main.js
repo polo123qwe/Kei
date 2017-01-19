@@ -200,34 +200,34 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 });
 ///////////////////////////////////////////////////////////////////
 client.on('guildBanAdd', (guild, user) => {
-	//Timeout to dectect the softban message
-	setTimeout(() => {
-		discordUtils.findLogsChannel(guild, (logChannel) => {
-			if (logChannel) {
-				var foundSoftBan = false;
-				logChannel.fetchMessages({
-					limit: 10
-				})
-				.then(messages => {
-					var messageFound = messages.find(m => {
-						var embed = m.embeds[0];
-						if(embed){
-							for(var field of embed.fields){
-								if(field.name == "User" && field.value.includes(user.id)){
-									return true;
-								}
-							}
-
-						return false;
-					});
-					if(messageFound == null){
-						console.log("We log it");
-						moderationUtils.logPlaceholder(member.user, logChannel);
-					}
-				});
-			}
-		});
-	}, 2000);
+    //Timeout to dectect the softban message
+    setTimeout(() => {
+        discordUtils.findLogsChannel(guild, (logChannel) => {
+            if (logChannel) {
+                var foundSoftBan = false;
+                logChannel.fetchMessages({
+                        limit: 10
+                    })
+                    .then(messages => {
+                        var messageFound = messages.find(m => {
+                            var embed = m.embeds[0];
+                            if (embed) {
+                                for (var field of embed.fields) {
+                                    if (field.name == "User" && field.value.includes(user.id)) {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        });
+                        if (messageFound == null) {
+                            console.log("We log it");
+                            moderationUtils.logPlaceholder(member.user, logChannel);
+                        }
+                    });
+            }
+        });
+    }, 2000);
 });
 
 /*
