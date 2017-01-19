@@ -15,6 +15,7 @@ var utils = require('./bin/utils/utils');
 var dbUtils = require('./bin/db/dbUtils');
 var dbUsers = require('./bin/db/dbUsers');
 var discordUtils = require('./bin/utils/discordUtils');
+var moderationUtils = require('./bin/utils/moderationUtils');
 
 //Automatic membership processing
 var checkMembershipStatus = require('./bin/memberProcessor.js');
