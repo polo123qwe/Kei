@@ -187,7 +187,7 @@ cmd.execution = function(client, msg, suffix) {
                     msg.delete().catch(console.log);
                 } else {
                     for (var field of m.embeds[0].fields) {
-                        if (field.name == "Moderator" && field.value.includes(msg.author.id)) {
+                        if (field.name == "Moderator" && (field.value.includes(msg.author.id) || field.value == messageID)) {
                             moderationUtils.editEmbed(m, msg.author, reason);
                             msg.delete().catch(console.log);
                             return;

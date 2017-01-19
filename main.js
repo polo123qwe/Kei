@@ -222,7 +222,6 @@ client.on('guildBanAdd', (guild, user) => {
                             return false;
                         });
                         if (messageFound == null) {
-                            console.log("We log it");
                             moderationUtils.logPlaceholder(user, logChannel);
                         }
                     });
