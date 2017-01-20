@@ -205,10 +205,6 @@ cmd.execution = function(client, msg, suffix) {
 
     dbUsers.fetchMember(msg.guild.id, member.user.id, (err, memberData) => {
         dbUsers.fetchUser(member.user.id, (err2, userData) => {
-            console.log("Member data");
-            console.log(memberData);
-            console.log("User data");
-            console.log(userData);
 
             if (err) console.log(err);
             else if (err2) console.log(err)
@@ -319,7 +315,6 @@ cmd.execution = function(client, msg, suffix) {
         var names = [];
         for (var member of msg.guild.members.array()) {
             if (member.roles.exists(r => r.name == role.name)) {
-                console.log(member.user.username);
                 if (member.user.id != msg.author.id) {
                     names.push(member.user.username);
                 }
