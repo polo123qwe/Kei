@@ -26,7 +26,7 @@ cmd.execution = function(client, msg, suffix) {
     }
 
 	if(msg.mentions.everyone || alert.includes("@here") || alert.includes("@everyone")){
-		alert = alert.replace("@here", "").replace("@everyone", "");
+		alert = "Default message"
 	}
 
     discordUtils.sendAndDelete(msg.channel, "Alarm set! " + time + " min");
