@@ -204,7 +204,7 @@ cmd.execution = function(client, msg, suffix) {
             var options = {
                 name: '#' + name,
                 color: parseInt(name, '16'),
-                permissions: 0
+                permissions: []
             }
             msg.guild.createRole(options).then((r) => {
                 addUser(r);
