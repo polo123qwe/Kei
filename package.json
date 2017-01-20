@@ -20,6 +20,7 @@
   "homepage": "https://github.com/polo123qwe/Kei#readme",
   "dependencies": {
     "discord.js": "^x.x.x",
+    "forecast.io-bluebird": "0.0.1",
     "osu-api": "0.0.3",
     "require-directory": "^2.1.1",
     "unirest": "^0.5.1"
