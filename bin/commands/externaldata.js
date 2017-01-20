@@ -110,7 +110,6 @@ cmd.execution = function(client, msg, suffix) {
                 if (err) return;
                 else {
 					var embed = new Discord.RichEmbed();
-					console.log(out);
 			        embed.setAuthor(locat.formatted_address);
 			        embed.addField("Summary", out.summary, false);
 			        embed.addField("Temperature", out.temperature + "ºC", false);
