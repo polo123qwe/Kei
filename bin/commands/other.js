@@ -24,6 +24,11 @@ cmd.execution = function(client, msg, suffix) {
     } else {
         alert += "Time is up!"
     }
+
+	if(msg.mentions.everyone || alert.includes("@here") || alert.includes("@everyone")){
+		alert = alert.replace("@here", "").replace("@everyone", "");
+	}
+
     discordUtils.sendAndDelete(msg.channel, "Alarm set! " + time + " min");
     setTimeout(() => {
         msg.channel.sendMessage(alert);

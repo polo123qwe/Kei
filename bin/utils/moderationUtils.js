@@ -13,8 +13,8 @@ exports.logMessage = function(type, moderatorUser, targetUser, channel, reason) 
     }
     var embed = new Discord.RichEmbed();
     embed.setTitle(type);
-    embed.addField("User", `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`, true);
-    embed.addField("Moderator", `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, true);
+    embed.addField("User", `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`, false);
+    embed.addField("Moderator", `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, false);
     embed.addField("Reason", `${reason}`, false);
     embed.setTimestamp();
     embed.setColor(logType[type]);
@@ -29,8 +29,8 @@ exports.logPlaceholder = function(targetUser, channel) {
 
     channel.sendEmbed(embed).then(m => {
         embed.setTitle("BAN");
-        embed.addField("User", `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`, true);
-        embed.addField("Moderator", `${m.id}`, true);
+        embed.addField("User", `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`, false);
+        embed.addField("Moderator", `${m.id}`, false);
         embed.addField("Reason", `${m.id}`, false);
         embed.setTimestamp();
         return m.edit("", {

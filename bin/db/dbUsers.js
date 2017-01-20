@@ -125,7 +125,7 @@ exports.updateUsername = function(user_id, username, callback) {
             console.log(err);
             return callback(err);
         }
-        console.log(res);
+
         callback(null);
     })
 }
@@ -148,7 +148,7 @@ exports.updateValue = function(user_id, key, value, callback) {
             console.log(err);
             return callback(err);
         }
-        console.log(res);
+
         callback(null);
     })
 }
@@ -159,17 +159,17 @@ exports.fetchMember = function(guild_id, user_id, callback) {
     if (!db) return callback("Not connected to DB!");
 
     var collection = db.collection('members');
-    console.log(user_id);
+
     collection.findOne({
         _id: guild_id,
         "users._id": user_id
     }, (err, res) => {
         if (err) {
-            console.log(err, null);
+
             return callback(err);
         } else if(res && res.hasOwnProperty('users')){
             var out = res.users.find(u => u._id == user_id);
-            console.log(out);
+
             return callback(null, out);
         } else {
             return callback(null, null);
