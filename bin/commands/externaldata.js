@@ -1,3 +1,5 @@
+const Discord = require('discord.js');
+var http = require('http');
 var Command = require('../commandTemplate');
 var Connection = require('../db/dbConnection');
 var levels = require('../../consts/levels.json');
@@ -5,6 +7,9 @@ var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var discordUtils = require('../utils/discordUtils');
 var dbUtils = require('../db/dbUtils');
+var forecast_key = require('../../config').apis.forecastKey;
+var Forecast = require('forecast.io-bluebird');
+var weatherOptions = require('../../consts/weather');
 var commands = [];
 
 try {
@@ -87,5 +92,93 @@ var modes = {
 
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
+cmd = new Command('weather', 'External Data');
+cmd.addHelp('Returns the weather at given address');
+cmd.addUsage('<address>')
+cmd.dm = true;
+cmd.cd = 5;
+cmd.minLvl = levels.DEFAULT;
+cmd.params.push(paramtypes.PARAM);
+cmd.execution = function(client, msg, suffix) {
+    geocode(suffix.join(" "), function(err, locat) {
+        if (err != null) {
+            // console.log('Error: ' + err);
+        } else if (!locat) {
+            msg.channel.sendMessage("No result found!");
+        } else {
+            getForecast(locat.geometry.location.lat, locat.geometry.location.lng, function(err, out) {
+                if (err) return;
+                else {
+					var embed = new Discord.RichEmbed();
+					console.log(out);
+			        embed.setAuthor(locat.formatted_address);
+			        embed.addField("Summary", out.summary, false);
+			        embed.addField("Temperature", out.temperature + "ºC", false);
+			        embed.addField("Humidity", Math.floor(out.humidity*100) + "%", false);
+			        embed.addField("Probability of Rain", Math.floor(out.precipProbability*100) + "%", false);
+			        embed.setColor("#4444AA");
+					if(weatherOptions.hasOwnProperty(out.icon)){
+						embed.setThumbnail(weatherOptions[out.icon]);
+					}
+					embed.setTimestamp();
+					msg.channel.sendEmbed(embed);
+                }
+            });
+        }
+    });
+}
+
+function geocode(address, callback) {
+
+    var url = "http://maps.googleapis.com/maps/api/geocode/json?address=" + encodeURIComponent(address) + "&sensor=false";
+
+    http.get(url, function(res) {
+        if (res.statusCode != 200) {
+            callback("HTTP status = " + res.statusCode, null);
+        } else {
+            var output = '';
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                output += chunk;
+            });
+            res.on('end', function() {
+                var response = JSON.parse(output);
+                if (response.status == "OK") {
+                    var location = response.results[0];
+                    callback(null, location);
+                } else if (response.status == "ZERO_RESULTS") {
+                    callback(null, null);
+                } else {
+                    callback("Status = " + response.status, null);
+                }
+            });
+        }
+    }).on('error', function(e) {
+        callback(e.message, null);
+    });
+}
+
+function getForecast(latitude, longitude, callback) {
+    var forecast = new Forecast({
+        key: forecast_key,
+        timeout: 2500
+    });
+    var options = {
+        units: 'si',
+    };
+    forecast.fetch(latitude, longitude, options)
+        .then(function(out) {
+            var out = out.currently;
+            callback(null, out);
+        })
+        .catch(function(error) {
+            // console.error(error);
+            callback(error);
+        });
+}
+
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+
 
 module.exports = commands;

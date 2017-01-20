@@ -26,7 +26,7 @@ cmd.execution = function(client, msg, suffix) {
     }
 
 	if(msg.mentions.everyone || alert.includes("@here") || alert.includes("@everyone")){
-		alert = "Default message"
+		alert = msg.author + "Time is up!";
 	}
 
     discordUtils.sendAndDelete(msg.channel, "Alarm set! " + time + " min");
