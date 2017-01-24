@@ -81,8 +81,9 @@ exports.getRole = function(guild, roleName) {
 }
 
 exports.findLogsChannel = function(guild, callback) {
-    var db = Connection.getDB();
+	var db = Connection.getDB();
     var channelID;
+	var channelName = "log";
 
     if (db) {
         var collection = db.collection('guilds');
@@ -90,27 +91,51 @@ exports.findLogsChannel = function(guild, callback) {
         collection.findOne({
             _id: guild.id
         }, function(err, res) {
-            if (res && res.hasOwnProperty("log")) {
-                channelID = res.log;
+            if (res && res.hasOwnProperty(channelName)) {
+                channelID = res[channelName];
             }
-            return fetchChannel();
+            return fetchChannel(channelID, channelName, guild, callback);
         })
     } else {
-        return fetchChannel();
-    }
-
-    function fetchChannel() {
-        if (channelID) {
-            callback(guild.channels.get(channelID));
-        }
-        // Default channel name is log
-        callback(guild.channels.find("name", "log"));
+        return fetchChannel(channelID, channelName, guild, callback);
     }
 }
 
 exports.findActivityChannel = function(guild) {
     return guild.channels.find("name", "activity-log");
 }
+
+exports.findSuggestionsChannel = function(guild, callback) {
+    var db = Connection.getDB();
+    var channelID;
+	var channelName = "suggestions";
+
+    if (db) {
+        var collection = db.collection('guilds');
+
+        collection.findOne({
+            _id: guild.id
+        }, function(err, res) {
+            if (res && res.hasOwnProperty(channelName) && channelName != null) {
+                channelID = res[channelName];
+            }
+            return fetchChannel(channelID, channelName, guild, callback);
+        })
+    } else {
+        return fetchChannel(channelID, channelName, guild, callback);
+    }
+
+
+}
+///////////////////// Helper function to get channels /////////////////////
+function fetchChannel(channelID, name, guild, callback) {
+	if (channelID) {
+		callback(guild.channels.get(channelID));
+	}
+	// Default channel name is log
+	callback(guild.channels.find("name", name));
+}
+///////////////////////////////////////////////////////////////////////////
 
 exports.sendAndDelete = function(channel, content, delay) {
     var d = DELAY;

@@ -19,61 +19,61 @@ cmd.reqDB = true;
 cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
 
-        var db = Connection.getDB();
-        var collection = db.collection('guilds');
-        var operation;
+    var db = Connection.getDB();
+    var collection = db.collection('guilds');
+    var operation;
 
-        //We check which operation the user is trying to execute
-        var option = suffix[0].toLowerCase();
+    //We check which operation the user is trying to execute
+    var option = suffix[0].toLowerCase();
 
-        //Remove if "-r" was in the message and set the message to remove
-        var remove = false;
-        var index = suffix.indexOf("-r");
-        if (index > -1) {
-            suffix.splice(index, 1);
-            remove = true;
-        }
+    //Remove if "-r" was in the message and set the message to remove
+    var remove = false;
+    var index = suffix.indexOf("-r");
+    if (index > -1) {
+        suffix.splice(index, 1);
+        remove = true;
+    }
 
-        var index = suffix.indexOf("-h");
-        if (index > -1) {
-            if(operations.hasOwnProperty(option)){
-                return msg.channel.sendMessage(`${option}: ${operations[option].help}\n`);
-            } else {
-                return msg.channel.sendMessage("Error, options are: " + ops.join(", "));
-            }
-        }
-
+    var index = suffix.indexOf("-h");
+    if (index > -1) {
         if (operations.hasOwnProperty(option)) {
-            operation = operations[option].run(msg, suffix, remove);
+            return msg.channel.sendMessage(`${option}: ${operations[option].help}\n`);
         } else {
-            var arr = [];
-            for (var o in operations) {
-                arr.push(o);
-            }
-            discordUtils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: " + arr.join(", "), 8000);
-        }
-
-        if (operation != null) {
-            collection.findOneAndUpdate({
-                    _id: msg.guild.id
-                }, operation, {
-                    returnOriginal: false,
-                    upsert: true
-                },
-                function(err, res) {
-                    if (err) return console.log(err);
-                    if (res.ok == 1) {
-                        discordUtils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
-                    } else {
-                        console.log(res);
-                        discordUtils.sendAndDelete(msg.channel, res);
-                    }
-                    msg.delete();
-                }
-            );
+            return msg.channel.sendMessage("Error, options are: " + ops.join(", "));
         }
     }
-    ////////////////////////////////////////////////////////////
+
+    if (operations.hasOwnProperty(option)) {
+        operation = operations[option].run(msg, suffix, remove);
+    } else {
+        var arr = [];
+        for (var o in operations) {
+            arr.push(o);
+        }
+        discordUtils.sendAndDelete(msg.channel, "You can't access that field! Fields available are: " + arr.join(", "), 8000);
+    }
+
+    if (operation != null) {
+        collection.findOneAndUpdate({
+                _id: msg.guild.id
+            }, operation, {
+                returnOriginal: false,
+                upsert: true
+            },
+            function(err, res) {
+                if (err) return console.log(err);
+                if (res.ok == 1) {
+                    discordUtils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
+                } else {
+                    console.log(res);
+                    discordUtils.sendAndDelete(msg.channel, res);
+                }
+                msg.delete();
+            }
+        );
+    }
+}
+////////////////////////////////////////////////////////////
 
 /*
  * This object handles all the options the user can execute to modify the database
@@ -228,6 +228,22 @@ var operations = {
                     automember: (setting == true)
                 }
             }
+        },
+    },
+    suggestions: {
+        help: `Sets the channel for suggestions (empty for no channel). Eg: \`set${suf} suggestions 207248974451679543\``,
+        run: function(msg, suffix) {
+            var channelID = suffix[1];
+			if(channelID == null || msg.guild.channels.has(channelID)){
+				return {
+					$set: {
+						suggestions: channelID
+					}
+				}
+			} else {
+				discordUtils.sendAndDelete(msg.channel, "Channel does not exist");
+				return null;
+			}
         },
     },
 }

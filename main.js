@@ -53,6 +53,7 @@ client.on('message', msg => {
 
     if (msg.guild != null) {
         checkInvLink(msg);
+		processSuggestionChannel(msg);
     }
 
     //Remove suffix
@@ -85,6 +86,20 @@ client.on('message', msg => {
     }
 });
 
+function processSuggestionChannel(msg){
+
+	discordUtils.findSuggestionsChannel(msg.channel.guild, channel => {
+		if(channel && channel.id == msg.channel.id){
+			msg.react("👍").then(() => {
+				msg.react("👎").then(() => {
+					msg.react("🔨");
+				});
+			});
+
+
+		}
+	});
+}
 ///////////////// Join and leave member ///////////////////////////
 client.on('guildMemberAdd', (member) => {
 
