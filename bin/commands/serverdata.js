@@ -12,6 +12,79 @@ var commands = [];
 
 var cmd;
 ////////////////////////////////////////////////////////////
+cmd = new Command('info', 'Server Data');
+cmd.addHelp('Returns info on a specific user. You can use either a mention, an ID, or a nickname.');
+cmd.addUsage('[username/nick/id]');
+cmd.cd = 10;
+cmd.minlvl = levels.DEFAULT;
+cmd.execution = function (client, msg, suffix) {
+    msg.guild.fetchMembers().then(getMemberInfo).catch(getMemberInfo);
+
+    function getMemberInfo () {
+        var member = discordUtils.getOneMemberFromMessage(msg, suffix);
+
+        var embed = new Discord.RichEmbed();
+        /**
+         * Embed Details
+         */
+        // Set the author of the embed
+        embed.setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.avatarURL, member.user.avatarURL);
+
+        // If the user is playing a game, display it below the thumbnail and their name.
+        if (member.user.presence.game) {
+            embed.setDescription("playing **" + member.user.presence.game.name + "**");
+        }
+
+        // ID and Status
+        embed.addField("ID", member.user.id, true);
+        embed.addField("Status", member.user.presence.status, true);
+
+        // If the member has a nickname, we display it, if not we just display "n/a"
+        (member.nickname) ? (embed.addField("Nickname", member.nickname, true)) : embed.addField("Nickname", "n/a", true);
+
+        // Display the account creation date and the join date, plus the timespans in italics
+        /**
+         * @todo: Fix the convertUnixToDate function to display years instead of "12+ months", plus
+         * it's still displaying "1 months" instead of "1 month". I also had to remove the trailing
+         * full stop at the end :P
+         */
+        embed.addField("Account Created", utils.unixToTime(member.user.createdAt) + "\n(*" + utils.convertUnixToDate(Date.now() - member.user.createdAt.getTime()).toLowerCase().slice(0, -1) + " ago*)");
+        embed.addField("Joined " + msg.guild.name, utils.unixToTime(member.joinedAt) + "\n(*" + utils.convertUnixToDate(Date.now() - member.joinedAt.getTime()).toLowerCase().slice(0, -1) + " ago*)");
+
+        // Check for roles, and display them. If there are no roles this field is ignored
+        if (member.roles) {
+            var userRolesString = "";
+            member.roles.array().forEach(function(item, index, array) {
+                userRolesString += item.name + ", ";
+            });
+
+            // Cut the "@everyone portion so that the bot doesn't actually mention everyone"
+            userRolesString = userRolesString.substr(0, userRolesString.indexOf("@everyone")) + userRolesString.substr(userRolesString.indexOf("@everyone") + 11);
+
+            // Cut the trailing ", " at the end
+            userRolesString = userRolesString.slice(0, -2);
+
+            embed.addField("Roles", userRolesString);
+        }
+
+        // Set the timestamp for the command
+        embed.setTimestamp();
+
+        // Get color for the embed
+        var role = member.roles.find((r) => {
+            return r.hexColor != "#000000"
+        });
+        if (role) embed.setColor(role.hexColor);
+
+        // Set the thumbnail
+        embed.setThumbnail(member.user.avatarURL);
+
+        // Send the message
+        msg.channel.sendEmbed(embed);
+    }
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
 cmd = new Command('joined', 'Server Data');
 cmd.addHelp('Returns the date the user joined');
 cmd.addUsage('[username/nick/id]');
