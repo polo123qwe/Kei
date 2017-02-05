@@ -52,7 +52,7 @@ cmd.execution = function (client, msg, suffix) {
         embed.addField("Joined " + msg.guild.name, utils.unixToTime(member.joinedAt) + "\n(*" + utils.convertUnixToDate(Date.now() - member.joinedAt.getTime()).toLowerCase().slice(0, -1) + " ago*)");
 
         // Check for roles, and display them. If there are no roles this field is ignored
-        if (member.roles) {
+        if (member.roles.length > 1) {
             var userRolesString = "";
             member.roles.array().forEach(function(item, index, array) {
                 userRolesString += item.name + ", ";
