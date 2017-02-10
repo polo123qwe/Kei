@@ -40,7 +40,7 @@ cmd.execution = function(client, msg, suffix) {
         member = members[utils.getRandom(0, members.length - 1)];
     }
 
-    msg.channel.sendMessage(`${member.user.username} has been selected!`);
+    msg.channel.sendMessage(`:arrow_forward:    |    **${member.user.username}** has been selected!`);
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ cmd.execution = function(client, msg, suffix) {
     if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
         dbUtils.insertTimer(Date.now(), time, member.user.id, role.id, msg.guild.id, function() {});
-        discordUtils.sendAndDelete(msg.channel, `${member.user.username} you are dead for ${utils.convertUnixToDate(time)}`, 8000);
+        msg.channel.sendMessage(`:no_bell:    |    **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
         setTimeout(() => {
             member.removeRole(role).then(() => {
             }).catch(console.log);
