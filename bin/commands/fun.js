@@ -18,12 +18,30 @@ cmd.execution = function(client, msg, suffix) {
 
     var memb1 = members[0];
     var memb2 = members[0];
-    while (memb1 == memb2 || !memb1.roles.exists('name', 'Member') || !memb2.roles.exists('name', 'Member')) {
-        memb1 = members[utils.getRandom(0, members.length - 1)];
-        memb2 = members[utils.getRandom(0, members.length - 1)];
-    }
+	var i = 0;
+	dbUtils.getLevel(msg.guild, memb1, checkFirst);
 
-    msg.channel.sendMessage(':revolving_hearts: ' + memb1.user.username + " x " + memb2.user.username + ' :revolving_hearts:');
+	function checkFirst(err, res){
+		if(err || i > 50000) return; //Avoid infinite loop
+		i++;
+		if(res > -1){
+	        memb2 = members[utils.getRandom(0, members.length - 1)];
+			dbUtils.getLevel(msg.guild, memb2, checkSecond);
+		} else {
+			memb1 = members[utils.getRandom(0, members.length - 1)];
+			dbUtils.getLevel(msg.guild, memb1, checkFirst);
+		}
+	}
+	function checkSecond(err, res){
+		if(err || i > 50000) return; //Avoid infinite loop
+		i++;
+		if(res > -1 && memb1 != memb2){
+			msg.channel.sendMessage(':revolving_hearts: ' + memb1.user.username + " x " + memb2.user.username + ' :revolving_hearts:');
+		} else {
+	        memb2 = members[utils.getRandom(0, members.length - 1)];
+			dbUtils.getLevel(msg.guild, memb2, checkSecond);
+		}
+	}
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -34,13 +52,20 @@ cmd.cd = 20;
 cmd.execution = function(client, msg, suffix) {
 
     var members = msg.guild.members.array();
-    var member;
+    var member = members[utils.getRandom(0, members.length - 1)];
+	var i = 0;
+	dbUtils.getLevel(msg.guild, member, checkFirst);
 
-    while (member == null || !member.roles.exists('name', 'Member')) {
-        member = members[utils.getRandom(0, members.length - 1)];
-    }
-
-    msg.channel.sendMessage(`:arrow_forward:    |    **${member.user.username}** has been selected!`);
+	function checkFirst(err, res){
+		if(err || i > 50000) return; //Avoid infinite loop
+		i++;
+		if(res > -1){
+			msg.channel.sendMessage(`:arrow_forward:    |    **${member.user.username}** has been selected!`);
+		} else {
+			member = members[utils.getRandom(0, members.length - 1)];
+			dbUtils.getLevel(msg.guild, member, checkFirst);
+		}
+	}
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
