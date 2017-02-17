@@ -161,7 +161,21 @@ client.on('guildMemberRemove', (member) => {
         if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
             member.guild.defaultChannel.sendMessage(processGreeting(guildData.goodbye));
         } else {
-            member.guild.defaultChannel.sendMessage(`**${member.user.username} #${member.user.discriminator}** is now gone.`);
+            var embed = new Discord.RichEmbed();
+            var chance = Math.floor((Math.random() * 10) + 1);
+
+            if (chance % 2) {
+                embed.setAuthor(`${member.user.username}#${member.user.discriminator} has left the server!`, member.user.avatarURL);
+            } else {
+                embed.setAuthor(`${member.user.username}#${member.user.discriminator} is now gone.`, member.user.avatarURL);
+            }
+
+            
+            embed.setColor("#f44441");
+
+            member.guild.defaultChannel.sendEmbed(embed);
+
+            //member.guild.defaultChannel.sendMessage(`**${member.user.username}#${member.user.discriminator}** is now gone.`);
         }
 
     });
