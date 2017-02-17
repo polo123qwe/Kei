@@ -30,7 +30,6 @@ commands.push(cmd);
 cmd = new Command('eval', 'Debugging');
 cmd.addHelp('Evals some code');
 cmd.addUsage('<code>');
-cmd.dm = true;
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg, suffix) {
     var result;
