@@ -97,7 +97,6 @@ cmd.execution = function(client, msg, suffix) {
 
     //var roleName = suffix.slice(0, suffix.length - 1).join(" ");
     var lvl = suffix[0];
-    var roleName = suffix.splice(1, suffix.length).join(" ");
 
     var db = Connection.getDB();
     var collection = db.collection('roles');
