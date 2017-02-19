@@ -46,14 +46,25 @@ exports.updateNickname = function(guild_id, user_id, nickname, callback) {
     insertIntoMembers(guild_id, user_id, operation, fields, callback);
 }
 
-exports.updateUserRoles = function(guild_id, user_id, roles, callback) {
-    var operation = {
-        $set: {
-            "users.$.roles": roles
+exports.updateUserRoles = function(guild_id, user_id, roles, empty, callback) {
+    if (empty) {
+        var operation = {
+            $set: {
+                "users.$.roles": []
+            }
         }
-    }
-    var fields = {
-        "roles" : roles
+        var fields = {
+            "roles": []
+        }
+    } else {
+        var operation = {
+            $set: {
+                "users.$.roles": roles
+            }
+        }
+        var fields = {
+            "roles" : roles
+        }
     }
     insertIntoMembers(guild_id, user_id, operation, fields, callback);
 }
