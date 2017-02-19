@@ -46,6 +46,18 @@ exports.updateNickname = function(guild_id, user_id, nickname, callback) {
     insertIntoMembers(guild_id, user_id, operation, fields, callback);
 }
 
+exports.updateUserRoles = function(guild_id, user_id, roles, callback) {
+    var operation = {
+        $set: {
+            "users.$.roles": roles
+        }
+    }
+    var fields = {
+        "roles" : roles
+    }
+    insertIntoMembers(guild_id, user_id, operation, fields, callback);
+}
+
 /*
  * Generic template to insert into the db, where updateOperation is the operation
  * to be updated and fields is an object with all the fields that the update

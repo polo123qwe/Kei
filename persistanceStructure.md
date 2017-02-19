@@ -70,6 +70,7 @@ members:
             joined: [timestamp]
             left: [timestamp]
             nicknames: []
+            roles: []
         }
     ]
 

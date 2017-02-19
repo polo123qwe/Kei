@@ -109,6 +109,24 @@ client.on('guildMemberAdd', (member) => {
         });
     }
 
+    dbUsers.fetchMember(member.guild.id, member.user.id, (err, memberData) => {
+        dbUsers.fetchUser(member.user.id, (erro, userData) => {
+            if (err) console.log(err);
+            else if (erro) console.log(erro);
+            else {
+                if (userData.last_left) {
+                    if (userData.roles.length > 0) {
+                        member.addRoles(userData.roles).then((memb) => {
+                            if (userData.roles.indexOf("143344644837605376") > -1) {
+                                member.user.sendMessage(`It looks like you have tried to circumvent a mute in ${member.guild.name}. If you continue to do so, a ban will be issued.`);
+                            }
+                        }).catch((er) => {console.log(er.stack)});
+                    }
+                }
+            }
+        });
+    });
+
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
 
@@ -146,8 +164,23 @@ client.on('guildMemberAdd', (member) => {
 client.on('guildMemberRemove', (member) => {
 
     if (logging) {
-        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now(), () => {
+        var roleInstances = member.roles.toArray();
+        var userRoles = [];
 
+        if (roleInstances.length > 1) {
+            for (var role in roleInstances) {
+                if (role.name !== "@everyone") {
+                    userRoles.push(role.id);
+                }
+            }
+        }
+
+        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now(), () => {
+            if (userRoles.length > 0) {
+                dbUsers.updateUserRoles(member.guild.id, member.user.id, userRoles, () => {
+
+                });
+            }
         });
     }
 
