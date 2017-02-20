@@ -86,7 +86,8 @@ client.on('message', msg => {
 /* Member join and leave processing */
 client.on('guildMemberAdd', (member) => {
 
-	console.log(`${member.user.name}#${member.user.discriminator} (${member.id}) joined`);
+	//Console logging
+	console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) joined`);
 
     if (logging) {
         dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now(), () => {});
@@ -126,7 +127,8 @@ client.on('guildMemberAdd', (member) => {
 
 client.on('guildMemberRemove', (member) => {
 
-	console.log(`${member.user.name}#${member.user.discriminator} (${member.id}) left`);
+	//Console logging
+	console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) left`);
 
     if (logging) {
         var roleInstances = member.roles.array();
