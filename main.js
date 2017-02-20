@@ -2,6 +2,12 @@ const Discord = require('discord.js');
 
 var Command = require('./bin/commandTemplate');
 var commands = require('./bin/commands');
+var utils = require('./bin/utils/utils');
+var dbUtils = require('./bin/db/dbUtils');
+var dbUsers = require('./bin/db/dbUsers');
+var discordUtils = require('./bin/utils/discordUtils');
+var moderationUtils = require('./bin/utils/moderationUtils');
+var helpers = require('./bin/helpers.js');
 
 const client = new Discord.Client({
     fetch_all_members: true,
@@ -10,12 +16,6 @@ const client = new Discord.Client({
 const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
 const logging = require('./config.json').logging;
-//const ai = require('./bin/ai');
-var utils = require('./bin/utils/utils');
-var dbUtils = require('./bin/db/dbUtils');
-var dbUsers = require('./bin/db/dbUsers');
-var discordUtils = require('./bin/utils/discordUtils');
-var moderationUtils = require('./bin/utils/moderationUtils');
 
 //Automatic membership processing
 var checkMembershipStatus = require('./bin/memberProcessor.js');
@@ -25,17 +25,17 @@ var memberRemoval = require('./bin/memberRemoval.js');
 const Connection = require('./bin/db/dbConnection');
 var time = Date.now();
 
+/* On ready event */
 client.on('ready', () => {
     var interval = Date.now() - time;
     console.log('Bot connected (' + interval + 'ms)');
     //Load all the timers
-    loadTimers();
+    helpers.loadTimers(client);
     memberRemoval(client);
 });
 
-// create an event listener for messages
+/* Message event listener */
 client.on('message', msg => {
-
     var splitted = msg.content.split(" ");
 
     //Log the message in the DB
@@ -46,14 +46,14 @@ client.on('message', msg => {
         checkMembershipStatus(client, msg.member);
     }
 
-    //Ignore bot own commands
+    //Prevent the bot from triggering its own commands
     if (msg.author.id == client.user.id) {
         return;
     }
 
     if (msg.guild != null) {
-        checkInvLink(msg);
-		processSuggestionChannel(msg);
+        helpers.checkInvLink(msg);
+		helpers.processSuggestionChannel(msg);
     }
 
     //Remove suffix
@@ -63,7 +63,7 @@ client.on('message', msg => {
         suffix = suffix.split(" ");
     }
 
-    //We check is its a command
+    //Check if it's a command
     if (cmdName.endsWith(suf)) {
 
         cmdName = cmdName.substring(0, splitted[0].length - 1);
@@ -77,36 +77,17 @@ client.on('message', msg => {
                 console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}`);
             }
             commands[cmdName].run(client, msg, suffix);
-
         }
     } else if (msg.mentions.users.has(client.user.id)) {
-        //We check if the bot was pinged
-        //console.log("Bot was pinged!");
-        //ai(client, msg);
+        /* TODO: Bot AI with Cleverbot? */
     }
 });
 
-function processSuggestionChannel(msg){
-
-	discordUtils.findSuggestionsChannel(msg.channel.guild, channel => {
-		if(channel && channel.id == msg.channel.id){
-			msg.react("👍").then(() => {
-				msg.react("👎").then(() => {
-					msg.react("🔨");
-				});
-			});
-
-
-		}
-	});
-}
-///////////////// Join and leave member ///////////////////////////
+/* Member join and leave processing */
 client.on('guildMemberAdd', (member) => {
 
     if (logging) {
-        dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now(), () => {
-
-        });
+        dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now(), () => {});
     }
 
     dbUsers.fetchMember(member.guild.id, member.user.id, (err, memberData) => {
@@ -127,39 +108,21 @@ client.on('guildMemberAdd', (member) => {
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) {
-            return;
-        }
+        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) { return; }
 
         if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
             //If you type default or an empty string it will use the default message
             if (guildData.greeting.length == 0 || !guildData.greeting.includes("default")) {
-                member.guild.defaultChannel.sendMessage(processGreeting(guildData.greeting)).catch();
+                member.guild.defaultChannel.sendMessage(helpers.processGreeting(guildData.greeting)).catch();
                 return;
             }
         }
 
         member.guild.defaultChannel.sendMessage(`Wleocme to ${member.guild.name}, ${member.user}! Dont forget to read the rules!`).catch();
-
     });
-
-    //This helper function replaces the $user and $guild elements with the corresponding values
-    function processGreeting(greeting) {
-        var outStr = greeting;
-        var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
-        for (var setting of settings) {
-            if (setting.includes("user")) {
-                outStr = outStr.replace("$user", member.user);
-            } else if (setting.includes("guild")) {
-                outStr = outStr.replace("$guild", member.guild.name);
-            }
-        }
-        return outStr
-    }
 });
 
 client.on('guildMemberRemove', (member) => {
-
     if (logging) {
         var roleInstances = member.roles.array();
         var userRoles = [];
@@ -176,9 +139,7 @@ client.on('guildMemberRemove', (member) => {
             dbUsers.updateUserRoles(member.guild.id, member.user.id, [], true, () => {});
         }
 
-        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now(), () => {
-            
-        });
+        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now(), () => {});
     }
 
     dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
@@ -189,7 +150,7 @@ client.on('guildMemberRemove', (member) => {
         }
 
         if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
-            member.guild.defaultChannel.sendMessage(processGreeting(guildData.goodbye));
+            member.guild.defaultChannel.sendMessage(helpers.processGoodbye(guildData.goodbye));
         } else {
             var embed = new Discord.RichEmbed();
             var chance = Math.floor((Math.random() * 10) + 1);
@@ -200,31 +161,14 @@ client.on('guildMemberRemove', (member) => {
                 embed.setAuthor(`${member.user.username}#${member.user.discriminator} is now gone.`, member.user.avatarURL);
             }
 
-            
             embed.setColor("#f44441");
 
             member.guild.defaultChannel.sendEmbed(embed);
-
-            //member.guild.defaultChannel.sendMessage(`**${member.user.username}#${member.user.discriminator}** is now gone.`);
         }
-
     });
-
-    //This helper function replaces the $user element with the corresponding value
-    function processGreeting(goodbye) {
-        console.log(goodbye);
-        var outStr = goodbye;
-        var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
-        for (var setting of settings) {
-            if (setting.includes("user")) {
-                outStr = outStr.replace("$user", member.user.username + "#" + member.user.discriminator);
-            }
-        }
-        return outStr;
-    }
 });
 
-///////////////// Namechanges handling ////////////////////////////
+/* Username and nickname update handler */
 client.on('userUpdate', (oldUser, newUser) => {
     if (logging && oldUser.username != newUser.username && newUser.username != null) {
         //dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
@@ -242,8 +186,8 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
         });
     }
 });
-///////////////////////////////////////////////////////////////////
-////////////////////// Message edits //////////////////////////////
+
+/* Database logging of deleted/edited messages */
 client.on('messageDelete', (message) => {
     if (logging) {
         dbUtils.tagMessageAs(message.id, false);
@@ -254,11 +198,12 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
     if (logging) {
         dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
         if (newMessage.guild != null) {
-            checkInvLink(newMessage);
+            helpers.checkInvLink(newMessage);
         }
     }
 });
-///////////////////////////////////////////////////////////////////
+
+/* Handling of server bans */
 client.on('guildBanAdd', (guild, user) => {
     //Timeout to dectect the softban message
     setTimeout(() => {
@@ -289,93 +234,7 @@ client.on('guildBanAdd', (guild, user) => {
     }, 2000);
 });
 
-/*
- * This function loads the timers from the database and then checks if they have
- * expired, if they have the role is removed from the user, if now, we create a
- * timeout with the time remaining
- */
-function loadTimers() {
-
-    var db = Connection.getDB();
-    if (!db) return console.log("Not connected to DB!");
-    var collection = db.collection('timers');
-
-    var expiredTimers = [];
-
-    //Fetch all the timers
-    collection.find(function(err, cur) {
-        if (err) return console.log(err);
-
-        cur.toArray().then((arr) => {
-
-            for (var timer of arr) {
-                var span = Date.now() - timer.timestamp;
-
-                if (span > timer.time) {
-                    //Remove timers that are expired
-                    expiredTimers.push(timer);
-                } else {
-                    //Add others to a timeout
-                    var guild = client.guilds.get(timer.guild_id);
-                    var member = guild.members.get(timer.user_id);
-                    setTimeout(function() {
-                        member.removeRole(timer.role_id).then(() => {
-                            console.log(member.user.username + " unmuted.")
-                        });
-                        dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
-                    }, timer.time - span);
-                }
-            }
-
-            removeTimers();
-
-        }).catch(console.log);
-    });
-
-    //helper function to make reading easier
-    function removeTimers() {
-        if (expiredTimers.length <= 0) return;
-        var timer = expiredTimers.pop();
-        console.log(timer);
-        var guild = client.guilds.get(timer.guild_id);
-        var member = guild.members.get(timer.user_id);
-        if (member) {
-            member.removeRole(timer.role_id).then(() => {
-                console.log(member.user.username + " unmuted.")
-                dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
-                    removeTimers();
-                });
-            });
-        } else {
-            dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
-                removeTimers();
-            });
-        }
-    }
-}
-
-function checkInvLink(msg) {
-    //Retrieve from the db
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return console.log(err);
-
-        //If the guild has the invites allowed (default) we dont delete it
-        if (guildData != null && guildData.hasOwnProperty('invites') && !guildData.invites) {
-            //Check users who are whitelisted to see if the user is allowed to post an invite
-            if (guildData.hasOwnProperty('whitelisted') && !guildData.whitelisted.includes(msg.author.id)) {
-                //Delete the message if it has an invite
-                if (/discord\.gg.*\//i.test(msg.content)) {
-                    console.log(`Invite ${msg.content} deleted!`);
-                    msg.delete().then(() => {
-                        discordUtils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
-                    })
-                }
-            }
-        }
-    });
-}
-
-//Starts the bot
+/* Starts the bot */
 function startBot() {
     //Try to connect to DB and to log the client
     Connection((err, db) => {
