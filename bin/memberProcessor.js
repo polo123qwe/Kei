@@ -4,6 +4,7 @@ var discordUtils = require('./utils/discordUtils');
 var memberRoleName = {};
 
 module.exports = function(client, member) {
+	if(member == null) return;
     //We avoid calling the DB if the user has the role already
     if (memberRoleName[member.guild.id] && member.roles.exists(r => r.name.toLowerCase() == memberRoleName[member.guild.id])) {
         return;

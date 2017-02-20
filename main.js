@@ -86,6 +86,8 @@ client.on('message', msg => {
 /* Member join and leave processing */
 client.on('guildMemberAdd', (member) => {
 
+	console.log(`${member.user.name}#${member.user.discriminator} (${member.id}) joined`);
+
     if (logging) {
         dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now(), () => {});
     }
@@ -93,7 +95,7 @@ client.on('guildMemberAdd', (member) => {
     dbUsers.fetchMember(member.guild.id, member.user.id, (err, memberData) => {
         if (err) console.log(err);
         else {
-            if (memberData.last_left) {
+            if (memberData && memberData.last_left) {
                 if (memberData.roles.length > 0) {
                     member.addRoles(memberData.roles).then((memb) => {
                         if ((memberData.roles.indexOf("143344644837605376") > -1) || (memberData.roles.indexOf("143344576143425536") > -1)) {
@@ -123,6 +125,9 @@ client.on('guildMemberAdd', (member) => {
 });
 
 client.on('guildMemberRemove', (member) => {
+
+	console.log(`${member.user.name}#${member.user.discriminator} (${member.id}) left`);
+
     if (logging) {
         var roleInstances = member.roles.array();
         var userRoles = [];
