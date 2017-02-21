@@ -97,7 +97,7 @@ client.on('guildMemberAdd', (member) => {
         if (err) console.log(err);
         else {
             if (memberData && memberData.last_left) {
-                if (memberData.roles.length > 0) {
+                if (memberData.roles && memberData.roles.length > 0) {
                     member.addRoles(memberData.roles).then((memb) => {
                         if ((memberData.roles.indexOf("143344644837605376") > -1) || (memberData.roles.indexOf("143344576143425536") > -1)) {
                             member.user.sendMessage(`It looks like you have tried to circumvent a warning/mute in ${member.guild.name}. If you continue to do so, a ban will be issued.`);
@@ -116,7 +116,7 @@ client.on('guildMemberAdd', (member) => {
         if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
             //If you type default or an empty string it will use the default message
             if (guildData.greeting.length == 0 || !guildData.greeting.includes("default")) {
-                member.guild.defaultChannel.sendMessage(helpers.processGreeting(guildData.greeting)).catch();
+                member.guild.defaultChannel.sendMessage(helpers.processGreeting(guildData.greeting, member)).catch();
                 return;
             }
         }
@@ -157,7 +157,7 @@ client.on('guildMemberRemove', (member) => {
         }
 
         if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
-            member.guild.defaultChannel.sendMessage(helpers.processGoodbye(guildData.goodbye));
+            member.guild.defaultChannel.sendMessage(helpers.processGoodbye(guildData.goodbye, member));
         } else {
             var embed = new Discord.RichEmbed();
             var chance = Math.floor((Math.random() * 10) + 1);

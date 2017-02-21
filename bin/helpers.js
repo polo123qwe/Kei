@@ -112,7 +112,7 @@ exports.checkInvLink = function (msg) {
  * This function processes the goodbye, replacing placeholders for their real equivalents
  * @arg {String} goodbye - Text corresponding to the goodbye message
  */
-exports.processGoodbye = function (goodbye) {
+exports.processGoodbye = function (goodbye, member) {
     console.log(goodbye);
     var outStr = goodbye;
     var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
@@ -128,7 +128,7 @@ exports.processGoodbye = function (goodbye) {
  * This function processes the goodbye, replacing placeholders for their real equivalents
  * @arg {String} greeting - Text corresponding to the greeting message
  */
-exports.processGreeting = function (greeting) {
+exports.processGreeting = function (greeting, member) {
     var outStr = greeting;
     var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
     for (var setting of settings) {
