@@ -6,6 +6,8 @@ var cooldown = require('./cooldown');
 
 var utils = require('./utils/utils');
 var dbUtils = require('./db/dbUtils');
+var dbGuild = require('./db/dbGuild');
+
 var discordUtils = require('./utils/discordUtils');
 
 try {
@@ -189,7 +191,7 @@ function checkDisabled(guild, channel, userLvl, cmd, callback) {
     if (cmd.dm == false && guild == null) {
         return callback("Cannot execute that command in a DM!", false);
     }
-    dbUtils.fetchChannel(channel.id, function(err, channelData) {
+    dbGuild.fetchChannel(channel.id, function(err, channelData) {
         if (err) {
             console.log(err);
         }

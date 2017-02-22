@@ -13,7 +13,9 @@
         "33691e", "fff59d", "fff176", "ffeb3b", "fbc02d",
         "f57f17", "ffe082", "ffd54f", "ffc107", "ffa000",
         "ff6f00", "ffcc80", "ffb74d", "ff9800", "f57c00",
-        "e65100", "bcaaa4", "a1887f", "795548", "5d4037", "3e2723"
+        "e65100", "bcaaa4", "a1887f", "795548", "5d4037",
+		"3e2723", "d3d3d3", "939393", "696969", "acacac",
+		"c6c6c6"
     ],
     "countries": ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
         "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",

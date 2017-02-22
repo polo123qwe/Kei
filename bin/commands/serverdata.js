@@ -6,6 +6,7 @@ var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var dbUsers = require('../db/dbUsers');
+var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
 var suf = require('../../config.json').suffix;
 var commands = [];

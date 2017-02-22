@@ -1,4 +1,5 @@
 var dbUtils = require('./db/dbUtils');
+var dbGuild = require('./db/dbGuild');
 var discordUtils = require('./utils/discordUtils');
 
 var memberRemovalTimer;
@@ -17,7 +18,7 @@ function memberRemoval() {
     client.guilds.forEach((guild) => {
         //Fetch all the members of the guild
         guild.fetchMembers().then(guild => {
-            dbUtils.fetchGuild(guild.id, (err, guildData) => {
+            dbGuild.fetchGuild(guild.id, (err, guildData) => {
                 if (err) return console.log(err);
                 if (guildData && guildData.hasOwnProperty('automember') && guildData.automember) {
                     //Array of all the users we want to remove

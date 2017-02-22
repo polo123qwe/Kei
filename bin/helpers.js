@@ -1,5 +1,6 @@
 var discordUtils = require('./utils/discordUtils.js');
 var dbUtils = require('./db/dbUtils.js');
+var dbGuild = require('./db/dbGuild');
 
 const Connection = require('./db/dbConnection');
 
@@ -46,6 +47,7 @@ exports.loadTimers = function (client) {
                 } else {
                     //Add others to a timeout
                     var guild = client.guilds.get(timer.guild_id);
+					if(guild == null) return;
                     var member = guild.members.get(timer.user_id);
                     setTimeout(function() {
                         member.removeRole(timer.role_id).then(() => {
@@ -89,7 +91,7 @@ exports.loadTimers = function (client) {
  */
 exports.checkInvLink = function (msg) {
     //Retrieve from the db
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+    dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return console.log(err);
 
         //If the guild has the invites allowed (default) we dont delete it

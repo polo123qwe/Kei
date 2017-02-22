@@ -1,4 +1,5 @@
 var dbUtils = require('./db/dbUtils');
+var dbGuild = require('./db/dbGuild');
 var discordUtils = require('./utils/discordUtils');
 
 var memberRoleName = {};
@@ -10,7 +11,7 @@ module.exports = function(client, member) {
         return;
     }
 
-    dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
+    dbGuild.fetchGuild(member.guild.id, function(err, guildData) {
         if (err) return console.log(err);
         //We check if the server has a member role different from default
         if (!memberRoleName[member.guild.id]) {

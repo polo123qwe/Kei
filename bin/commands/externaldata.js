@@ -7,6 +7,7 @@ var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var discordUtils = require('../utils/discordUtils');
 var dbUtils = require('../db/dbUtils');
+var dbGuild = require('../db/dbGuild');
 var forecast_key = require('../../config').apis.forecastKey;
 var Forecast = require('forecast.io-bluebird');
 var weatherOptions = require('../../consts/weather');

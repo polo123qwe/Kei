@@ -4,6 +4,7 @@ var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
+var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
 var commands = [];
 

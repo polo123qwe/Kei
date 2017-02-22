@@ -314,27 +314,3 @@ exports.fetchUserActivity = function(guild_id, user_id, time, callback) {
         }
     }], callback);
 }
-
-exports.fetchChannel = function(channel_id, callback) {
-
-    var db = Connection.getDB();
-    if (!db) return callback("Not connected to DB!");
-
-    var collection = db.collection('channels');
-
-    collection.findOne({
-        _id: channel_id
-    }, callback);
-}
-
-exports.fetchGuild = function(guild_id, callback) {
-
-    var db = Connection.getDB();
-    if (!db) return callback("Not connected to DB!");
-
-    var collection = db.collection('guilds');
-
-    collection.findOne({
-        _id: guild_id
-    }, callback);
-}

@@ -6,6 +6,7 @@ var owners = require('../../config.json').owners;
 var checks = require('../checks');
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
+var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
 var commands = [];
 

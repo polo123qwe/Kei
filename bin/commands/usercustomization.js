@@ -5,6 +5,7 @@ var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
+var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
 var suf = require('../../config.json').suffix;
 var commands = [];
@@ -37,7 +38,7 @@ cmd.execution = function(client, msg, suffix) {
         }
     }
 
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+    dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData && guildData.hasOwnProperty('roles')) {
             for (var roleID of guildData.roles) {
@@ -89,7 +90,7 @@ cmd.execution = function(client, msg, suffix) {
         }
     }
 
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+    dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData.roles) {
             for (var roleID of guildData.roles) {
@@ -128,7 +129,7 @@ cmd.execution = function(client, msg, suffix) {
         index = suffix[0];
     }
 
-    dbUtils.fetchGuild(msg.guild.id, function(err, guildData) {
+    dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData != null && guildData.hasOwnProperty('limitedcolors') && guildData.limitedcolors) {
             //Limited colors

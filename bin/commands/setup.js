@@ -5,6 +5,7 @@ var paramtypes = require('../../consts/paramtypes.json');
 var suf = require('../../config.json').suffix;
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
+var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
 var commands = [];
 
@@ -80,7 +81,7 @@ cmd.execution = function(client, msg, suffix) {
  * for the specified guild
  */
 var operations = {
-    role: {
+    optroles: {
         help: `Adds/Removes a role from the optional roles of the server. Eg: \`set${suf} role nsfw\``,
         run: function(msg, suffix, remove) {
             /*
@@ -244,6 +245,45 @@ var operations = {
 				discordUtils.sendAndDelete(msg.channel, "Channel does not exist");
 				return null;
 			}
+        },
+    },
+	roles: {
+        help: `Sets the default roles for various commands. Eg: \`set${suf} roles warned 207248974451679543\``,
+        run: function(msg, suffix, remove) {
+			if(suffix.length <= 2) return null;
+
+            var roleName;
+            var retObject = {};
+
+			var roleToChange = suffix[1];
+
+			roleToChange = roleToChange.toLowerCase();
+			var rolesAllowed = ["warned", "muted", "member", "lurker"];
+
+			if(!rolesAllowed.includes(roleToChange.toLowerCase())){
+                discordUtils.sendAndDelete(msg.channel, "You can't assign " + roleToChange + "! Please try again. Available are: warned, muted, member, lurker");
+                return null;
+			}
+
+            roleName = suffix.splice(2, suffix.length).join(" ");
+
+            var role = discordUtils.getRole(msg.guild, roleName);
+
+            if (!role) {
+                discordUtils.sendAndDelete(msg.channel, "No role found for " + roleName + "! Please try again.");
+                return null;
+            }
+
+            //If the user specified the removal of the role
+            if (remove) {
+                retObject["$set"] = {};
+				retObject["$set"][roleToChange] = null;
+            } else {
+                retObject["$set"] = {};
+				retObject["$set"][roleToChange] = role.id;
+            }
+
+            return retObject;
         },
     },
 }

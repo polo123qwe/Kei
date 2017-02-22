@@ -5,6 +5,7 @@ var commands = require('./bin/commands');
 var utils = require('./bin/utils/utils');
 var dbUtils = require('./bin/db/dbUtils');
 var dbUsers = require('./bin/db/dbUsers');
+var dbGuild = require('./bin/db/dbGuild');
 var discordUtils = require('./bin/utils/discordUtils');
 var moderationUtils = require('./bin/utils/moderationUtils');
 var helpers = require('./bin/helpers.js');
@@ -89,26 +90,20 @@ client.on('guildMemberAdd', (member) => {
 	//Console logging
 	console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) joined`);
 
+	var guild = member.guild;
     if (logging) {
-        dbUsers.updateUserJoined(member.guild.id, member.user.id, Date.now(), () => {});
+        dbUsers.updateUserJoined(guild.id, member.user.id, Date.now(), () => {});
     }
+	dbGuild.fetchRoleID("warned", guild.id, warnedRole => {
+		dbGuild.fetchRoleID("muted", guild.id, mutedRole => {
+			console.log(warnedRole);
+			console.log(mutedRole);
+			retrieveMembers(warnedRole, mutedRole);
+		});
+	});
 
-    dbUsers.fetchMember(member.guild.id, member.user.id, (err, memberData) => {
-        if (err) console.log(err);
-        else {
-            if (memberData && memberData.last_left) {
-                if (memberData.roles && memberData.roles.length > 0) {
-                    member.addRoles(memberData.roles).then((memb) => {
-                        if ((memberData.roles.indexOf("143344644837605376") > -1) || (memberData.roles.indexOf("143344576143425536") > -1)) {
-                            member.user.sendMessage(`It looks like you have tried to circumvent a warning/mute in ${member.guild.name}. If you continue to do so, a ban will be issued.`);
-                        }
-                    }).catch((er) => {console.log(er.stack)});
-                }
-            }
-        }
-    });
 
-    dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
+    dbGuild.fetchGuild(guild.id, function(err, guildData) {
         if (err) console.log(err);
 
         if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) { return; }
@@ -116,13 +111,33 @@ client.on('guildMemberAdd', (member) => {
         if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
             //If you type default or an empty string it will use the default message
             if (guildData.greeting.length == 0 || !guildData.greeting.includes("default")) {
-                member.guild.defaultChannel.sendMessage(helpers.processGreeting(guildData.greeting, member)).catch();
+                guild.defaultChannel.sendMessage(helpers.processGreeting(guildData.greeting, member)).catch();
                 return;
             }
         }
-
-        member.guild.defaultChannel.sendMessage(`Wleocme to ${member.guild.name}, ${member.user}! Dont forget to read the rules!`).catch();
+		if(guild.id == "132490115137142784"){
+			guild.defaultChannel.sendMessage(`Wleocme to ${guild.name}, ${member.user}! Remember to read the rules! <#137105484040634368>`).catch();
+		} else {
+			guild.defaultChannel.sendMessage(`Welcome to ${guild.name}, ${member.user}! Don't forget to read the rules!`).catch();
+		}
     });
+
+	function retrieveMembers(warnedRole, mutedRole){
+		dbUsers.fetchMember(guild.id, member.user.id, (err, memberData) => {
+	        if (err) console.log(err);
+	        else {
+	            if (memberData && memberData.last_left) {
+	                if (memberData.roles && memberData.roles.length > 0) {
+	                    member.addRoles(memberData.roles).then((memb) => {
+	                        if ((warnedRole && (memberData.roles.indexOf(warnedRole) > -1)) || (mutedRole && (memberData.roles.indexOf(mutedRole) > -1))) {
+	                            member.user.sendMessage(`It looks like you have tried to circumvent a warning/mute in ${guild.name}. If you continue to do so, a ban will be issued.`);
+	                        }
+	                    }).catch((er) => {console.log(er.stack)});
+	                }
+	            }
+	        }
+	    });
+	}
 });
 
 client.on('guildMemberRemove', (member) => {
@@ -130,9 +145,12 @@ client.on('guildMemberRemove', (member) => {
 	//Console logging
 	console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) left`);
 
+	var guild = member.guild;
+
     if (logging) {
         var roleInstances = member.roles.array();
         var userRoles = [];
+
 
         roleInstances.forEach(function(element) {
             if (element.name != "@everyone") {
@@ -141,15 +159,15 @@ client.on('guildMemberRemove', (member) => {
         });
 
         if (userRoles.length > 0) {
-            dbUsers.updateUserRoles(member.guild.id, member.user.id, userRoles, false, () => {});
+            dbUsers.updateUserRoles(guild.id, member.user.id, userRoles, false, () => {});
         } else {
-            dbUsers.updateUserRoles(member.guild.id, member.user.id, [], true, () => {});
+            dbUsers.updateUserRoles(guild.id, member.user.id, [], true, () => {});
         }
 
-        dbUsers.updateUserLeft(member.guild.id, member.user.id, Date.now(), () => {});
+        dbUsers.updateUserLeft(guild.id, member.user.id, Date.now(), () => {});
     }
 
-    dbUtils.fetchGuild(member.guild.id, function(err, guildData) {
+    dbGuild.fetchGuild(guild.id, function(err, guildData) {
         if (err) console.log(err);
 
         if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye == null) {
@@ -157,7 +175,7 @@ client.on('guildMemberRemove', (member) => {
         }
 
         if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
-            member.guild.defaultChannel.sendMessage(helpers.processGoodbye(guildData.goodbye, member));
+            guild.defaultChannel.sendMessage(helpers.processGoodbye(guildData.goodbye, member));
         } else {
             var embed = new Discord.RichEmbed();
             var chance = Math.floor((Math.random() * 10) + 1);
@@ -170,7 +188,7 @@ client.on('guildMemberRemove', (member) => {
 
             embed.setColor("#f44441");
 
-            member.guild.defaultChannel.sendEmbed(embed);
+            guild.defaultChannel.sendEmbed(embed);
         }
     });
 });

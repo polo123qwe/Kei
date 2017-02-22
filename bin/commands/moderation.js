@@ -6,6 +6,7 @@ var utils = require('../utils/utils');
 var discordUtils = require('../utils/discordUtils');
 var moderationUtils = require('../utils/moderationUtils');
 var dbUtils = require('../db/dbUtils');
+var dbGuild = require('../db/dbGuild');
 var commands = [];
 
 var cmd;
@@ -31,17 +32,22 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
-    var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "warned");
 
-    if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
-    member.addRole(role).then(r => {
-        discordUtils.findLogsChannel(msg.guild, (logChannel) => {
-            if (logChannel) {
-                moderationUtils.logMessage("WARN", msg.author, member.user, logChannel, reason);
-            }
-            dbUtils.insertLog(member.user.id, msg.author.id, "warning", reason, 0, function() {});
-        });
-    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    dbGuild.fetchRoleID("warned", msg.guild.id, warnedRole => {
+        if (warnedRole == null || !msg.guild.roles.has(warnedRole)) {
+            return discordUtils.sendAndDelete(msg.channel, "There is no warned role!");
+        }
+        member.addRole(warnedRole).then(r => {
+            discordUtils.findLogsChannel(msg.guild, (logChannel) => {
+                if (logChannel) {
+                    moderationUtils.logMessage("WARN", msg.author, member.user, logChannel, reason);
+                }
+                dbUtils.insertLog(member.user.id, msg.author.id, "warning", reason, 0, function() {});
+            });
+        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+
+    });
+
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -55,22 +61,27 @@ cmd.execution = function(client, msg, suffix) {
     var reason = suffix.splice(1, suffix.length).join(" ");
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
-    var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "muted");
 
-    if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
-    member.addRole(role).then(r => {
-        discordUtils.findLogsChannel(msg.guild, (logChannel) => {
-            if (logChannel) {
-                moderationUtils.logMessage("CHILL", msg.author, member.user, logChannel, reason);
-            }
-            dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
-            //Notify the userf
-            member.user.sendMessage(`You have been chilled! You are muted for 2 minutes in ${msg.guild}`)
-        });
-        setTimeout(() => {
-            member.removeRole(role).catch(console.log);
-        }, 120000);
-    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    dbGuild.fetchRoleID("muted", msg.guild.id, mutedRole => {
+        if (mutedRole == null || !msg.guild.roles.has(mutedRole)) {
+            return discordUtils.sendAndDelete(msg.channel, "There is no muted role!");
+        }
+
+        member.addRole(mutedRole).then(r => {
+            discordUtils.findLogsChannel(msg.guild, (logChannel) => {
+                if (logChannel) {
+                    moderationUtils.logMessage("CHILL", msg.author, member.user, logChannel, reason);
+                }
+                dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
+                //Notify the userf
+                member.user.sendMessage(`You have been chilled! You are muted for 2 minutes in ${msg.guild}`)
+            });
+            setTimeout(() => {
+                member.removeRole(role).catch(console.log);
+            }, 120000);
+        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    });
+
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -93,22 +104,26 @@ cmd.execution = function(client, msg, suffix) {
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
     var role = msg.guild.roles.find((r) => r.name.toLowerCase() == "muted");
 
-    if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
-    member.addRole(role).then(r => {
-        discordUtils.findLogsChannel(msg.guild, (logChannel) => {
-            if (logChannel) {
-                moderationUtils.logMessage("MUTE", msg.author, member.user, logChannel, reason);
-            }
-            dbUtils.insertLog(member.user.id, msg.author.id, "mute", reason, time, function() {});
-            dbUtils.insertTimer(Date.now(), time * 24 * 3600 * 1000, member.user.id, role.id, msg.guild.id, function() {});
-        });
-        setTimeout(() => {
-            member.removeRole(role).then(() => {
-                console.log(member.user.username + " unmuted.")
+    dbGuild.fetchRoleID("muted", msg.guild.id, mutedRole => {
+        if (mutedRole == null || !msg.guild.roles.has(mutedRole)) {
+            return discordUtils.sendAndDelete(msg.channel, "There is no muted role!");
+        }
+        member.addRole(mutedRole).then(r => {
+            discordUtils.findLogsChannel(msg.guild, (logChannel) => {
+                if (logChannel) {
+                    moderationUtils.logMessage("MUTE", msg.author, member.user, logChannel, reason);
+                }
+                dbUtils.insertLog(member.user.id, msg.author.id, "mute", reason, time, function() {});
+                dbUtils.insertTimer(Date.now(), time * 24 * 3600 * 1000, member.user.id, role.id, msg.guild.id, function() {});
             });
-            dbUtils.removeTimer(member.user.id, r.id, function() {});
-        }, time * 24 * 3600 * 1000);
-    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+            setTimeout(() => {
+                member.removeRole(role).then(() => {
+                    console.log(member.user.username + " unmuted.")
+                });
+                dbUtils.removeTimer(member.user.id, r.id, function() {});
+            }, time * 24 * 3600 * 1000);
+        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    });
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
