@@ -147,7 +147,7 @@ client.on('guildMemberAdd', (member) => {
 client.on('guildMemberRemove', (member) => {
 
     //Console logging
-    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) left ${member.guild.name}`);
+    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.user.id}) left ${member.guild.name}`);
 
     var guild = member.guild;
 
@@ -236,7 +236,7 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 client.on('guildBanAdd', (guild, user) => {
 
     //Console logging
-    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) banned from ${member.guild.name}`);
+    console.log(`[${utils.unixToTime(Date.now())}] ${user.username}#${user.discriminator} (${user.id}) banned from ${guild.name}`);
 
     //Timeout to dectect the softban message
     setTimeout(() => {
@@ -259,9 +259,12 @@ client.on('guildBanAdd', (guild, user) => {
                             }
                             return false;
                         });
+
                         if (messageFound == null) {
                             moderationUtils.logPlaceholder(user, logChannel);
-                        }
+                        } else {
+							console.log("Message")
+						}
                     });
             }
         });

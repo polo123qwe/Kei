@@ -69,8 +69,10 @@ exports.loadTimers = function (client) {
         var timer = expiredTimers.pop();
         console.log(timer);
         var guild = client.guilds.get(timer.guild_id);
+		if(!guild) return;
         var member = guild.members.get(timer.user_id);
         if (member) {
+			if(!timer.role_id) return;
             member.removeRole(timer.role_id).then(() => {
                 console.log(member.user.username + " unmuted.")
                 dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
