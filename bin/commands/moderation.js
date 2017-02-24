@@ -77,7 +77,7 @@ cmd.execution = function(client, msg, suffix) {
                 member.user.sendMessage(`You have been chilled! You are muted for 2 minutes in ${msg.guild}`)
             });
             setTimeout(() => {
-                member.removeRole(role).catch(console.log);
+                member.removeRole(mutedRole).catch(console.log);
             }, 120000);
         }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
     });
@@ -117,7 +117,7 @@ cmd.execution = function(client, msg, suffix) {
                 dbUtils.insertTimer(Date.now(), time * 24 * 3600 * 1000, member.user.id, role.id, msg.guild.id, function() {});
             });
             setTimeout(() => {
-                member.removeRole(role).then(() => {
+                member.removeRole(mutedRole).then(() => {
                     console.log(member.user.username + " unmuted.")
                 });
                 dbUtils.removeTimer(member.user.id, r.id, function() {});
