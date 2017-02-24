@@ -54,7 +54,7 @@ client.on('message', msg => {
 
     if (msg.guild != null) {
         helpers.checkInvLink(msg);
-		helpers.processSuggestionChannel(msg);
+        helpers.processSuggestionChannel(msg);
     }
 
     //Remove suffix
@@ -87,26 +87,28 @@ client.on('message', msg => {
 /* Member join and leave processing */
 client.on('guildMemberAdd', (member) => {
 
-	//Console logging
-	console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) joined`);
+    //Console logging
+    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) joined ${member.guild.name}`);
 
-	var guild = member.guild;
+    var guild = member.guild;
     if (logging) {
         dbUsers.updateUserJoined(guild.id, member.user.id, Date.now(), () => {});
     }
-	dbGuild.fetchRoleID("warned", guild.id, warnedRole => {
-		dbGuild.fetchRoleID("muted", guild.id, mutedRole => {
-			console.log(warnedRole);
-			console.log(mutedRole);
-			retrieveMembers(warnedRole, mutedRole);
-		});
-	});
+    dbGuild.fetchRoleID("warned", guild.id, warnedRole => {
+        dbGuild.fetchRoleID("muted", guild.id, mutedRole => {
+            console.log(warnedRole);
+            console.log(mutedRole);
+            retrieveMembers(warnedRole, mutedRole);
+        });
+    });
 
 
     dbGuild.fetchGuild(guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) { return; }
+        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) {
+            return;
+        }
 
         if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
             //If you type default or an empty string it will use the default message
@@ -115,37 +117,39 @@ client.on('guildMemberAdd', (member) => {
                 return;
             }
         }
-		if(guild.id == "132490115137142784"){
-			guild.defaultChannel.sendMessage(`Wleocme to ${guild.name}, ${member.user}! Remember to read the rules! <#137105484040634368>`).catch();
-		} else {
-			guild.defaultChannel.sendMessage(`Welcome to ${guild.name}, ${member.user}! Don't forget to read the rules!`).catch();
-		}
+        if (guild.id == "132490115137142784") {
+            guild.defaultChannel.sendMessage(`Wleocme to ${guild.name}, ${member.user}! Remember to read the rules! <#137105484040634368>`).catch();
+        } else {
+            guild.defaultChannel.sendMessage(`Welcome to ${guild.name}, ${member.user}! Don't forget to read the rules!`).catch();
+        }
     });
 
-	function retrieveMembers(warnedRole, mutedRole){
-		dbUsers.fetchMember(guild.id, member.user.id, (err, memberData) => {
-	        if (err) console.log(err);
-	        else {
-	            if (memberData && memberData.last_left) {
-	                if (memberData.roles && memberData.roles.length > 0) {
-	                    member.addRoles(memberData.roles).then((memb) => {
-	                        if ((warnedRole && (memberData.roles.indexOf(warnedRole) > -1)) || (mutedRole && (memberData.roles.indexOf(mutedRole) > -1))) {
-	                            member.user.sendMessage(`It looks like you have tried to circumvent a warning/mute in ${guild.name}. If you continue to do so, a ban will be issued.`);
-	                        }
-	                    }).catch((er) => {console.log(er.stack)});
-	                }
-	            }
-	        }
-	    });
-	}
+    function retrieveMembers(warnedRole, mutedRole) {
+        dbUsers.fetchMember(guild.id, member.user.id, (err, memberData) => {
+            if (err) console.log(err);
+            else {
+                if (memberData && memberData.last_left) {
+                    if (memberData.roles && memberData.roles.length > 0) {
+                        member.addRoles(memberData.roles).then((memb) => {
+                            if ((warnedRole && (memberData.roles.indexOf(warnedRole) > -1)) || (mutedRole && (memberData.roles.indexOf(mutedRole) > -1))) {
+                                member.user.sendMessage(`It looks like you have tried to circumvent a warning/mute in ${guild.name}. If you continue to do so, a ban will be issued.`);
+                            }
+                        }).catch((er) => {
+                            console.log(er.stack)
+                        });
+                    }
+                }
+            }
+        });
+    }
 });
 
 client.on('guildMemberRemove', (member) => {
 
-	//Console logging
-	console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) left`);
+    //Console logging
+    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) left ${member.guild.name}`);
 
-	var guild = member.guild;
+    var guild = member.guild;
 
     if (logging) {
         var roleInstances = member.roles.array();
@@ -230,18 +234,23 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 
 /* Handling of server bans */
 client.on('guildBanAdd', (guild, user) => {
+
+    //Console logging
+    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) banned from ${member.guild.name}`);
+
     //Timeout to dectect the softban message
     setTimeout(() => {
         discordUtils.findLogsChannel(guild, (logChannel) => {
             if (logChannel) {
                 var foundSoftBan = false;
                 logChannel.fetchMessages({
-                        limit: 10
+                        limit: 5
                     })
                     .then(messages => {
                         var messageFound = messages.find(m => {
                             var embed = m.embeds[0];
                             if (embed) {
+								if(embed.title != "SOFTBAN") return false;
                                 for (var field of embed.fields) {
                                     if (field.name == "User" && field.value.includes(user.id)) {
                                         return true;
