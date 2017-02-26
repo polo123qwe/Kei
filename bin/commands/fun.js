@@ -17,8 +17,8 @@ cmd.cd = 30;
 cmd.execution = function(client, msg, suffix) {
     var members = msg.guild.members.array();
 
-    var memb1 = members[0];
-    var memb2 = members[0];
+    var memb1 = members[utils.getRandom(0, members.length - 1)];
+    var memb2 = members[utils.getRandom(0, members.length - 1)];
 	var i = 0;
 	dbUtils.getLevel(msg.guild, memb1, checkFirst);
 

@@ -96,8 +96,6 @@ client.on('guildMemberAdd', (member) => {
     }
     dbGuild.fetchRoleID("warned", guild.id, warnedRole => {
         dbGuild.fetchRoleID("muted", guild.id, mutedRole => {
-            console.log(warnedRole);
-            console.log(mutedRole);
             retrieveMembers(warnedRole, mutedRole);
         });
     });
