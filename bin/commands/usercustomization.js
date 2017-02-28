@@ -60,13 +60,23 @@ cmd.execution = function(client, msg, suffix) {
                         possibleRoles.push(role.name);
                     }
                 }
-                return discordUtils.sendAndDelete(msg.channel, `Error, choose one of the following: ${possibleRoles.join(", ")}`, 8000);
+                return msg.channel.sendMessage(`:warning:  |  Error! The role you chose is invalid.\n**Currently available self-assignable roles**: \`\`\`${possibleRoles.join(", ")}\`\`\``, 8000);
             }
-            msg.member.addRoles(rolesToAdd).then((memb) => {
-                msg.channel.sendMessage(msg.author.username + " added successfully!");
-            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+
+            for (var currentRole of rolesToAdd) {
+                if (msg.member.roles.array().indexOf(currentRole) > -1) {
+                    rolesToAdd.splice(rolesToAdd.indexOf(currentRole), 1);
+                    msg.channel.sendMessage(":octagonal_sign:  |  You already have the `" + currentRole.name + "` role!");
+                }
+            }
+
+            if (rolesToAdd.length != 0) {
+                msg.member.addRoles(rolesToAdd).then((memb) => {
+                    msg.channel.sendMessage(":white_check_mark:  |  **" + msg.author.username + "** added successfully to all the roles requested!");
+                }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
+            }
         } else {
-            discordUtils.sendAndDelete(msg.channel, "This guild has no optional roles!", 2000);
+            discordUtils.sendAndDelete(msg.channel, ":octogonal_sign:  |  This server has no self-assignable roles!", 4000);
         }
     });
 }
@@ -102,10 +112,10 @@ cmd.execution = function(client, msg, suffix) {
                 }
             }
         }
-        if (rolesToRemove.length < 1) return discordUtils.sendAndDelete(msg.channel, "Nothing to remove!");
+        if (rolesToRemove.length < 1) return discordUtils.sendAndDelete(msg.channel, ":warning:  |  The roles you entered are either invalid or you are not in them!", 4000);
         msg.member.removeRoles(rolesToRemove).then((memb) => {
-            msg.channel.sendMessage(msg.author.username + " removed successfully!");
-        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+            msg.channel.sendMessage(":white_check_mark:  |  **" + msg.author.username + "** sucessfully removed from the requested roles!");
+        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
     });
 }
 commands.push(cmd);
@@ -187,7 +197,7 @@ cmd.execution = function(client, msg, suffix) {
             if (role.members.array().length < 1) {
                 role.delete().then(() => {
                     return removeExistingRoles(callback);
-                }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+                }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
             } else {
                 return removeExistingRoles(callback);
             }
@@ -209,15 +219,15 @@ cmd.execution = function(client, msg, suffix) {
             }
             msg.guild.createRole(options).then((r) => {
                 addUser(r);
-            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
         } else {
             addUser(role);
         }
 
         function addUser(roleToAdd) {
             msg.member.addRole(roleToAdd).then(() => {
-                msg.channel.sendMessage(msg.author.username + ' successfully added to #' + name);
-            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+                msg.channel.sendMessage(":white_check_mark:  |  **" + msg.author.username + '** successfully added to `#' + name + '`');
+            }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
         }
     }
 
