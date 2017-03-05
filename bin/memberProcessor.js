@@ -19,17 +19,18 @@ module.exports = function(client, member) {
             if (guildData && guildData.hasOwnProperty('member')) {
                 memberRoleName[member.guild.id] = guildData.member;
             }
-            //Check if user has the role already
-            if (member.roles.exists(r => r.name.toLowerCase() == memberRoleName[member.guild.id])) {
-                return;
-            }
         }
 
-        if (!member.guild.roles.exists(r => r.name.toLowerCase() == memberRoleName[member.guild.id])) {
+        if (!member.guild.roles.has(memberRoleName[member.guild.id])) {
             return;
         }
 
-        var memberRole = member.guild.roles.find(r => r.name.toLowerCase() == memberRoleName[member.guild.id]);
+		//Check if user has the role already
+		if (member.roles.has(memberRoleName[member.guild.id])) {
+			return;
+		}
+
+        var memberRole = member.guild.roles.get(memberRoleName[member.guild.id]);
 
         //If the server has the automember enabled we do
         if (guildData && guildData.hasOwnProperty('automember') && guildData.automember) {
@@ -55,13 +56,13 @@ module.exports = function(client, member) {
 
                         function addToRole() {
                             member.addRole(memberRole).then(() => {
-                                console.log("Membered " + member.user.username);
+                                console.log(`Membered ${member.user.username} in ${member.guild.name}`);
 
                                 var channel = discordUtils.findActivityChannel(member.guild);
                                 if (channel) {
-                                    channel.sendMessage(`Congratulations ${member} you are now a member!`);
+                                    channel.sendMessage(`Congratulations ${member} you are now a member!`).catch(err => console.log(err.response.res.text));
                                 }
-                            }).catch(console.log);
+                            }).catch(err => console.log(err.response.res.text));
 
                         }
                     }
