@@ -22,16 +22,16 @@ function memberRemoval() {
                 if (err) return console.log(err);
                 if (guildData && guildData.hasOwnProperty('automember') && guildData.automember) {
                     //Array of all the users we want to remove
-                    var memberRoleName = 'member';
+                    var memberRoleID;
                     if (guildData && guildData.hasOwnProperty('member')) {
-                        memberRoleName = guildData.member;
+                        memberRoleID = guildData.member;
                     }
                     var membersToUpdate = [];
 
                     checkUsers(guild.members.array(), (err) => {
                         if (err) console.log(err);
 
-                        updateUserRoles(membersToUpdate, guild, memberRoleName);
+                        updateUserRoles(membersToUpdate, guild, memberRoleID);
                     });
 
                     function checkUsers(members, callback) {
@@ -40,7 +40,7 @@ function memberRemoval() {
                         //Member we are going to check
                         var member = members.pop();
                         //Check if the member has the member role or is trusted, otherwise skip
-                        if (!member.roles.exists(r => r.name.toLowerCase() == memberRoleName) ||
+                        if (!member.roles.has(memberRoleID) ||
                             member.roles.exists(r => r.name.toLowerCase() == "trusted member")) {
                             return checkUsers(members, callback);
                         }
@@ -64,7 +64,7 @@ function memberRemoval() {
     });
 }
 
-function updateUserRoles(membersToUpdate, guild, memberRoleName) {
+function updateUserRoles(membersToUpdate, guild, memberRoleID) {
     if (membersToUpdate.length < 1) return;
 
     //Avoid ratelimits
@@ -73,7 +73,12 @@ function updateUserRoles(membersToUpdate, guild, memberRoleName) {
     var roles = []
     var colorRole = member.roles.find(r => r.name.startsWith("#"));
     if (colorRole) roles.push(colorRole);
-    var memberRole = member.roles.find(r => r.name.toLowerCase() == memberRoleName.toLowerCase());
+    var memberRole;
+	if(memberRoleID){
+		memberRole = member.roles.get(memberRoleID);
+	} else {
+		memberRole = member.roles.find(r => r.name.toLowerCase() == "member");
+	}
     roles.push(memberRole);
 
     member.removeRoles(roles).then(() => {
@@ -85,9 +90,9 @@ function updateUserRoles(membersToUpdate, guild, memberRoleName) {
                 setTimeout(() => {
                     //Send message and proceed to next member
                     var channel = discordUtils.findActivityChannel(guild);
-                    if (!channel) return updateUserRoles(membersToUpdate, guild, memberRoleName);
+                    if (!channel) return updateUserRoles(membersToUpdate, guild, memberRoleID);
                     channel.sendMessage(`${member.user.username} is now a lurker.`).then(() => {
-                        return updateUserRoles(membersToUpdate, guild, memberRoleName);
+                        return updateUserRoles(membersToUpdate, guild, memberRoleID);
                     }).catch(console.log);
                 }, 1000);
             }).catch(console.log);
