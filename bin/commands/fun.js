@@ -110,7 +110,7 @@ cmd.execution = function(client, msg, suffix) {
 	if(suffix.length == 0){
 		return msg.channel.sendMessage("Ask a question!");
 	}
-	var question = suffix.join(" ");
+	var question = suffix.join("+");
 	https.get({
         host: '8ball.delegator.com',
         path: '/magic/JSON/'+ question,
