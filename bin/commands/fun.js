@@ -24,8 +24,9 @@ cmd.execution = function(client, msg, suffix) {
 	function canBeAdded(err, level){
     	return !err && level > -1;
 	}
-
-    var memb1 = members[utils.getRandom(0, members.length - 1)];
+    var chosen = utils.getRandom(0, members.length - 1);
+    var memb1 = members[chosen];
+    members.splice(chosen,1);
     var memb2 = members[utils.getRandom(0, members.length - 1)];
 
     msg.channel.sendMessage(':revolving_hearts: ' + memb1.user.username + " x " + memb2.user.username + ' :revolving_hearts:');
