@@ -15,21 +15,20 @@ cmd.addHelp('Returns a random ship');
 cmd.minLvl = levels.DEFAULT;
 cmd.cd = 30;
 cmd.execution = function(client, msg, suffix) {
-    var members = msg.guild.members.array()
-		.filter(check);
-
-    function check(member){
-    	return dbUtils.getLevel(msg.guild,member,canBeAdded);
-	}
-	function canBeAdded(err, level){
-    	return !err && level > -1;
-	}
-    var chosen = utils.getRandom(0, members.length - 1);
-    var memb1 = members[chosen];
-    members.splice(chosen,1);
-    var memb2 = members[utils.getRandom(0, members.length - 1)];
-
-    msg.channel.sendMessage(':revolving_hearts: ' + memb1.user.username + " x " + memb2.user.username + ' :revolving_hearts:');
+    var members = msg.guild.members.array();
+    var current = utils.getRandom(0, members.length - 1);
+    var chosen = [];
+    dbUtils.getLevel(msg.guild,members[current],check);
+    function check(err, level){
+        if (members.length != 0 && chosen.length != 2){ // If we didn't get to the end of the member array or we haven't got 2 chosen members yet
+            if (!err && level > -1){chosen.push(members[current]);} // If the member can be chosen, then, we pick up him and move to the chosen array
+            members.splice(current, 1); // We remove him from the members array to have less members each call.
+            current = utils.getRandom(0, members.length -1); // We get another random value.
+            dbUtils.getLevel(msg.guild, members[current], check); // And recall the function with the DB call.
+        }
+    }
+    if (chosen.length != 2) {msg.channel.sendMessage('There are no valid OTP :broken_heart:'); return;} // If we've got no members.
+    msg.channel.sendMessage(':revolving_hearts: ' + chosen[0].user.username + " x " + chosen[1].user.username + ' :revolving_hearts:');
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
