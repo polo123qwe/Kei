@@ -28,8 +28,6 @@ cmd.execution = function(client, msg, suffix) {
 			if (!err && level > -1) {
                 chosen.push(members[current]);
             }
-			console.log("Current one index " + current)
-			console.log(members.length);
             members.splice(current, 1);
             current = utils.getRandom(0, members.length - 1);
 			//New call to the method
