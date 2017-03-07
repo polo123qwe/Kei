@@ -23,23 +23,26 @@ cmd.execution = function(client, msg, suffix) {
 
 	// Iterate over users until we find the data or we consume it
     function check(err, level) {
-        if (members.length != 0 && chosen.length != 2) {
+        if (members.length != 0 && chosen.length < 2) {
             // Store user is its valid
 			if (!err && level > -1) {
                 chosen.push(members[current]);
             }
+			console.log("Current one index " + current)
+			console.log(members.length);
             members.splice(current, 1);
             current = utils.getRandom(0, members.length - 1);
 			//New call to the method
-            dbUtils.getLevel(msg.guild, members[current], check);
-        }
+            return dbUtils.getLevel(msg.guild, members[current], check);
+        } else {
+			// If we've got no members.
+			if (chosen.length != 2) {
+				msg.channel.sendMessage('There are no valid OTP :broken_heart:');
+				return;
+			}
+			msg.channel.sendMessage(':revolving_hearts: ' + chosen[0].user.username + " x " + chosen[1].user.username + ' :revolving_hearts:');
+		}
     }
-	// If we've got no members.
-    if (chosen.length != 2) {
-        msg.channel.sendMessage('There are no valid OTP :broken_heart:');
-        return;
-    }
-    msg.channel.sendMessage(':revolving_hearts: ' + chosen[0].user.username + " x " + chosen[1].user.username + ' :revolving_hearts:');
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -55,10 +58,13 @@ cmd.execution = function(client, msg, suffix) {
     dbUtils.getLevel(msg.guild, member, checkFirst);
 
     function checkFirst(err, res) {
-        if (res > -1) {
+        if (members.length == 0){
+			return;
+		}
+		if (res > -1) {
             msg.channel.sendMessage(`:arrow_forward:  |  **${member.user.username}** has been selected!`);
         } else {
-			members.splice(current, 1);
+			members.splice(members.indexOf(member), 1);
             member = members[utils.getRandom(0, members.length - 1)];
             dbUtils.getLevel(msg.guild, member, checkFirst);
         }
