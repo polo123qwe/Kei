@@ -128,12 +128,11 @@ cmd.execution = function(client, msg, suffix) {
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('prune', 'Moderation');
-cmd.addHelp('Prunes a given amount of messages');
+cmd.addHelp('Prunes a given amount of messages (filters by user if specified)');
 cmd.addUsage('<amount> [user]');
 cmd.minLvl = levels.MODERATOR;
 cmd.execution = function(client, msg, suffix) {
     var amount = suffix[0];
-    var user = suffix[1];
 
     if (!amount || amount <= 2) return discordUtils.sendAndDelete(msg.channel, "Specify an amount!");
     if (amount > 50) {
@@ -141,19 +140,25 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
-
+	var toremove;
     msg.channel.fetchMessages({
-        limit: amount
+        limit: amount,
+		before: msg
     }).then((msgs) => {
-        var toremove = msgs.array();
+        toremove = msgs.array();
         if (member) {
             toremove = msgs.filter(function(m) {
                 return m.author.id == member.user.id;
             });
         }
-        msg.channel.bulkDelete(toremove).catch(console.log);
+		if(toremove.length < 1){
+			return;
+		} else if(toremove.length == 1){
+			toremove[0].delete().catch(console.log);
+		} else {
+			msg.channel.bulkDelete(toremove).catch(console.log);
+		}
     }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
-
 
 }
 commands.push(cmd);
