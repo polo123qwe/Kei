@@ -15,34 +15,20 @@ cmd.addHelp('Returns a random ship');
 cmd.minLvl = levels.DEFAULT;
 cmd.cd = 30;
 cmd.execution = function(client, msg, suffix) {
-    var members = msg.guild.members.array();
+    var members = msg.guild.members.array()
+		.filter(check);
+
+    function check(member){
+    	return dbUtils.getLevel(msg.guild,member,canBeAdded);
+	}
+	function canBeAdded(err, level){
+    	return !err && level > -1;
+	}
 
     var memb1 = members[utils.getRandom(0, members.length - 1)];
     var memb2 = members[utils.getRandom(0, members.length - 1)];
-	var i = 0;
-	dbUtils.getLevel(msg.guild, memb1, checkFirst);
 
-	function checkFirst(err, res){
-		if(err || i > 50000) return; //Avoid infinite loop
-		i++;
-		if(res > -1){
-	        memb2 = members[utils.getRandom(0, members.length - 1)];
-			dbUtils.getLevel(msg.guild, memb2, checkSecond);
-		} else {
-			memb1 = members[utils.getRandom(0, members.length - 1)];
-			dbUtils.getLevel(msg.guild, memb1, checkFirst);
-		}
-	}
-	function checkSecond(err, res){
-		if(err || i > 50000) return; //Avoid infinite loop
-		i++;
-		if(res > -1 && memb1 != memb2){
-			msg.channel.sendMessage(':revolving_hearts: ' + memb1.user.username + " x " + memb2.user.username + ' :revolving_hearts:');
-		} else {
-	        memb2 = members[utils.getRandom(0, members.length - 1)];
-			dbUtils.getLevel(msg.guild, memb2, checkSecond);
-		}
-	}
+    msg.channel.sendMessage(':revolving_hearts: ' + memb1.user.username + " x " + memb2.user.username + ' :revolving_hearts:');
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
