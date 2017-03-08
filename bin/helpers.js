@@ -1,4 +1,5 @@
 var discordUtils = require('./utils/discordUtils.js');
+var utils = require('./utils/utils');
 var dbUtils = require('./db/dbUtils.js');
 var dbGuild = require('./db/dbGuild');
 
@@ -49,9 +50,15 @@ exports.loadTimers = function (client) {
                     var guild = client.guilds.get(timer.guild_id);
 					if(guild == null) return;
                     var member = guild.members.get(timer.user_id);
+					if (!member) {
+						console.log("No user found with id " + timer.user_id);
+						dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
+						return;
+					}
+					console.log(`[${utils.unixToTime(Date.now())}] Loaded timer for ${member.user.username} at [${member.guild.name}] ${utils.unixToTime(timer.timestamp)} was muted for ${utils.convertUnixToDate(timer.time)} (${utils.convertUnixToDate(timer.time - span)})`);
                     setTimeout(function() {
                         member.removeRole(timer.role_id).then(() => {
-                            console.log(member.user.username + " unmuted.")
+                            console.log(`${member.user.username} unmuted at [${member.guild.name}]`);
                         });
                         dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
                     }, timer.time - span);
@@ -63,18 +70,18 @@ exports.loadTimers = function (client) {
         }).catch(console.log);
     });
 
-    //helper function to make reading easier
+    //helper function to remove expired timers
     function removeTimers() {
         if (expiredTimers.length <= 0) return;
         var timer = expiredTimers.pop();
-        console.log(timer);
         var guild = client.guilds.get(timer.guild_id);
 		if(!guild) return;
         var member = guild.members.get(timer.user_id);
         if (member) {
+			console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
 			if(!timer.role_id) return;
             member.removeRole(timer.role_id).then(() => {
-                console.log(member.user.username + " unmuted.")
+                console.log(`${member.user.username} unmuted at [${member.guild.name}]`);
                 dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
                     removeTimers();
                 });

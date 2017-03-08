@@ -93,7 +93,7 @@ cmd.execution = function(client, msg, suffix) {
         dbUtils.insertTimer(Date.now(), time, member.user.id, role.id, msg.guild.id, function() {});
         msg.channel.sendMessage(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
         setTimeout(() => {
-            member.removeRole(role).then(() => {}).catch(eg.log);
+            member.removeRole(role).then(() => {}).catch(console.log);
             dbUtils.removeTimer(member.user.id, r.id, function() {});
         }, time);
     }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
