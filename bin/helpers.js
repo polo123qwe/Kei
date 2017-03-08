@@ -50,17 +50,18 @@ exports.loadTimers = function (client) {
                     var guild = client.guilds.get(timer.guild_id);
 					if(guild == null) return;
                     var member = guild.members.get(timer.user_id);
-					if (!member) {
+					var role = member.guild.roles.get(timer.role_id);
+					if (!member || !role) {
 						console.log("No user found with id " + timer.user_id);
 						dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
 						return;
 					}
 					console.log(`[${utils.unixToTime(Date.now())}] Loaded timer for ${member.user.username} at [${member.guild.name}] ${utils.unixToTime(timer.timestamp)} was muted for ${utils.convertUnixToDate(timer.time)} (${utils.convertUnixToDate(timer.time - span)})`);
-                    setTimeout(function() {
-                        member.removeRole(timer.role_id).then(() => {
-                            console.log(`${member.user.username} unmuted at [${member.guild.name}]`);
-                        });
-                        dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
+                    setTimeout(() => {
+						member.removeRole(role.id).then(() => {
+							console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
+                        }).catch(console.log);
+                        dbUtils.removeTimer(timer.user_id, role.id, function() {});
                     }, timer.time - span);
                 }
             }
@@ -78,10 +79,9 @@ exports.loadTimers = function (client) {
 		if(!guild) return;
         var member = guild.members.get(timer.user_id);
         if (member) {
-			console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
 			if(!timer.role_id) return;
             member.removeRole(timer.role_id).then(() => {
-                console.log(`${member.user.username} unmuted at [${member.guild.name}]`);
+				console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
                 dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
                     removeTimers();
                 });

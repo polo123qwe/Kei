@@ -93,8 +93,9 @@ cmd.execution = function(client, msg, suffix) {
         dbUtils.insertTimer(Date.now(), time, member.user.id, role.id, msg.guild.id, function() {});
         msg.channel.sendMessage(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
         setTimeout(() => {
-            member.removeRole(role).then(() => {}).catch(console.log);
-            dbUtils.removeTimer(member.user.id, r.id, function() {});
+            console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
+			member.removeRole(role).then(() => {}).catch(console.log);
+            dbUtils.removeTimer(member.user.id, role.id, function() {});
         }, time);
     }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 }
