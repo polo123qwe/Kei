@@ -125,7 +125,7 @@ cmd.alias.push("colour")
 cmd.addHelp('Sets the color of a user');
 cmd.addUsage('<color code>');
 cmd.addExample(`color${suf} e57373`);
-cmd.cd = 10;
+cmd.cd = 8;
 cmd.minLvl = levels.USER;
 cmd.execution = function(client, msg, suffix) {
 

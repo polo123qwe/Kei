@@ -3,9 +3,10 @@ var Connection = require('../db/dbConnection');
 var levels = require('../../consts/levels.json');
 var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
-var discordUtils = require('../utils/discordUtils');
 var dbUtils = require('../db/dbUtils');
+var dbUsers = require('../db/dbUsers');
 var dbGuild = require('../db/dbGuild');
+var discordUtils = require('../utils/discordUtils');
 var https = require('https');
 var commands = [];
 
@@ -78,10 +79,10 @@ cmd.execution = function(client, msg, suffix) {
 
     var num = utils.getRandom(1, 1000);
     var time;
-    if (num >= 900) {
-        time = 3600 * 1000;
+    if (num < 20) {
+        time = 3600 * 500;
     } else {
-        time = num * 2000;
+        time = num * 2 * 1000;
     }
 
     var member = msg.member;
@@ -92,7 +93,7 @@ cmd.execution = function(client, msg, suffix) {
         dbUtils.insertTimer(Date.now(), time, member.user.id, role.id, msg.guild.id, function() {});
         msg.channel.sendMessage(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
         setTimeout(() => {
-            member.removeRole(role).then(() => {}).catch(console.log);
+            member.removeRole(role).then(() => {}).catch(eg.log);
             dbUtils.removeTimer(member.user.id, r.id, function() {});
         }, time);
     }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
@@ -130,6 +131,31 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
-
+cmd = new Command('friends', 'Fun');
+cmd.addHelp('Shows people with the same color as you have');
+cmd.cd = 30;
+cmd.minLvl = levels.DEFAULT;
+cmd.execution = function(client, msg, suffix) {
+    var role = msg.member.roles.find(r => r.name.startsWith("#"));
+    if (role == null) {
+        discordUtils.sendAndDelete(msg.channel, "You have no color!");
+    } else {
+        var names = [];
+        for (var member of msg.guild.members.array()) {
+            if (member.roles.exists(r => r.name == role.name)) {
+                if (member.user.id != msg.author.id) {
+                    names.push(member.user.username);
+                }
+            }
+        }
+        if (names.length < 1) {
+            msg.channel.sendMessage(`:frowning:`);
+        } else {
+            msg.channel.sendMessage(`Your friends are: ${names.join(", ")}`);
+        }
+    }
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
 
 module.exports = commands;

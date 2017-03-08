@@ -378,32 +378,7 @@ cmd.execution = function(client, msg, suffix) {
     });
 }
 commands.push(cmd);*/
-////////////////////////////////////////////////////////////
-cmd = new Command('friends', 'Server Data');
-cmd.addHelp('Shows people with the same color as you have');
-cmd.cd = 30;
-cmd.minLvl = levels.DEFAULT;
-cmd.execution = function(client, msg, suffix) {
-    var role = msg.member.roles.find(r => r.name.startsWith("#"));
-    if (role == null) {
-        discordUtils.sendAndDelete(msg.channel, "You have no color!");
-    } else {
-        var names = [];
-        for (var member of msg.guild.members.array()) {
-            if (member.roles.exists(r => r.name == role.name)) {
-                if (member.user.id != msg.author.id) {
-                    names.push(member.user.username);
-                }
-            }
-        }
-        if (names.length < 1) {
-            msg.channel.sendMessage(`:frowning:`);
-        } else {
-            msg.channel.sendMessage(`Your friends are: ${names.join(", ")}`);
-        }
-    }
-}
-commands.push(cmd);
+
 ////////////////////////////////////////////////////////////
 cmd = new Command('activity', 'Server Data');
 cmd.addHelp('Shows how many messages a user has sent');
