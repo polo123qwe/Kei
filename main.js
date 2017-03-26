@@ -21,6 +21,7 @@ const logging = require('./config.json').logging;
 //Automatic membership processing
 var checkMembershipStatus = require('./bin/memberProcessor.js');
 var memberRemoval = require('./bin/memberRemoval.js');
+var NEWUSERTHRESHOLD = (7 * 24 * 3600 * 1000);
 
 //Database module
 const Connection = require('./bin/db/dbConnection');
@@ -32,6 +33,7 @@ client.on('ready', () => {
     console.log('Bot connected (' + interval + 'ms)');
     //Load all the timers
     helpers.loadTimers(client);
+    helpers.loadNewMembers(client, NEWUSERTHRESHOLD);
     memberRemoval(client);
 });
 
@@ -54,6 +56,7 @@ client.on('message', msg => {
 
     if (msg.guild != null) {
         helpers.checkInvLink(msg);
+
         helpers.processSuggestionChannel(msg);
     }
 
@@ -100,26 +103,37 @@ client.on('guildMemberAdd', (member) => {
         });
     });
 
-
     dbGuild.fetchGuild(guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) {
-            return;
-        }
-
-        if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
-            //If you type default or an empty string it will use the default message
-            if (guildData.greeting.length == 0 || !guildData.greeting.includes("default")) {
-                guild.defaultChannel.sendMessage(helpers.processGreeting(guildData.greeting, member)).catch();
-                return;
-            }
-        }
-        if (guild.id == "132490115137142784") {
-            guild.defaultChannel.sendMessage(`Wleocme to ${guild.name}, ${member.user}! Remember to read the rules! <#137105484040634368>`).catch();
-        } else {
-            guild.defaultChannel.sendMessage(`Welcome to ${guild.name}, ${member.user}! Don't forget to read the rules!`).catch();
-        }
+		//Handling of newly created accounts
+		if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts){
+			if(member.user.createdTimestamp > Date.now() - NEWUSERTHRESHOLD){
+				//Check if the account is new, if it is we check that the user is not already in the database and add it
+				dbGuild.fetchNewAccounts(member.guild.id).then((arr) => {
+					for(var userData of arr){
+						if(userData.user_id == member.user.id && userData.guild_id == member.guild.id){
+							return;
+						}
+					}
+					dbGuild.storeNewAccount(guild.id, member.user.id).then(() => {
+						var role = guild.roles.find("name", "New Account");
+						if(role){
+							console.log(`[${utils.unixToTime(Date.now())}] and added to newly created accounts`);
+							setTimeout(() => {
+								member.addRole(role).catch(console.log);
+							}, 1000);
+						}
+					}).catch(console.log);
+				});
+			} else {
+				//If the user is not a newly created account
+				helpers.welcomeUser(guild, guildData, member);
+			}
+		} else {
+			//If the guild has not set up the limit of new users, just process the welcome
+			helpers.welcomeUser(guild, guildData, member);
+		}
     });
 
     function retrieveMembers(warnedRole, mutedRole) {
@@ -155,7 +169,7 @@ client.on('guildMemberRemove', (member) => {
 
 
         roleInstances.forEach(function(element) {
-            if (element.name != "@everyone") {
+            if (element.name != "@everyone" && element.name != "New Account") {
                 userRoles.push(element.id);
             }
         });
@@ -172,26 +186,21 @@ client.on('guildMemberRemove', (member) => {
     dbGuild.fetchGuild(guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-        if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye == null) {
-            return;
-        }
-
-        if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
-            guild.defaultChannel.sendMessage(helpers.processGoodbye(guildData.goodbye, member));
-        } else {
-            var embed = new Discord.RichEmbed();
-            var chance = Math.floor((Math.random() * 10) + 1);
-
-            if (chance % 2) {
-                embed.setAuthor(`${member.user.username}#${member.user.discriminator} has left the server!`, member.user.avatarURL);
-            } else {
-                embed.setAuthor(`${member.user.username}#${member.user.discriminator} is now gone.`, member.user.avatarURL);
-            }
-
-            embed.setColor("#f44441");
-
-            guild.defaultChannel.sendEmbed(embed);
-        }
+		//Handling of newly created accounts
+		if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts){
+			dbGuild.fetchNewAccounts(guild.id).then((arr) => {
+				for(var userData of arr){
+					if(userData.user_id == member.user.id && userData.guild_id == guild.id){
+						dbGuild.deleteNewAccount(guild.id, member.user.id).catch(console.log);
+						return;
+					}
+				}
+				//If no user was found in the db
+				helpers.goodbyeUser(guild, guildData, member);
+			});
+		} else {
+			helpers.goodbyeUser(guild, guildData, member);
+		}
     });
 });
 

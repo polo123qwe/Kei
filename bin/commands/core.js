@@ -39,11 +39,17 @@ cmd.execution = function(client, msg, suffix) {
         result = eval(suffix.join(" "));
     } catch (err) {
         console.log(err);
-        msg.channel.sendCode("", err);
+        msg.channel.sendCode("", err).catch(console.log);
         return;
     }
-    // @TODO Something causes error here, check it
-    msg.channel.sendMessage(result) /*.catch(console.log)*/ ;
+
+    if (result) {
+        Promise.resolve(result).then(function(res) {
+			if(res){
+				msg.channel.sendMessage(res).catch(console.log);
+			}
+        });
+    }
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////

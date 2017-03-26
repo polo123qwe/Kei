@@ -113,7 +113,7 @@ cmd.execution = function(client, msg, suffix) {
     var question = suffix.join("+");
     https.get({
         host: '8ball.delegator.com',
-        path: '/magic/JSON/' + question,
+        path: '/magic/JSON/' + JSON.stringify(question),
     }, function(response) {
         // Continuously update stream with data
         var body = '';

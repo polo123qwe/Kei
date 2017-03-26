@@ -78,3 +78,8 @@ users:
     _id: user_id
     usernames: [string]
     coutry: string
+
+newaccounts:
+	author_id: user_id
+	guild_id: guild_id
+	timestamp: timestamp

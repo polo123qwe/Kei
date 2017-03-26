@@ -7,6 +7,7 @@ var discordUtils = require('../utils/discordUtils');
 var moderationUtils = require('../utils/moderationUtils');
 var dbUtils = require('../db/dbUtils');
 var dbGuild = require('../db/dbGuild');
+var helpers = require('../helpers');
 var commands = [];
 
 var cmd;
@@ -140,10 +141,10 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
-	var toremove;
+    var toremove;
     msg.channel.fetchMessages({
         limit: amount,
-		before: msg
+        before: msg
     }).then((msgs) => {
         toremove = msgs.array();
         if (member) {
@@ -151,13 +152,13 @@ cmd.execution = function(client, msg, suffix) {
                 return m.author.id == member.user.id;
             });
         }
-		if(toremove.length < 1){
-			return;
-		} else if(toremove.length == 1){
-			toremove[0].delete().catch(console.log);
-		} else {
-			msg.channel.bulkDelete(toremove).catch(console.log);
-		}
+        if (toremove.length < 1) {
+            return;
+        } else if (toremove.length == 1) {
+            toremove[0].delete().catch(console.log);
+        } else {
+            msg.channel.bulkDelete(toremove).catch(console.log);
+        }
     }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
 
 }
@@ -240,6 +241,42 @@ cmd.execution = function(client, msg, suffix) {
             discordUtils.findLogsChannel(msg.guild, logChannel => {
                 moderationUtils.logMessage("SOFTBAN", msg.author, member.user, logChannel, reason);
             });
+        });
+    });
+
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+cmd = new Command('unlock', 'Moderation');
+cmd.addHelp('Removes a user from being locked in new account role');
+cmd.addUsage('<mention/id>');
+cmd.minLvl = levels.MODERATOR;
+cmd.params.push(paramtypes.MENTIONORID);
+cmd.execution = function(client, msg, suffix) {
+
+    var member = discordUtils.getMembersFromMessage(msg, suffix)[0];
+    var guild = member.guild;
+	var role = guild.roles.find("name", "New Account");
+
+	//Load the data for the guild
+    dbGuild.fetchGuild(guild.id, function(err, guildData) {
+
+		//Load the accounts
+        dbGuild.fetchNewAccounts(guild.id).then((arr) => {
+            for (var userData of arr) {
+				//We check if the user is included in the database and we remove it
+                if (userData.user_id == member.user.id && userData.guild_id == guild.id) {
+                    dbGuild.deleteNewAccount(guild.id, member.user.id).then(() => {
+						//Send message to notify that the user joined the guild
+						if(role){
+							member.removeRole(role)
+						}
+						helpers.welcomeUser(guild, guildData, member);
+                    }).catch(console.log);
+                    return;
+                }
+            }
+            discordUtils.sendAndDelete(msg.channel, "User not found in the database!");
         });
     });
 

@@ -286,6 +286,25 @@ var operations = {
             return retObject;
         },
     },
+	isolatenewaccounts: {
+		help: `Toggles automatic isolation of newly created accounts. Eg: \`set${suf} isolatenewaccounts 1\``,
+        run: function(msg, suffix, remove) {
+
+            var setting = suffix.splice(1, suffix.length).join(" ");
+
+			var role = msg.guild.roles.find("name", "New Account");
+			if(!role){
+                discordUtils.sendAndDelete(msg.channel, 'No "New Account" role created, create it and try again');
+				return null;
+			}
+
+            return {
+                $set: {
+                    isolatenewaccounts: (setting == true)
+                }
+            }
+        },
+    },
 }
 var ops = [];
 for (var op in operations) {
