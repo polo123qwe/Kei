@@ -120,6 +120,7 @@ client.on('guildMemberAdd', (member) => {
 						var role = guild.roles.find("name", "New Account");
 						if(role){
 							console.log(`[${utils.unixToTime(Date.now())}] and added to newly created accounts`);
+							member.sendMessage(`You have been locked in ${member.guild.name} due to the account being new, to be unlocked contact one of the moderators/adminstrators`).catch();
 							setTimeout(() => {
 								member.addRole(role).catch(console.log);
 							}, 1000);
