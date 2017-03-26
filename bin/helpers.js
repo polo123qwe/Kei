@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 var discordUtils = require('./utils/discordUtils.js');
 var utils = require('./utils/utils');
 var dbUtils = require('./db/dbUtils.js');
