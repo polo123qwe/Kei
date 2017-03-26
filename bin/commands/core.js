@@ -61,14 +61,18 @@ cmd.execution = function(client, msg) {
 
     msg.channel.sendMessage("Updating..").then(() => {
         exec(cmd, function(error, stdout, stderr) {
-            if (error) return msg.channel.sendMessage(error);
+            if (error) console.log(error);
             if (stdout) console.log(stdout);
-            if (stderr) console.log(stderr);
-            msg.channel.sendMessage("Rebooting").then(() => {
-                client.destroy().then(() => {
-                    process.exit();
-                });
-            });
+			if (stderr) console.log(stderr);
+			if(error || stderr){
+				msg.channel.sendMessage("Something went wrong").catch();
+			} else {
+				msg.channel.sendMessage("Rebooting").then(() => {
+					client.destroy().then(() => {
+						process.exit();
+					});
+				});
+			}
         });
     })
 }
