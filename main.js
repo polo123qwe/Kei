@@ -106,35 +106,40 @@ client.on('guildMemberAdd', (member) => {
     dbGuild.fetchGuild(guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-		//Handling of newly created accounts
-		if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts){
-			if(member.user.createdTimestamp > Date.now() - NEWUSERTHRESHOLD){
-				//Check if the account is new, if it is we check that the user is not already in the database and add it
-				dbGuild.fetchNewAccounts(member.guild.id).then((arr) => {
-					for(var userData of arr){
-						if(userData.user_id == member.user.id && userData.guild_id == member.guild.id){
-							return;
-						}
-					}
-					dbGuild.storeNewAccount(guild.id, member.user.id).then(() => {
-						var role = guild.roles.find("name", "New Account");
-						if(role){
-							console.log(`[${utils.unixToTime(Date.now())}] and added to newly created accounts`);
-							member.sendMessage(`You have been locked in ${member.guild.name} due to the account being new, to be unlocked contact one of the moderators/adminstrators`).catch();
-							setTimeout(() => {
-								member.addRole(role).catch(console.log);
-							}, 1000);
-						}
-					}).catch(console.log);
-				});
-			} else {
-				//If the user is not a newly created account
-				helpers.welcomeUser(guild, guildData, member);
-			}
-		} else {
-			//If the guild has not set up the limit of new users, just process the welcome
-			helpers.welcomeUser(guild, guildData, member);
-		}
+        //Handling of newly created accounts
+        if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts) {
+            if (member.user.createdTimestamp > Date.now() - NEWUSERTHRESHOLD) {
+                //Check if the account is new, if it is we check that the user is not already in the database and add it
+                dbGuild.fetchNewAccounts(member.guild.id).then((arr) => {
+                    for (var userData of arr) {
+                        if (userData.user_id == member.user.id && userData.guild_id == member.guild.id) {
+                            return;
+                        }
+                    }
+                    dbGuild.storeNewAccount(guild.id, member.user.id).then(() => {
+                        var role = guild.roles.find("name", "New Account");
+                        if (role) {
+                            console.log(`[${utils.unixToTime(Date.now())}] and added to newly created accounts`);
+                            member.sendMessage(`You have been locked in ${member.guild.name} due to the account being new, to be unlocked contact one of the moderators/adminstrators`).catch();
+							//TODO Change this
+							if(guild.id == "132490115137142784"){
+								var channel = guild.channels.get("184984832219152387");
+								if(channel) channel.sendMessage(`User ${member} joined the server and was added to New Accounts.`).catch();
+							}
+                            setTimeout(() => {
+                                member.addRole(role).catch(console.log);
+                            }, 1000);
+                        }
+                    }).catch(console.log);
+                });
+            } else {
+                //If the user is not a newly created account
+                helpers.welcomeUser(guild, guildData, member);
+            }
+        } else {
+            //If the guild has not set up the limit of new users, just process the welcome
+            helpers.welcomeUser(guild, guildData, member);
+        }
     });
 
     function retrieveMembers(warnedRole, mutedRole) {
@@ -187,21 +192,21 @@ client.on('guildMemberRemove', (member) => {
     dbGuild.fetchGuild(guild.id, function(err, guildData) {
         if (err) console.log(err);
 
-		//Handling of newly created accounts
-		if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts){
-			dbGuild.fetchNewAccounts(guild.id).then((arr) => {
-				for(var userData of arr){
-					if(userData.user_id == member.user.id && userData.guild_id == guild.id){
-						dbGuild.deleteNewAccount(guild.id, member.user.id).catch(console.log);
-						return;
-					}
-				}
-				//If no user was found in the db
-				helpers.goodbyeUser(guild, guildData, member);
-			});
-		} else {
-			helpers.goodbyeUser(guild, guildData, member);
-		}
+        //Handling of newly created accounts
+        if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts) {
+            dbGuild.fetchNewAccounts(guild.id).then((arr) => {
+                for (var userData of arr) {
+                    if (userData.user_id == member.user.id && userData.guild_id == guild.id) {
+                        dbGuild.deleteNewAccount(guild.id, member.user.id).catch(console.log);
+                        return;
+                    }
+                }
+                //If no user was found in the db
+                helpers.goodbyeUser(guild, guildData, member);
+            });
+        } else {
+            helpers.goodbyeUser(guild, guildData, member);
+        }
     });
 });
 
@@ -258,7 +263,7 @@ client.on('guildBanAdd', (guild, user) => {
                         var messageFound = messages.find(m => {
                             var embed = m.embeds[0];
                             if (embed) {
-								if(embed.title != "SOFTBAN") return false;
+                                if (embed.title != "SOFTBAN") return false;
                                 for (var field of embed.fields) {
                                     if (field.name == "User" && field.value.includes(user.id)) {
                                         return true;
@@ -271,8 +276,8 @@ client.on('guildBanAdd', (guild, user) => {
                         if (messageFound == null) {
                             moderationUtils.logPlaceholder(user, logChannel);
                         } else {
-							console.log("Message")
-						}
+                            console.log("Message")
+                        }
                     });
             }
         });
