@@ -125,7 +125,11 @@ exports.loadNewMembers = function(client, constTreshold) {
  */
 function checkMembers(guild, arr) {
     if (arr.length == 0) return;
+	if(!guild) return;
+	
     var userData = arr.pop();
+	if(!guild.members) return;
+
     var member = guild.members.get(userData.user_id);
     if (member == null) {
         return dbGuild.deleteNewAccount(guild.id, userData.user_id).catch(console.log);

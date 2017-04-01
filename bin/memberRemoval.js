@@ -40,8 +40,7 @@ function memberRemoval() {
                         //Member we are going to check
                         var member = members.pop();
                         //Check if the member has the member role or is trusted, otherwise skip
-                        if (!member.roles.has(memberRoleID) ||
-                            member.roles.exists(r => r.name.toLowerCase() == "trusted member")) {
+                        if (!member.roles.has(memberRoleID)) {
                             return checkUsers(members, callback);
                         }
 
