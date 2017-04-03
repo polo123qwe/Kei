@@ -144,7 +144,7 @@ cmd.execution = function(client, msg, suffix) {
     var toremove;
     msg.channel.fetchMessages({
         limit: amount,
-        before: msg
+        before: msg.id
     }).then((msgs) => {
         toremove = msgs.array();
         if (member) {
@@ -159,7 +159,10 @@ cmd.execution = function(client, msg, suffix) {
         } else {
             msg.channel.bulkDelete(toremove).catch(console.log);
         }
-    }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+    }).catch(err => {
+		discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.text);
+		console.log(err);
+	});
 
 }
 commands.push(cmd);
