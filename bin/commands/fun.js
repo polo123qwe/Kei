@@ -111,9 +111,10 @@ cmd.execution = function(client, msg, suffix) {
         return msg.channel.sendMessage("Ask a question!");
     }
     var question = suffix.join("+");
+	console.log(encodeURI(question))
     https.get({
         host: '8ball.delegator.com',
-        path: '/magic/JSON/' + JSON.stringify(question),
+        path: '/magic/JSON/' + encodeURI(question),
     }, function(response) {
         // Continuously update stream with data
         var body = '';
@@ -123,7 +124,12 @@ cmd.execution = function(client, msg, suffix) {
         response.on('end', function() {
 
             // Data reception is done, do whatever with it!
-            var parsed = JSON.parse(body);
+			var parsed
+			try{
+				parsed = JSON.parse(body);
+			} catch(e){
+				console.log(e);
+			}
             if (!parsed) return;
             msg.channel.sendMessage(msg.author + ", " + parsed.magic.answer);
 
