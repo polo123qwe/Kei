@@ -64,7 +64,7 @@ cmd.execution = function(client, msg) {
             if (error) console.log(error);
             if (stdout) console.log(stdout);
 			if (stderr) console.log(stderr);
-			if(error || stderr){
+			if(error){
 				msg.channel.sendMessage("Something went wrong").catch();
 			} else {
 				msg.channel.sendMessage("Rebooting").then(() => {

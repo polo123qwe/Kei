@@ -131,7 +131,7 @@ commands.push(cmd);
 cmd = new Command('prune', 'Moderation');
 cmd.addHelp('Prunes a given amount of messages (filters by user if specified)');
 cmd.addUsage('<amount> [user]');
-cmd.minLvl = levels.MODERATOR;
+cmd.minLvl = levels.ADMIN;
 cmd.execution = function(client, msg, suffix) {
     var amount = suffix[0];
 
@@ -170,7 +170,7 @@ commands.push(cmd);
 cmd = new Command('revokeinvite', 'Moderation');
 cmd.addHelp('Revokes the given invite link');
 cmd.addUsage('<invite link>');
-cmd.minLvl = levels.MODERATOR;
+cmd.minLvl = levels.ADMIN;
 cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
     var inviteCode = suffix[0];
@@ -232,7 +232,7 @@ cmd = new Command('softban', 'Moderation');
 cmd.alias.push('sban', 'kick');
 cmd.addHelp('Bans a user and then it unbans it');
 cmd.addUsage('<mention/id> [reason]');
-cmd.minLvl = levels.MODERATOR;
+cmd.minLvl = levels.ADMIN;
 cmd.params.push(paramtypes.MENTIONORID);
 cmd.execution = function(client, msg, suffix) {
 

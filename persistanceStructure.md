@@ -72,6 +72,11 @@ members:
             nicknames: []
             roles: []
         }
+		warned: role_id,
+		muted: role_id,
+		member: role_id,
+		lurker: role_id,
+
     ]
 
 users:

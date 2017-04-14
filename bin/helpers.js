@@ -52,7 +52,10 @@ exports.loadTimers = function(client) {
                     var guild = client.guilds.get(timer.guild_id);
                     if (guild == null) return;
                     var member = guild.members.get(timer.user_id);
-                    var role = member.guild.roles.get(timer.role_id);
+					var role;
+					if(member){
+						 role = member.guild.roles.get(timer.role_id);
+					}
                     if (!member || !role) {
                         console.log("No user found with id " + timer.user_id);
                         dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
@@ -126,7 +129,7 @@ exports.loadNewMembers = function(client, constTreshold) {
 function checkMembers(guild, arr) {
     if (arr.length == 0) return;
 	if(!guild) return;
-	
+
     var userData = arr.pop();
 	if(!guild.members) return;
 
