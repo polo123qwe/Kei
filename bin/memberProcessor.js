@@ -36,7 +36,20 @@ module.exports = function(client, member) {
         if (guildData && guildData.hasOwnProperty('automember') && guildData.automember) {
             dbUtils.fetchUserActivity(member.guild.id, member.user.id, 7, (err, res) => {
                 if (err) return console.log(err);
-                if (res.length >= 4) {
+				if (member.roles.exists(r => r.name.toLowerCase() == 'lurker')) {
+					if (res.length != 0){
+						for (var day of res) {
+	                        if (day.msgs > 15) {
+								member.removeRole(member.roles.find(r => r.name.toLowerCase() == 'lurker')).then(() => {
+									setTimeout(() => {
+										addToRole();
+									}, 1000);
+								}).catch(addToRole);
+								return;
+	                        }
+	                    }
+					}
+				} else if (res.length >= 4) {
                     var promote = 0;
                     for (var day of res) {
                         if (day.msgs > 35) {
@@ -44,29 +57,20 @@ module.exports = function(client, member) {
                         }
                     }
                     if (promote >= 3) {
-                        if (member.roles.exists(r => r.name.toLowerCase() == 'lurker')) {
-                            member.removeRole(member.roles.find(r => r.name.toLowerCase() == 'lurker')).then(() => {
-                                setTimeout(() => {
-                                    addToRole();
-                                }, 1000);
-                            }).catch(addToRole);
-                        } else {
-                            addToRole();
-                        }
-
-                        function addToRole() {
-                            member.addRole(memberRole).then(() => {
-                                console.log(`Membered ${member.user.username} in ${member.guild.name}`);
-
-                                var channel = discordUtils.findActivityChannel(member.guild);
-                                if (channel) {
-                                    channel.sendMessage(`Congratulations ${member} you are now a member!`).catch(err => console.log(err.response.res.text));
-                                }
-                            }).catch(err => console.log(err.response.res.text));
-
-                        }
+                        addToRole();
                     }
                 }
+				function addToRole() {
+					member.addRole(memberRole).then(() => {
+						console.log(`Membered ${member.user.username} in ${member.guild.name}`);
+
+						var channel = discordUtils.findActivityChannel(member.guild);
+						if (channel) {
+							channel.sendMessage(`Congratulations ${member} you are now a member!`).catch(err => console.log(err.response.res.text));
+						}
+					}).catch(err => console.log(err.response.res.text));
+
+				}
             });
         }
     });
