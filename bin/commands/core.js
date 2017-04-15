@@ -61,9 +61,18 @@ cmd.execution = function(client, msg) {
 
     msg.channel.sendMessage("Updating..").then(() => {
         exec(cmd, function(error, stdout, stderr) {
-            if (error) console.log(error);
-            if (stdout) console.log(stdout);
-			if (stderr) console.log(stderr);
+            if (error) {
+				console.log("error");
+				console.log(error);
+			}
+            if (stdout){
+				console.log("stdout");
+				console.log(stdout);
+			}
+			if (stderr){
+				console.log("stderr");
+				console.log(stderr);
+			}
 			if(error){
 				msg.channel.sendMessage("Something went wrong").catch();
 			} else {

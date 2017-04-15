@@ -38,16 +38,18 @@ module.exports = function(client, member) {
                 if (err) return console.log(err);
 				if (member.roles.exists(r => r.name.toLowerCase() == 'lurker')) {
 					if (res.length != 0){
+						var total = 0;
 						for (var day of res) {
-	                        if (day.msgs > 15) {
-								member.removeRole(member.roles.find(r => r.name.toLowerCase() == 'lurker')).then(() => {
-									setTimeout(() => {
-										addToRole();
-									}, 1000);
-								}).catch(addToRole);
-								return;
-	                        }
+							total += day.msgs;
 	                    }
+						if(total > 50){
+							member.removeRole(member.roles.find(r => r.name.toLowerCase() == 'lurker')).then(() => {
+								setTimeout(() => {
+									addToRole();
+								}, 1000);
+							}).catch(addToRole);
+							return;
+						}
 					}
 				} else if (res.length >= 4) {
                     var promote = 0;
