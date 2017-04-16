@@ -63,15 +63,22 @@ cmd.execution = function(client, msg, suffix) {
                 return msg.channel.sendMessage(`:warning:  |  Error! The role you chose is invalid.\n**Currently available self-assignable roles**: \`\`\`${possibleRoles.join(", ")}\`\`\``, 8000);
             }
 
+			var errorRolesMessage = "";
             for (var currentRole of rolesToAdd) {
                 if (msg.member.roles.array().indexOf(currentRole) > -1) {
                     rolesToAdd.splice(rolesToAdd.indexOf(currentRole), 1);
-                    msg.channel.sendMessage(":octagonal_sign:  |  You already have the `" + currentRole.name + "` role!");
+                    errorRolesMessage += ":octagonal_sign:  |  You already have the `" + currentRole.name + "` role!\n";
                 }
             }
+			if(errorRolesMessage){
+				msg.channel.sendMessage(errorRolesMessage);
+			}
 
             if (rolesToAdd.length != 0) {
                 msg.member.addRoles(rolesToAdd).then((memb) => {
+					if(errorRolesMessage){
+						msg.channel.sendMessage(":white_check_mark:  |  **" + msg.author.username + "** added successfully to other roles!");
+					}
                     msg.channel.sendMessage(":white_check_mark:  |  **" + msg.author.username + "** added successfully to all the roles requested!");
                 }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
             }
