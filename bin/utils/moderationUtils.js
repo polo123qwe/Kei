@@ -54,8 +54,8 @@ exports.editEmbed = function(message, moderatorUser, reason) {
         if (field.name == "Reason") {
             embed.addField(field.name, reason, field.inline);
         } else if (field.name == "Moderator") {
-            found = true;
-            if (field.value == message.id) {
+            found = true; //TODO dafuq I did here
+            if (field.value.includes(message.id)) {
                 embed.addField(field.name, `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, field.inline);
             }
         } else {

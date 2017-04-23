@@ -11,8 +11,8 @@ var moderationUtils = require('./bin/utils/moderationUtils');
 var helpers = require('./bin/helpers.js');
 
 const client = new Discord.Client({
-    fetch_all_members: true,
-    disable_everyone: true
+    fetchAllMembers: true,
+    disableEveryone: true
 });
 const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
