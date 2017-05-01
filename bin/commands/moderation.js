@@ -16,6 +16,7 @@ cmd = new Command('warn', 'Moderation');
 cmd.addHelp('Warns a user');
 cmd.addUsage('<mention/id> [time] [reason]');
 cmd.minLvl = levels.MODERATOR;
+cmd.reqDB = true;
 cmd.params.push(paramtypes.MENTIONORID);
 cmd.execution = function(client, msg, suffix) {
     /*
@@ -56,6 +57,7 @@ cmd = new Command('chill', 'Moderation');
 cmd.addHelp('Chills a user for 2 mins');
 cmd.addUsage('<mention/id> [reason]');
 cmd.minLvl = levels.MODERATOR;
+cmd.reqDB = true;
 cmd.params.push(paramtypes.MENTIONORID);
 cmd.execution = function(client, msg, suffix) {
 
@@ -74,13 +76,16 @@ cmd.execution = function(client, msg, suffix) {
                     moderationUtils.logMessage("CHILL", msg.author, member.user, logChannel, reason);
                 }
                 dbUtils.insertLog(member.user.id, msg.author.id, "chilling", reason, 0, function() {});
-                //Notify the userf
-                member.user.sendMessage(`You have been chilled! You are muted for 2 minutes in ${msg.guild}`)
+                //Notify the user
+                member.user.send(`You have been chilled! You are muted for 2 minutes in ${msg.guild.name}`).catch();
             });
             setTimeout(() => {
                 member.removeRole(mutedRole).catch(console.log);
             }, 120000);
-        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+        }).catch(err => {
+			console.error(err);
+			discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message)
+		});
     });
 
 }
@@ -90,6 +95,7 @@ cmd = new Command('mute', 'Moderation');
 cmd.addHelp('Mutes a user (default 3 days)');
 cmd.addUsage('<mention/id> [time(days)] [reason]');
 cmd.minLvl = levels.MODERATOR;
+cmd.reqDB = true;
 cmd.params.push(paramtypes.MENTIONORID);
 cmd.execution = function(client, msg, suffix) {
 
@@ -183,7 +189,7 @@ cmd.execution = function(client, msg, suffix) {
 
             if (invite) {
                 invite.delete().then((inv) => {
-                    msg.channel.sendMessage("Invite " + inviteCode +
+                    msg.channel.send("Invite " + inviteCode +
                         " removed successfully");
                 })
             } else {

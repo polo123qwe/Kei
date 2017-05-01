@@ -23,7 +23,8 @@
     "forecast.io-bluebird": "0.0.1",
     "osu-api": "0.0.3",
     "require-directory": "^2.1.1",
-    "unirest": "^0.5.1"
+    "unirest": "^0.5.1",
+	"mongodb": "x.x.x"
   },
   "devDependencies": {
     "chai": "^3.5.0",

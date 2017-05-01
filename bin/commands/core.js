@@ -21,7 +21,7 @@ cmd.dm = true;
 cmd.minLvl = levels.DEFAULT;
 cmd.execution = function(client, msg, suffix) {
     var time = Date.now();
-    msg.channel.sendMessage("Pong!").then((nMsg) => {
+    msg.channel.send("Pong!").then((nMsg) => {
         nMsg.edit("Pong! (" + (Date.now() - time) + "ms)");
     });
 
@@ -46,7 +46,7 @@ cmd.execution = function(client, msg, suffix) {
     if (result) {
         Promise.resolve(result).then(function(res) {
 			if(res){
-				msg.channel.sendMessage(res).catch(console.log);
+				msg.channel.send(res).catch(console.log);
 			}
         });
     }
@@ -59,7 +59,7 @@ cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
     var cmd = 'git pull';
 
-    msg.channel.sendMessage("Updating..").then(() => {
+    msg.channel.send("Updating..").then(() => {
         exec(cmd, function(error, stdout, stderr) {
             if (error) {
 				console.log("error");
@@ -74,9 +74,9 @@ cmd.execution = function(client, msg) {
 				console.log(stderr);
 			}
 			if(error){
-				msg.channel.sendMessage("Something went wrong").catch();
+				msg.channel.send("Something went wrong").catch();
 			} else {
-				msg.channel.sendMessage("Rebooting").then(() => {
+				msg.channel.send("Rebooting").then(() => {
 					client.destroy().then(() => {
 						process.exit();
 					});
@@ -91,7 +91,7 @@ cmd = new Command('kill', 'Core');
 cmd.addHelp('Kills the bot');
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
-    msg.channel.sendMessage('*ded*').then(() => {
+    msg.channel.send('*ded*').then(() => {
         console.log('Shutting down...');
         client.destroy().then(() => {
             process.exit();

@@ -68,7 +68,7 @@ module.exports = function(client, member) {
 
 						var channel = discordUtils.findActivityChannel(member.guild);
 						if (channel) {
-							channel.sendMessage(`Congratulations ${member} you are now a member!`).catch(err => console.log(err.response.res.text));
+							channel.send(`Congratulations ${member} you are now a member!`).catch(err => console.log(err.response.res.text));
 						}
 					}).catch(err => console.log(err.response.res.text));
 

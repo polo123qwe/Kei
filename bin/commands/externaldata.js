@@ -32,7 +32,7 @@ cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
 
     var result = suffix.join("+");
-    msg.channel.sendMessage("http://www.urbandictionary.com/define.php?term=" + result);
+    msg.channel.send("http://www.urbandictionary.com/define.php?term=" + result);
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ cmd.execution = function(client, msg, suffix) {
         }
         if (out == null) out = "No user found";
         else out = stringify(out);
-        msg.channel.sendMessage(out);
+        msg.channel.send(out);
     });
 
     function stringify(out) {
@@ -105,7 +105,7 @@ cmd.execution = function(client, msg, suffix) {
         if (err != null) {
             // console.log('Error: ' + err);
         } else if (!locat) {
-            msg.channel.sendMessage("No result found!");
+            msg.channel.send("No result found!");
         } else {
             getForecast(locat.geometry.location.lat, locat.geometry.location.lng, function(err, out) {
                 if (err) return;
@@ -121,7 +121,7 @@ cmd.execution = function(client, msg, suffix) {
 						embed.setThumbnail(weatherOptions[out.icon]);
 					}
 					embed.setTimestamp();
-					msg.channel.sendEmbed(embed);
+					msg.channel.send({embed: embed});
                 }
             });
         }

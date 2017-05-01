@@ -36,10 +36,10 @@ cmd.execution = function(client, msg, suffix) {
         } else {
 			// If we've got no members.
 			if (chosen.length != 2) {
-				msg.channel.sendMessage('There are no valid OTP :broken_heart:');
+				msg.channel.send('There are no valid OTP :broken_heart:');
 				return;
 			}
-			msg.channel.sendMessage(':revolving_hearts: ' + chosen[0].user.username + " x " + chosen[1].user.username + ' :revolving_hearts:');
+			msg.channel.send(':revolving_hearts: ' + chosen[0].user.username + " x " + chosen[1].user.username + ' :revolving_hearts:');
 		}
     }
 }
@@ -49,6 +49,7 @@ cmd = new Command('randu', 'Fun');
 cmd.addHelp('Returns a random member');
 cmd.minLvl = levels.DEFAULT;
 cmd.cd = 20;
+cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 
     var members = msg.guild.members.array();
@@ -61,7 +62,7 @@ cmd.execution = function(client, msg, suffix) {
 			return;
 		}
 		if (res > -1) {
-            msg.channel.sendMessage(`:arrow_forward:  |  **${member.user.username}** has been selected!`);
+            msg.channel.send(`:arrow_forward:  |  **${member.user.username}** has been selected!`);
         } else {
 			members.splice(members.indexOf(member), 1);
             member = members[utils.getRandom(0, members.length - 1)];
@@ -91,7 +92,7 @@ cmd.execution = function(client, msg, suffix) {
     if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
         dbUtils.insertTimer(Date.now(), time, member.user.id, role.id, msg.guild.id, function() {});
-        msg.channel.sendMessage(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
+        msg.channel.send(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
         setTimeout(() => {
             console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
 			member.removeRole(role).then(() => {}).catch(console.log);
@@ -108,7 +109,7 @@ cmd.minLvl = levels.DEFAULT;
 cmd.cd = 20;
 cmd.execution = function(client, msg, suffix) {
     if (suffix.length == 0) {
-        return msg.channel.sendMessage("Ask a question!");
+        return msg.channel.send("Ask a question!");
     }
     var question = suffix.join("+");
 	console.log(encodeURI(question))
@@ -131,7 +132,7 @@ cmd.execution = function(client, msg, suffix) {
 				console.log(e);
 			}
             if (!parsed) return;
-            msg.channel.sendMessage(msg.author + ", " + parsed.magic.answer);
+            msg.channel.send(msg.author + ", " + parsed.magic.answer);
 
         });
     });
@@ -156,9 +157,9 @@ cmd.execution = function(client, msg, suffix) {
             }
         }
         if (names.length < 1) {
-            msg.channel.sendMessage(`:frowning:`);
+            msg.channel.send(`:frowning:`);
         } else {
-            msg.channel.sendMessage(`Your friends are: ${names.join(", ")}`);
+            msg.channel.send(`Your friends are: ${names.join(", ")}`);
         }
     }
 }

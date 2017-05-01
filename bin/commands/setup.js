@@ -38,9 +38,9 @@ cmd.execution = function(client, msg, suffix) {
     var index = suffix.indexOf("-h");
     if (index > -1) {
         if (operations.hasOwnProperty(option)) {
-            return msg.channel.sendMessage(`${option}: ${operations[option].help}\n`);
+            return msg.channel.send(`${option}: ${operations[option].help}\n`);
         } else {
-            return msg.channel.sendMessage("Error, options are: " + ops.join(", "));
+            return msg.channel.send("Error, options are: " + ops.join(", "));
         }
     }
 

@@ -72,7 +72,7 @@ cmd.execution = function(client, msg, suffix) {
     //if user wants help from a specific command or to get all the help
     if (command) {
         if (commands.hasOwnProperty(suffix[0])) {
-            msg.channel.sendMessage(helpCmds[commands[command].category][commands[command].name]);
+            msg.channel.send(helpCmds[commands[command].category][commands[command].name]);
         } else {
             discordUtils.sendAndDelete(msg.channel, "That command does not exist!", 8000);
         }
@@ -101,7 +101,7 @@ cmd.execution = function(client, msg, suffix) {
 
         for(var str of sendStrings){
             //Print the help
-            msg.author.sendMessage(str);
+            msg.author.send(str);
         }
     }
 }

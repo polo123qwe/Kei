@@ -90,7 +90,7 @@ function updateUserRoles(membersToUpdate, guild, memberRoleID) {
                     //Send message and proceed to next member
                     var channel = discordUtils.findActivityChannel(guild);
                     if (!channel) return updateUserRoles(membersToUpdate, guild, memberRoleID);
-                    channel.sendMessage(`${member.user.username} is now a lurker.`).then(() => {
+                    channel.send(`${member.user.username} is now a lurker.`).then(() => {
                         return updateUserRoles(membersToUpdate, guild, memberRoleID);
                     }).catch(console.log);
                 }, 1000);

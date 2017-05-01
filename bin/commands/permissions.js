@@ -78,7 +78,7 @@ cmd.execution = function(client, msg, suffix) {
                 function(err, res) {
                     if (err) return console.log(err);
                     if (res.ok == 1) {
-                        msg.channel.sendMessage("Role " + role.name + " updated with level " + lvl);
+                        msg.channel.send("Role " + role.name + " updated with level " + lvl);
                     } else {
                         console.log(res);
                         discordUtils.sendAndDelete(msg.channel, res)
@@ -199,7 +199,7 @@ cmd.execution = function(client, msg, suffix) {
 
     dbUtils.getLevel(msg.guild, msg.member, (err, lvl) =>{
         if(err) return discordUtils.sendAndDelete(msg.channel, err);
-        msg.channel.sendMessage(`Your current level is ${lvl}`);
+        msg.channel.send(`Your current level is ${lvl}`);
     });
 }
 commands.push(cmd);

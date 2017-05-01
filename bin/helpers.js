@@ -186,7 +186,7 @@ exports.goodbyeUser = function(guild, guildData, member) {
     }
 
     if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
-        guild.defaultChannel.sendMessage(processGoodbye(guildData.goodbye, member));
+        guild.defaultChannel.send(processGoodbye(guildData.goodbye, member));
     } else {
         var embed = new Discord.RichEmbed();
         var chance = Math.floor((Math.random() * 10) + 1);
@@ -199,7 +199,7 @@ exports.goodbyeUser = function(guild, guildData, member) {
 
         embed.setColor("#f44441");
 
-        guild.defaultChannel.sendEmbed(embed).catch();
+        guild.defaultChannel.send({embed: embed}).catch();
     }
 
 	logWelcomeOrLeft(guild, member, false);
@@ -229,15 +229,15 @@ exports.welcomeUser = function(guild, guildData, member) {
     if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
         //If you type default or an empty string it will use the default message
         if (guildData.greeting.length == 0 || !guildData.greeting.includes("default")) {
-            guild.defaultChannel.sendMessage(processGreeting(guildData.greeting, member)).catch();
+            guild.defaultChannel.send(processGreeting(guildData.greeting, member)).catch();
 			logWelcomeOrLeft(guild, member, true);
 			return;
         }
     }
 	if (guild.id == "132490115137142784") {
-        guild.defaultChannel.sendMessage(`Wleocme to ${guild.name}, ${member.user}! Remember to read the rules! <#137105484040634368>`).catch();
+        guild.defaultChannel.send(`Wleocme to ${guild.name}, ${member.user}! Remember to read the rules! <#137105484040634368>`).catch();
     } else {
-        guild.defaultChannel.sendMessage(`Welcome to ${guild.name}, ${member.user}! Don't forget to read the rules!`).catch();
+        guild.defaultChannel.send(`Welcome to ${guild.name}, ${member.user}! Don't forget to read the rules!`).catch();
     }
 
 	logWelcomeOrLeft(guild, member, true);
@@ -267,7 +267,7 @@ function logWelcomeOrLeft(guild, member, isWelcome) {
 	}
     var logChannel = discordUtils.findActivityChannel(guild);
     if (logChannel) {
-		logChannel.sendMessage(`User ${member.user.username}#${member.user.discriminator} ${message} the server.`).catch();
+		logChannel.send(`User ${member.user.username}#${member.user.discriminator} ${message} the server.`).catch();
     }
     return;
 }

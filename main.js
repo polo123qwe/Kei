@@ -120,11 +120,11 @@ client.on('guildMemberAdd', (member) => {
                         var role = guild.roles.find("name", "New Account");
                         if (role) {
                             console.log(`[${utils.unixToTime(Date.now())}] and added to newly created accounts`);
-                            member.sendMessage(`You have been locked in ${member.guild.name} due to the account being new, to be unlocked contact one of the moderators/adminstrators`).catch();
+                            member.send(`You have been locked in ${member.guild.name} due to the account being new, to be unlocked contact one of the moderators/adminstrators`).catch();
 							//TODO Change this
 							if(guild.id == "132490115137142784"){
 								var channel = guild.channels.get("184984832219152387");
-								if(channel) channel.sendMessage(`User ${member} joined the server and was added to New Accounts.`).catch();
+								if(channel) channel.send(`User ${member} joined the server and was added to New Accounts.`).catch();
 							}
                             setTimeout(() => {
                                 member.addRole(role).catch(console.log);
@@ -150,7 +150,7 @@ client.on('guildMemberAdd', (member) => {
                     if (memberData.roles && memberData.roles.length > 0) {
                         member.addRoles(memberData.roles).then((memb) => {
                             if ((warnedRole && (memberData.roles.indexOf(warnedRole) > -1)) || (mutedRole && (memberData.roles.indexOf(mutedRole) > -1))) {
-                                member.user.sendMessage(`It looks like you have tried to circumvent a warning/mute in ${guild.name}. If you continue to do so, a ban will be issued.`);
+                                member.user.send(`It looks like you have tried to circumvent a warning/mute in ${guild.name}. If you continue to do so, a ban will be issued.`);
                             }
                         }).catch((er) => {
                             console.log(er.stack)
@@ -289,7 +289,6 @@ function startBot() {
     //Try to connect to DB and to log the client
     Connection((err, db) => {
         if (err) console.log(err.message);
-        client.manager.setupKeepAlive(300000);
         client.login(token);
     });
 }

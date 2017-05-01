@@ -18,7 +18,7 @@ exports.logMessage = function(type, moderatorUser, targetUser, channel, reason) 
     embed.addField("Reason", `${reason}`, false);
     embed.setTimestamp();
     embed.setColor(logType[type]);
-    return channel.sendEmbed(embed);
+    return channel.send({embed: embed});
 }
 
 //Placeholders are only for bans
@@ -27,7 +27,7 @@ exports.logPlaceholder = function(targetUser, channel) {
     embed.setTitle("BAN");
     embed.setColor(logType["BAN"]);
 
-    channel.sendEmbed(embed).then(m => {
+    channel.send({embed: embed}).then(m => {
         embed.setTitle("BAN");
         embed.addField("User", `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`, false);
         embed.addField("Moderator", `${m.id}`, false);

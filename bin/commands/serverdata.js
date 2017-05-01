@@ -83,7 +83,7 @@ cmd.execution = function (client, msg, suffix) {
         embed.setThumbnail(member.user.avatarURL);
 
         // Send the message
-        msg.channel.sendEmbed(embed);
+        msg.channel.send({embed: embed});
     }
 }
 commands.push(cmd);
@@ -110,7 +110,7 @@ cmd.execution = function(client, msg, suffix) {
         });
         if (role) embed.setColor(role.hexColor);
         embed.setThumbnail(member.user.avatarURL);
-        msg.channel.sendEmbed(embed);
+        msg.channel.send({embed: embed});
     }
 
 }
@@ -134,7 +134,7 @@ cmd.execution = function(client, msg, suffix) {
         return r.hexColor != "#000000"
     });
     if (role) embed.setColor(role.hexColor);
-    msg.channel.sendEmbed(embed);
+    msg.channel.send({embed: embed});
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ cmd.execution = function(client, msg, suffix) {
             //console.log(`Original data size ${dataArray.length}, divided into ${dataChunks.length}`);
             processHasteBinData(dataChunks, urls => {
                 urls = urls.reverse();
-                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
+                msg.author.send(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
                 msg.delete().catch();
             });
         });
@@ -199,7 +199,7 @@ cmd.execution = function(client, msg, suffix) {
 
             processHasteBinData(dataChunks, urls => {
                 urls = urls.reverse();
-                msg.author.sendMessage(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
+                msg.author.send(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
                 msg.delete().catch();
             });
         });
@@ -324,14 +324,14 @@ cmd.execution = function(client, msg, suffix) {
                         utils.generateHasteBin(`Nicks for ${member.user.username}#${member.user.discriminator}:\n${nicks.join("\n ")}`, (link) => {
                             nicks = nicks.slice(0, 32);
                             embed.addField("Nicknames", `[Full list](${link}), first 32: ${nicks.join(", ")}`);
-                            msg.channel.sendEmbed(embed);
+                            msg.channel.send({embed: embed});
                         })
                     } else {
                         embed.addField("Nicknames", `${nicks.join(", ")}`);
                     }
                 }
                 if (!asynchronous) {
-                    msg.channel.sendEmbed(embed);
+                    msg.channel.send({embed: embed});
                 }
             }
         });
@@ -410,7 +410,7 @@ cmd.execution = function(client, msg, suffix) {
         for (var day of res) {
             totalMsgs += day.msgs;
         }
-        msg.channel.sendMessage(`${member.user.username} has sent ${totalMsgs} messages in the last ${time} days.`);
+        msg.channel.send(`${member.user.username} has sent ${totalMsgs} messages in the last ${time} days.`);
     });
 }
 commands.push(cmd);
@@ -450,9 +450,9 @@ cmd.execution = function(client, msg, suffix) {
         if (findingUsersWithRole == false) {
             including = "without";
         }
-        msg.channel.sendMessage(`There are ${membersFound.length} users ${including} the role ${targetRole.name}`);
+        msg.channel.send(`There are ${membersFound.length} users ${including} the role ${targetRole.name}`);
     } else {
-        msg.channel.sendMessage(`The users ${including} the role ${targetRole.name} are: ${membersFound.join(", ")}.`);
+        msg.channel.send(`The users ${including} the role ${targetRole.name} are: ${membersFound.join(", ")}.`);
     }
 
 }

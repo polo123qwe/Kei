@@ -142,7 +142,7 @@ exports.sendAndDelete = function(channel, content, delay) {
     if (delay) {
         d = delay;
     }
-    channel.sendMessage(content).then((reply) => {
+    channel.send(content).then((reply) => {
         setTimeout(() => {
             reply.delete();
         }, d);
