@@ -24,6 +24,7 @@ cmd.addHelp('Adds the user to the given roles (separated by commas)');
 cmd.addUsage('<role1>, [role2], [role3]');
 cmd.addExample(`join${suf} lood`);
 cmd.minLvl = levels.DEFAULT;
+cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
     var rolesFound = [];
     var rolesToAdd = [];
