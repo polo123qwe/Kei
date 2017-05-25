@@ -30,12 +30,16 @@ var time = Date.now();
 /* On ready event */
 client.on('ready', () => {
     var interval = Date.now() - time;
-    console.log('Bot connected (' + interval + 'ms)');
+    console.log(`[${utils.unixToTime(Date.now())}] Bot connected (${interval} ms)`);
     //Load all the timers
     helpers.loadTimers(client);
     helpers.loadNewMembers(client, NEWUSERTHRESHOLD);
     memberRemoval(client);
 });
+
+client.on('disconnect', () => {
+	console.log(`[${utils.unixToTime(Date.now())}] Bot disconnected!`);
+})
 
 /* Message event listener */
 client.on('message', msg => {
