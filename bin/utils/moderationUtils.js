@@ -18,7 +18,9 @@ exports.logMessage = function(type, moderatorUser, targetUser, channel, reason) 
     embed.addField("Reason", `${reason}`, false);
     embed.setTimestamp();
     embed.setColor(logType[type]);
-    return channel.send({embed: embed});
+    return channel.send({
+        embed: embed
+    });
 }
 
 //Placeholders are only for bans
@@ -27,7 +29,9 @@ exports.logPlaceholder = function(targetUser, channel) {
     embed.setTitle("BAN");
     embed.setColor(logType["BAN"]);
 
-    channel.send({embed: embed}).then(m => {
+    channel.send({
+        embed: embed
+    }).then(m => {
         embed.setTitle("BAN");
         embed.addField("User", `${targetUser.username}#${targetUser.discriminator} (${targetUser.id})`, false);
         embed.addField("Moderator", `${m.id}`, false);
@@ -46,27 +50,26 @@ exports.editEmbed = function(message, moderatorUser, reason) {
     }
 
     var rawEmbed = message.embeds[0];
+    var rawEmbedFields = {};
     var embed = new Discord.RichEmbed();
     embed.setTitle(rawEmbed.title);
     embed.setColor(rawEmbed.color);
-    var found = false;
+
     for (var field of rawEmbed.fields) {
-        if (field.name == "Reason") {
-            embed.addField(field.name, reason, field.inline);
-        } else if (field.name == "Moderator") {
-            found = true; //TODO dafuq I did here
-            if (field.value.includes(message.id)) {
-                embed.addField(field.name, `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, field.inline);
-            }
-        } else {
-            embed.addField(field.name, field.value, field.inline);
-        }
+        rawEmbedFields[field.name] = field.value
     }
-    if (!found) {
-        embed.addField("Moderator", `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, true)
+
+    if (rawEmbedFields.hasOwnProperty("User")) {
+        embed.addField("User", rawEmbedFields["User"], false);
     }
+    if (rawEmbedFields.hasOwnProperty("Moderator")) {
+        embed.addField("Moderator", `${moderatorUser.username}#${moderatorUser.discriminator} (${moderatorUser.id})`, false);
+    }
+
+    embed.addField("Reason", reason, false);
+
     embed.setTimestamp(new Date(rawEmbed.createdTimestamp));
     return message.edit("", {
         embed: embed
-    });
+    }).catch();
 }
