@@ -22,7 +22,7 @@ var cmd;
 cmd = new Command('join', 'User Customization');
 cmd.addHelp('Adds the user to the given roles (separated by commas)');
 cmd.addUsage('<role1>, [role2], [role3]');
-cmd.addExample(`join${suf} lood`);
+cmd.addExample(`join${suf} lood, food`);
 cmd.minLvl = levels.DEFAULT;
 cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
