@@ -136,11 +136,11 @@ client.on('guildMemberAdd', (member) => {
                 });
             } else {
                 //If the user is not a newly created account
-                helpers.welcomeUser(guild, guildData, member);
+                helpers.logWelcomeOrLeft(guild, member, true);
             }
         } else {
             //If the guild has not set up the limit of new users, just process the welcome
-            helpers.welcomeUser(guild, guildData, member);
+            helpers.logWelcomeOrLeft(guild, member, true);
         }
     });
 
@@ -204,10 +204,10 @@ client.on('guildMemberRemove', (member) => {
                     }
                 }
                 //If no user was found in the db
-                helpers.goodbyeUser(guild, guildData, member);
+                helpers.logWelcomeOrLeft(guild, member, false);
             });
         } else {
-            helpers.goodbyeUser(guild, guildData, member);
+            helpers.logWelcomeOrLeft(guild, member, false);
         }
     });
 });

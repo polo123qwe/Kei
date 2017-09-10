@@ -1,4 +1,5 @@
 const path = require('path');
+var Discord = require('discord.js');
 var Command = require('../commandTemplate');
 var Connection = require('../db/dbConnection');
 var levels = require('../../consts/levels.json');
@@ -166,7 +167,8 @@ cmd.execution = function(client, msg, suffix) {
 
             var loc = path.join(__dirname, '..', '..', 'consts/colors.png')
 
-            msg.channel.sendFile(loc,'colors.png', 'Error, the colors available are:');
+			var attachment = new Discord.Attachment(loc, 'colors.png');
+			msg.channel.send('Error, the colors available are:', attachment);
             return;
 
         } else {

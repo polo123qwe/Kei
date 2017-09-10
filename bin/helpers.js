@@ -179,88 +179,8 @@ exports.checkInvLink = function(msg) {
     });
 }
 
-//Function that handles the goodbye message of users
-exports.goodbyeUser = function(guild, guildData, member) {
-    if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye == null) {
-        return;
-    }
-
-    if (guildData != null && guildData.hasOwnProperty('goodbye') && guildData.goodbye != null) {
-        guild.defaultChannel.send(processGoodbye(guildData.goodbye, member));
-    } else {
-        var embed = new Discord.RichEmbed();
-        var chance = Math.floor((Math.random() * 10) + 1);
-
-        if (chance % 2) {
-            embed.setAuthor(`${member.user.username}#${member.user.discriminator} has left the server!`, member.user.avatarURL);
-        } else {
-            embed.setAuthor(`${member.user.username}#${member.user.discriminator} is now gone.`, member.user.avatarURL);
-        }
-
-        embed.setColor("#f44441");
-
-        guild.defaultChannel.send({embed: embed}).catch();
-    }
-
-	logWelcomeOrLeft(guild, member, false);
-}
-
-/**
- * This function processes the goodbye, replacing placeholders for their real equivalents
- * @arg {String} goodbye - Text corresponding to the goodbye message
- */
-function processGoodbye(goodbye, member) {
-    var outStr = goodbye;
-    var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
-    for (var setting of settings) {
-        if (setting.includes("user")) {
-            outStr = outStr.replace("$user", member.user.username + "#" + member.user.discriminator);
-        }
-    }
-    return outStr;
-}
-
-//Function that handles the welcoming of new users
-exports.welcomeUser = function(guild, guildData, member) {
-    if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting == null) {
-        return;
-    }
-
-    if (guildData != null && guildData.hasOwnProperty('greeting') && guildData.greeting != null) {
-        //If you type default or an empty string it will use the default message
-        if (guildData.greeting.length == 0 || !guildData.greeting.includes("default")) {
-            guild.defaultChannel.send(processGreeting(guildData.greeting, member)).catch();
-			logWelcomeOrLeft(guild, member, true);
-			return;
-        }
-    }
-	if (guild.id == "132490115137142784") {
-        guild.defaultChannel.send(`Wleocme to ${guild.name}, ${member.user}! Remember to read the rules! <#137105484040634368>`).catch();
-    } else {
-        guild.defaultChannel.send(`Welcome to ${guild.name}, ${member.user}! Don't forget to read the rules!`).catch();
-    }
-
-	logWelcomeOrLeft(guild, member, true);
-}
-/**
- * This function processes the goodbye, replacing placeholders for their real equivalents
- * @arg {String} greeting - Text corresponding to the greeting message
- */
-function processGreeting(greeting, member) {
-    var outStr = greeting;
-    var settings = outStr.match(/(^|\s)\$\S*($|\s)/g);
-    for (var setting of settings) {
-        if (setting.includes("user")) {
-            outStr = outStr.replace("$user", member.user);
-        } else if (setting.includes("guild")) {
-            outStr = outStr.replace("$guild", member.guild.name);
-        }
-    }
-    return outStr;
-}
-
 //isJoin determines if the user isWelcome or left
-function logWelcomeOrLeft(guild, member, isWelcome) {
+exports.logWelcomeOrLeft = function(guild, member, isWelcome) {
 	var message = "left";
 	if(isWelcome){
 		message = "joined";
