@@ -8,6 +8,7 @@ var dbUtils = require('../db/dbUtils');
 var dbUsers = require('../db/dbUsers');
 var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
+var logger = require('../utils/logger');
 var suf = require('../../config.json').suffix;
 var commands = [];
 
@@ -83,7 +84,9 @@ cmd.execution = function (client, msg, suffix) {
         embed.setThumbnail(member.user.avatarURL);
 
         // Send the message
-        msg.channel.send({embed: embed});
+        msg.channel.send({embed: embed}).catch(e => {
+			logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+		});
     }
 }
 commands.push(cmd);
@@ -110,7 +113,9 @@ cmd.execution = function(client, msg, suffix) {
         });
         if (role) embed.setColor(role.hexColor);
         embed.setThumbnail(member.user.avatarURL);
-        msg.channel.send({embed: embed});
+        msg.channel.send({embed: embed}).catch(e => {
+			logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+		});
     }
 
 }
@@ -134,7 +139,9 @@ cmd.execution = function(client, msg, suffix) {
         return r.hexColor != "#000000"
     });
     if (role) embed.setColor(role.hexColor);
-    msg.channel.send({embed: embed});
+    msg.channel.send({embed: embed}).catch(e => {
+		logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+	});
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
@@ -158,7 +165,7 @@ cmd.execution = function(client, msg, suffix) {
         //If its a number we use it as time in hours
         dbUtils.fetchLogs(msg.channel.id, msg.guild.id, time * 60 * 60 * 1000, true, (err, dataArray) => {
             //We retrieve the data from the log and parse it.
-            if (err) return console.log(err);
+            if (err) return logging.error(err);
             if (dataArray.length < 1) return;
 
             //We use this method to split the array because hastebin has a limit of 5000 lines
@@ -171,11 +178,14 @@ cmd.execution = function(client, msg, suffix) {
             } else {
                 dataChunks.push(dataArray);
             }
-            //console.log(`Original data size ${dataArray.length}, divided into ${dataChunks.length}`);
             processHasteBinData(dataChunks, urls => {
                 urls = urls.reverse();
-                msg.author.send(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
-                msg.delete().catch();
+                msg.author.send(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`).catch(e => {
+					logger.warn(discordUtils.missingPerms("Send DM Message", msg.guild));
+				});;
+                msg.delete().catch(e => {
+					logger.warn(discordUtils.missingPerms("Delete Message", msg.guild));
+				});
             });
         });
     } else if (suffix[0] == 'm' && utils.isNumber(suffix[1])) {
@@ -183,7 +193,7 @@ cmd.execution = function(client, msg, suffix) {
         //means we want the amount of messages back
         dbUtils.fetchLogs(msg.channel.id, msg.guild.id, suffix[1], false, (err, dataArray) => {
             //We retrieve the data from the log and parse it.
-            if (err) return console.log(err);
+            if (err) return logger.error(err);
             if (dataArray.length < 1) return;
 
             //We use this method to split the array because hastebin has a limit of 5000 lines
@@ -199,8 +209,12 @@ cmd.execution = function(client, msg, suffix) {
 
             processHasteBinData(dataChunks, urls => {
                 urls = urls.reverse();
-                msg.author.send(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`);
-                msg.delete().catch();
+                msg.author.send(`Logs in ${msg.guild.name} #${msg.channel.name} can be found: ${urls.join(" ")}`).catch(e => {
+					logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+				});
+                msg.delete().catch(e => {
+					logger.warn(discordUtils.missingPerms("Delete Message", msg.guild));
+				});
             });
         });
     } else {
@@ -282,8 +296,8 @@ cmd.execution = function(client, msg, suffix) {
     dbUsers.fetchMember(msg.guild.id, member.user.id, (err, memberData) => {
         dbUsers.fetchUser(member.user.id, (err2, userData) => {
 
-            if (err) console.log(err);
-            else if (err2) console.log(err)
+            if (err) logger.error(err);
+            else if (err2) logger.error(err2);
             else {
                 var nicks = [];
 
@@ -331,7 +345,9 @@ cmd.execution = function(client, msg, suffix) {
                     }
                 }
                 if (!asynchronous) {
-                    msg.channel.send({embed: embed});
+                    msg.channel.send({embed: embed}).catch(e => {
+						logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+					});;
                 }
             }
         });
@@ -405,12 +421,14 @@ cmd.execution = function(client, msg, suffix) {
     }
 
     dbUtils.fetchUserActivity(msg.guild.id, member.user.id, time, (err, res) => {
-        if (err) return console.log(err);
+        if (err) return logger.error(err);
         var totalMsgs = 0;
         for (var day of res) {
             totalMsgs += day.msgs;
         }
-        msg.channel.send(`${member.user.username} has sent ${totalMsgs} messages in the last ${time} days.`);
+        msg.channel.send(`${member.user.username} has sent ${totalMsgs} messages in the last ${time} days.`).catch(e => {
+			logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+		});
     });
 }
 commands.push(cmd);
@@ -450,9 +468,13 @@ cmd.execution = function(client, msg, suffix) {
         if (findingUsersWithRole == false) {
             including = "without";
         }
-        msg.channel.send(`There are ${membersFound.length} users ${including} the role ${targetRole.name}`);
+        msg.channel.send(`There are ${membersFound.length} users ${including} the role ${targetRole.name}`).catch(e => {
+			logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+		});
     } else {
-        msg.channel.send(`The users ${including} the role ${targetRole.name} are: ${membersFound.join(", ")}.`);
+        msg.channel.send(`The users ${including} the role ${targetRole.name} are: ${membersFound.join(", ")}.`).catch(e => {
+			logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+		});
     }
 
 }

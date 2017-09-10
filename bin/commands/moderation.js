@@ -8,6 +8,7 @@ var moderationUtils = require('../utils/moderationUtils');
 var dbUtils = require('../db/dbUtils');
 var dbGuild = require('../db/dbGuild');
 var helpers = require('../helpers');
+var logger = require('../utils/logger');
 var commands = [];
 
 var cmd;
@@ -46,7 +47,10 @@ cmd.execution = function(client, msg, suffix) {
                 }
                 dbUtils.insertLog(member.user.id, msg.author.id, "warning", reason, 0, function() {});
             });
-        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+        }).catch(err => {
+			logger.warn(discordUtils.missingPerms("Add Role", guild, member));
+			discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message)
+		});
 
     });
 
@@ -80,10 +84,12 @@ cmd.execution = function(client, msg, suffix) {
                 member.user.send(`You have been chilled! You are muted for 2 minutes in ${msg.guild.name}`).catch();
             });
             setTimeout(() => {
-                member.removeRole(mutedRole).catch(console.log);
+                member.removeRole(mutedRole).catch((e) => {
+					logger.warn(discordUtils.missingPerms("Remove Role", msg.guild, member));
+				});
             }, 120000);
         }).catch(err => {
-			console.error(err);
+			logger.warn(discordUtils.missingPerms("Add Role", guild, member));
 			discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message)
 		});
     });
@@ -125,11 +131,16 @@ cmd.execution = function(client, msg, suffix) {
             });
             setTimeout(() => {
                 member.removeRole(mutedRole).then(() => {
-                    console.log(member.user.username + " unmuted.")
-                });
+                    logger.info(`${member.user.username} unmuted at ${member.guild.name} (${member.guild.id})`);
+                }).catch((e) => {
+					logger.warn(discordUtils.missingPerms("Remove Role", msg.guild, member));
+				});;
                 dbUtils.removeTimer(member.user.id, r.id, function() {});
             }, time * 24 * 3600 * 1000);
-        }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
+        }).catch(err => {
+			logger.warn(discordUtils.missingPerms("Add Role", msg.guild, member));
+			discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message)
+		});
     });
 }
 commands.push(cmd);
@@ -161,13 +172,17 @@ cmd.execution = function(client, msg, suffix) {
         if (toremove.length < 1) {
             return;
         } else if (toremove.length == 1) {
-            toremove[0].delete().catch(console.log);
+            toremove[0].delete().catch((e) => {
+				logger.warn(discordUtils.missingPerms("Remove Message", guild, member));
+			});
         } else {
-            msg.channel.bulkDelete(toremove).catch(console.log);
+            msg.channel.bulkDelete(toremove).catch((e) => {
+				logger.warn(discordUtils.missingPerms("Bulk Remove Message", guild, member));
+			});
         }
     }).catch(err => {
 		discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.text);
-		console.log(err);
+		logger.warn(err);
 	});
 
 }
@@ -191,11 +206,15 @@ cmd.execution = function(client, msg, suffix) {
                 invite.delete().then((inv) => {
                     msg.channel.send("Invite " + inviteCode +
                         " removed successfully");
-                })
+                }).catch((e) => {
+					logger.warn(discordUtils.missingPerms("Revoke Invite", guild, member));
+				});
             } else {
                 discordUtils.sendAndDelete(msg.channel, "Invite not found!");
             }
-        });
+        }).catch((e) => {
+			logger.error("Cannot Retrieve Invites");
+		});;
     }
 }
 commands.push(cmd);
@@ -214,12 +233,16 @@ cmd.execution = function(client, msg, suffix) {
             channel.fetchMessage(messageID).then((m) => {
                 if (m && m.author.id == client.user.id && m.content.includes(messageID)) {
                     moderationUtils.editEmbed(m, msg.author, reason);
-                    msg.delete().catch(console.log);
+                    msg.delete().catch((e) => {
+						logger.warn(discordUtils.missingPerms("Remove Message", guild, member));
+					});
                 } else {
                     for (var field of m.embeds[0].fields) {
                         if (field.name == "Moderator" && (field.value.includes(msg.author.id) || field.value == messageID)) {
                             moderationUtils.editEmbed(m, msg.author, reason);
-                            msg.delete().catch(console.log);
+                            msg.delete().catch((e) => {
+								logger.warn(discordUtils.missingPerms("Remove Message", guild, member));
+							});
                             return;
                         }
                     }
@@ -250,8 +273,12 @@ cmd.execution = function(client, msg, suffix) {
             discordUtils.findLogsChannel(msg.guild, logChannel => {
                 moderationUtils.logMessage("SOFTBAN", msg.author, member.user, logChannel, reason);
             });
-        });
-    });
+        }).catch((e) => {
+			logger.warn(discordUtils.missingPerms("Unban", guild, member));
+		});
+    }).catch((e) => {
+		logger.warn(discordUtils.missingPerms("Ban", guild, member));
+	});
 
 }
 commands.push(cmd);
@@ -278,10 +305,12 @@ cmd.execution = function(client, msg, suffix) {
                     dbGuild.deleteNewAccount(guild.id, member.user.id).then(() => {
 						//Send message to notify that the user joined the guild
 						if(role){
-							member.removeRole(role)
+							member.removeRole(role);
 						}
 						helpers.welcomeUser(guild, guildData, member);
-                    }).catch(console.log);
+                    }).catch((e) => {
+						logger.error(e);
+					});
                     return;
                 }
             }

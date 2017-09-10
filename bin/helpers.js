@@ -3,6 +3,7 @@ var discordUtils = require('./utils/discordUtils.js');
 var utils = require('./utils/utils');
 var dbUtils = require('./db/dbUtils.js');
 var dbGuild = require('./db/dbGuild');
+var logger = require('./utils/logger');
 
 const Connection = require('./db/dbConnection');
 
@@ -14,11 +15,17 @@ var NEWUSERTHRESHOLD;
 exports.processSuggestionChannel = function(msg) {
     discordUtils.findSuggestionsChannel(msg.channel.guild, channel => {
         if (channel && channel.id == msg.channel.id) {
-            msg.react("👍").then(() => {
-                msg.react("👎").then(() => {
-                    msg.react("🔨");
-                });
-            });
+            msg.react(":PillowYes:230126424290230272").then(() => {
+                msg.react(":PillowNo:230126607510142976").then(() => {
+                    msg.react("🔨").catch((e) => {
+						logger.warn("React Error" + e.message);
+					});
+                }).catch((e) => {
+					logger.warn("React Error" + e.message);
+				});
+            }).catch((e) => {
+				logger.warn("React Error" + e.message);
+			});
         }
     });
 }
@@ -30,14 +37,14 @@ exports.processSuggestionChannel = function(msg) {
  */
 exports.loadTimers = function(client) {
     var db = Connection.getDB();
-    if (!db) return console.log("Not connected to DB!");
+    if (!db) return logger.error("Not connected to DB!");
     var collection = db.collection('timers');
 
     var expiredTimers = [];
 
     //Fetch all the timers
     collection.find(function(err, cur) {
-        if (err) return console.log(err);
+        if (err) return logger.error(err);
 
         cur.toArray().then((arr) => {
 
@@ -57,15 +64,17 @@ exports.loadTimers = function(client) {
 						 role = member.guild.roles.get(timer.role_id);
 					}
                     if (!member || !role) {
-                        console.log("No user found with id " + timer.user_id);
+                        logger.info("No user found with id " + timer.user_id);
                         dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
                         return;
                     }
-                    console.log(`[${utils.unixToTime(Date.now())}] Loaded timer for ${member.user.username} at [${member.guild.name}] ${utils.unixToTime(timer.timestamp)} was muted for ${utils.convertUnixToDate(timer.time)} (${utils.convertUnixToDate(timer.time - span)})`);
+                    logger.info(`Loaded timer for ${member.user.username} at [${member.guild.name}] ${utils.unixToTime(timer.timestamp)} was muted for ${utils.convertUnixToDate(timer.time)} (${utils.convertUnixToDate(timer.time - span)})`);
                     setTimeout(() => {
                         member.removeRole(role.id).then(() => {
-                            console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
-                        }).catch(console.log);
+                            logger.info(`Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
+                        }).catch((e) => {
+							logger.warn("Remove Role" + e.message);
+						});
                         dbUtils.removeTimer(timer.user_id, role.id, function() {});
                     }, timer.time - span);
                 }
@@ -73,7 +82,9 @@ exports.loadTimers = function(client) {
 
             removeTimers();
 
-        }).catch(console.log);
+        }).catch((e) => {
+			logger.error("Cursor error: " + e.message);
+		});
     });
 
     //helper function to remove expired timers
@@ -86,7 +97,7 @@ exports.loadTimers = function(client) {
         if (member) {
             if (!timer.role_id) return;
             member.removeRole(timer.role_id).then(() => {
-                console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
+                logger.info(`Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
                 dbUtils.removeTimer(timer.user_id, timer.role_id, function() {
                     removeTimers();
                 });
@@ -106,7 +117,9 @@ exports.loadNewMembers = function(client, constTreshold) {
             if (arr) {
                 checkMembers(guild, arr);
             }
-        }).catch(console.log);
+        }).catch((e) => {
+			logger.error("Fetching error " + e.message);
+		});
     }
 
     //Check every day
@@ -116,7 +129,9 @@ exports.loadNewMembers = function(client, constTreshold) {
                 if (arr) {
                     checkMembers(guild.id, arr);
                 }
-            }).catch(console.log);
+            }).catch((e) => {
+				logger.error("Fetching error " + e.message);
+			});
         }
     }, 24 * 3600000);
 }
@@ -135,7 +150,9 @@ function checkMembers(guild, arr) {
 
     var member = guild.members.get(userData.user_id);
     if (member == null) {
-        return dbGuild.deleteNewAccount(guild.id, userData.user_id).catch(console.log);
+        return dbGuild.deleteNewAccount(guild.id, userData.user_id).catch((e) => {
+			logger.error("Delete New Account error: " + e.message);
+		});
     }
     if (member.roles.exists("name", "New Account")) {
         if (member.user.createdTimestamp > Date.now() - NEWUSERTHRESHOLD) {
@@ -145,9 +162,11 @@ function checkMembers(guild, arr) {
             //Account is not "new"
             dbUtils.fetchUserActivity(guild.id, member.user.id, 7, (err, res) => {
                 if (err) {
-                    console.log(err);
+                    logger.error(err);
                 } else if (res.length == 0) {
-                    member.kick().catch(console.log);
+                    member.kick().catch((e) => {
+						logger.error(discordUtils.missingPerms("Kick", guild, member));
+					});
                 }
                 checkMembers(guild, arr);
             });
@@ -161,7 +180,7 @@ function checkMembers(guild, arr) {
 exports.checkInvLink = function(msg) {
     //Retrieve from the db
     dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
-        if (err) return console.log(err);
+        if (err) return logger.error(err);
 
         //If the guild has the invites allowed (default) we dont delete it
         if (guildData != null && guildData.hasOwnProperty('invites') && !guildData.invites) {
@@ -169,17 +188,22 @@ exports.checkInvLink = function(msg) {
             if (guildData.hasOwnProperty('whitelisted') && !guildData.whitelisted.includes(msg.author.id)) {
                 //Delete the message if it has an invite
                 if (/discord\.gg.*\//i.test(msg.content)) {
-                    console.log(`Invite ${msg.content} deleted!`);
+                    logger.info(`Invite ${msg.content} deleted in ${msg.guild.name} (${msg.guild.id})`);
                     msg.delete().then(() => {
                         discordUtils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
-                    });
+                    }).catch((e) => {
+						logger.error(discordUtils.missingPerms("Delete Message", msg.guild));
+					});
                 }
             }
         }
     });
 }
 
-//isJoin determines if the user isWelcome or left
+/**
+ * Sends a message to the logchannel when a user joins or leaves. isJoin determines if the user isWelcome or left
+ * @arg {Message} msg - Message interface
+ */
 exports.logWelcomeOrLeft = function(guild, member, isWelcome) {
 	var message = "left";
 	if(isWelcome){
@@ -187,7 +211,9 @@ exports.logWelcomeOrLeft = function(guild, member, isWelcome) {
 	}
     var logChannel = discordUtils.findActivityChannel(guild);
     if (logChannel) {
-		logChannel.send(`User ${member.user.username}#${member.user.discriminator} ${message} the server.`).catch();
+		logChannel.send(`User ${member.user.username}#${member.user.discriminator} ${message} the server.`).catch((e) => {
+			logger.error(discordUtils.missingPerms("Send Message", guild));
+		});
     }
     return;
 }

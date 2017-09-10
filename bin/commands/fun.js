@@ -7,6 +7,7 @@ var dbUtils = require('../db/dbUtils');
 var dbUsers = require('../db/dbUsers');
 var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
+var logger = require('../utils/logger');
 var https = require('https');
 var commands = [];
 
@@ -94,8 +95,10 @@ cmd.execution = function(client, msg, suffix) {
         dbUtils.insertTimer(Date.now(), time, member.user.id, role.id, msg.guild.id, function() {});
         msg.channel.send(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
         setTimeout(() => {
-            console.log(`[${utils.unixToTime(Date.now())}] Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
-			member.removeRole(role).then(() => {}).catch(console.log);
+            logger.info(`Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
+			member.removeRole(role).then(() => {}).catch((e) => {
+				logger.warn(discordUtils.missingPerms("Remove Role", msg.guild, member));
+			});
             dbUtils.removeTimer(member.user.id, role.id, function() {});
         }, time);
     }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning: Bot error! ' + err.response.body.message));
@@ -112,7 +115,6 @@ cmd.execution = function(client, msg, suffix) {
         return msg.channel.send("Ask a question!");
     }
     var question = suffix.join("+");
-	console.log(encodeURI(question))
     https.get({
         host: '8ball.delegator.com',
         path: '/magic/JSON/' + encodeURI(question),
@@ -129,7 +131,7 @@ cmd.execution = function(client, msg, suffix) {
 			try{
 				parsed = JSON.parse(body);
 			} catch(e){
-				console.log(e);
+				logger.error(e);
 			}
             if (!parsed) return;
             msg.channel.send(msg.author + ", " + parsed.magic.answer);

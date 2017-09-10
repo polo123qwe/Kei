@@ -7,8 +7,8 @@ var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
+var logger = require('../utils/logger');
 var commands = [];
-
 
 var cmd;
 ////////////////////////////////////////////////////////////
@@ -38,9 +38,13 @@ cmd.execution = function(client, msg, suffix) {
     var index = suffix.indexOf("-h");
     if (index > -1) {
         if (operations.hasOwnProperty(option)) {
-            return msg.channel.send(`${option}: ${operations[option].help}\n`);
+            return msg.channel.send(`${option}: ${operations[option].help}\n`).catch(e => {
+				logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+			});
         } else {
-            return msg.channel.send("Error, options are: " + ops.join(", "));
+            return msg.channel.send("Error, options are: " + ops.join(", ")).catch(e => {
+				logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+			});
         }
     }
 
@@ -62,11 +66,10 @@ cmd.execution = function(client, msg, suffix) {
                 upsert: true
             },
             function(err, res) {
-                if (err) return console.log(err);
+                if (err) return logger.error(err);
                 if (res.ok == 1) {
                     discordUtils.sendAndDelete(msg.channel, suffix[0] + " updated!", 10000);
                 } else {
-                    console.log(res);
                     discordUtils.sendAndDelete(msg.channel, res);
                 }
                 msg.delete();
@@ -160,44 +163,6 @@ var operations = {
             return {
                 $set: {
                     invites: (setting == true)
-                }
-            }
-        },
-    },
-    greeting: {
-        help: `Edits the greeting message of the bot, use null to not have a message, $user is to print the user and $guild to print the guild name. Eg: \`set${suf} greeting Welcome to $guild $user !\``,
-        run: function(msg, suffix, remove) {
-
-            if (remove) {
-                return {
-                    $set: {
-                        greeting: null
-                    }
-                }
-            } else {
-                return {
-                    $set: {
-                        greeting: suffix.splice(1, suffix.length).join(" ")
-                    }
-                }
-            }
-        },
-    },
-    goodbye: {
-        help: `Edits the message sent when a user leaves the guild (see greeting). Eg: \`set${suf} goodbye Goodbye $user\``,
-        run: function(msg, suffix, remove) {
-
-            if (remove) {
-                return {
-                    $set: {
-                        goodbye: null
-                    }
-                }
-            } else {
-                return {
-                    $set: {
-                        goodbye: suffix.splice(1, suffix.length).join(" ")
-                    }
                 }
             }
         },

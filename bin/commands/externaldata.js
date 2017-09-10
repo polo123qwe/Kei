@@ -11,6 +11,7 @@ var dbGuild = require('../db/dbGuild');
 var forecast_key = require('../../config').apis.forecastKey;
 var Forecast = require('forecast.io-bluebird');
 var weatherOptions = require('../../consts/weather');
+var logger = require('../utils/logger');
 var commands = [];
 
 try {
@@ -70,8 +71,8 @@ cmd.execution = function(client, msg, suffix) {
     var osu_a = new osuapi.Api(api_key, mode);
 
     osu_a.getUser(username, function(err, out) {
-        if (err != null) {
-            console.log("Error " + err);
+        if (err) {
+            logger.error("Error " + err);
         }
         if (out == null) out = "No user found";
         else out = stringify(out);
@@ -102,8 +103,8 @@ cmd.minLvl = levels.DEFAULT;
 cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
     geocode(suffix.join(" "), function(err, locat) {
-        if (err != null) {
-            // console.log('Error: ' + err);
+        if (err) {
+            logger.error("Error " + err);
         } else if (!locat) {
             msg.channel.send("No result found!");
         } else {
@@ -172,7 +173,7 @@ function getForecast(latitude, longitude, callback) {
             callback(null, out);
         })
         .catch(function(error) {
-            // console.error(error);
+            logger.error("Error " + error);
             callback(error);
         });
 }

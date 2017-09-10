@@ -25,7 +25,6 @@ exports.isUser = function(value, m, filter) {
         }
     }
     bool = bool || m.user.id == value;
-    //console.log(m.user.username + " " + bool);
     return bool;
 }
 
@@ -43,7 +42,6 @@ exports.getMembersFromMessage = function(msg, suffix) {
             members.push(msg.guild.members.get(element));
         }
     }
-    //console.log(members.length);
 
     return members;
 }
@@ -147,4 +145,12 @@ exports.sendAndDelete = function(channel, content, delay) {
             reply.delete();
         }, d);
     });
+}
+
+exports.missingPerms = function(action, guild, member){
+	var out = `Missing permissions for [${action}] in ${guild.name}(${guild.id})`;
+	if(member){
+		out += ` at user ${member.user.username} (${member.user.id})`;
+	}
+	return out;
 }

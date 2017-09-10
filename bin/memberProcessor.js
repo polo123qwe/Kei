@@ -12,7 +12,7 @@ module.exports = function(client, member) {
     }
 
     dbGuild.fetchGuild(member.guild.id, function(err, guildData) {
-        if (err) return console.log(err);
+        if (err) return logger.error(err);
         //We check if the server has a member role different from default
         if (!memberRoleName[member.guild.id]) {
             memberRoleName[member.guild.id] = 'member';
@@ -35,7 +35,7 @@ module.exports = function(client, member) {
         //If the server has the automember enabled we do the checks to add the user to member
         if (guildData && guildData.hasOwnProperty('automember') && guildData.automember) {
             dbUtils.fetchUserActivity(member.guild.id, member.user.id, 7, (err, res) => {
-                if (err) return console.log(err);
+                if (err) return logger.error(err);
 				if (res.length >= 4) {
                     var promote = 0;
                     for (var day of res) {
@@ -49,14 +49,17 @@ module.exports = function(client, member) {
                 }
 				function addToRole() {
 					member.addRole(memberRole).then(() => {
-						console.log(`Membered ${member.user.username} in ${member.guild.name}`);
+						logger.info(`Membered ${member.user.username} in ${member.guild.name}`);
 
 						var channel = discordUtils.findActivityChannel(member.guild);
 						if (channel) {
-							channel.send(`Congratulations ${member} you are now a member!`).catch(err => console.log(err.response.res.text));
+							channel.send(`Congratulations ${member} you are now a member!`).catch((e) => {
+								logger.error(discordUtils.missingPerms("Send Message", member, member.guild));
+							});
 						}
-					}).catch(err => console.log(err.response.res.text));
-
+					}).catch((e) => {
+						logger.error(discordUtils.missingPerms("Add Role", member, member.guild));
+					});
 				}
             });
         }

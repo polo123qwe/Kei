@@ -41,7 +41,9 @@ exports.getLevel = function(guild, member, callback) {
                 }
             }
             return callback(null, levels.DEFAULT);
-        }).catch(console.log);
+        }).catch((e) => {
+			logger.warn("Cursor error " + e.message);
+		});
     });
 }
 
@@ -88,7 +90,9 @@ exports.getMessagesFromUser = function(channel_id, guild_id, amount, user_id, ca
             timestamp: -1
         }).limit(parseInt(amount, 10)).toArray().then(arr => {
             return callback(null, arr.reverse());
-        }).catch(console.log);
+        }).catch((e) => {
+			logger.warn("Cursor error " + e.message);
+		});
 
     });
 }
@@ -161,7 +165,7 @@ exports.tagMessageAs = function(message_id, edited, edit) {
     collection.findOneAndUpdate({
         _id: message_id
     }, operation, function(err, res) {
-        if (err) return console.log(err);
+        if (err) return logger.error(err);
     });
 }
 
@@ -207,7 +211,9 @@ exports.storeNameChange = function(user_id, oldName, newName, isNick, guild_id) 
     }
     if (isNick) toInsert.guild_id = guild_id;
 
-    collection.insertOne(toInsert);
+    collection.insertOne(toInsert).catch((e) => {
+		logger.warn("Error on insert " + e.message);
+	});
 }
 
 exports.fetchNameChanges = function(user_id, guild_id, callback) {
@@ -230,7 +236,9 @@ exports.fetchNameChanges = function(user_id, guild_id, callback) {
         function(err, cur) {
             cur.toArray().then(arr => {
                 callback(err, arr);
-            })
+            }).catch((e) => {
+				logger.warn("Cursor error " + e.message);
+			});
         });
 }
 
@@ -264,13 +272,17 @@ exports.fetchLogs = function(channel_id, guild_id, amount, retrieveTime, callbac
                 timestamp: -1
             }).toArray().then(arr => {
                 return callback(null, arr.reverse());
-            }).catch(console.log);
+            }).catch((e) => {
+				logger.warn("Cursor error " + e.message);
+			});
         } else {
             cur.sort({
                 timestamp: -1
             }).limit(parseInt(amount, 10)).toArray().then(arr => {
                 return callback(null, arr.reverse());
-            }).catch(console.log);
+            }).catch((e) => {
+				logger.warn("Cursor error " + e.message);
+			});
         }
     });
 }

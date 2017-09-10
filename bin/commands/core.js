@@ -10,6 +10,7 @@ var dbGuild = require('../db/dbGuild');
 var utils = require('../utils/utils');
 var discordUtils = require('../utils/discordUtils');
 var moderationUtils = require('../utils/moderationUtils');
+var logger = require('../utils/logger');
 var commands = [];
 
 var cmd;
@@ -36,17 +37,23 @@ cmd.execution = function(client, msg, suffix) {
     var result;
 
     try {
-        result = eval(suffix.join(" "));
+		if(suffix){
+			result = eval(suffix.join(" "));
+		}
     } catch (err) {
-        console.log(err);
-        msg.channel.sendCode("", err).catch(console.log);
+        logger.warn(err.message);
+        msg.channel.send("Error ```js\n" + err.message + "```").catch((e) => {
+			logger.warn(e);
+		});
         return;
     }
 
     if (result) {
         Promise.resolve(result).then(function(res) {
 			if(res){
-				msg.channel.send(res).catch(console.log);
+				msg.channel.send(res).catch((e) => {
+					logger.warn(e);
+				});
 			}
         });
     }
@@ -61,18 +68,6 @@ cmd.execution = function(client, msg) {
 
     msg.channel.send("Updating..").then(() => {
         exec(cmd, function(error, stdout, stderr) {
-            if (error) {
-				console.log("error");
-				console.log(error);
-			}
-            if (stdout){
-				console.log("stdout");
-				console.log(stdout);
-			}
-			if (stderr){
-				console.log("stderr");
-				console.log(stderr);
-			}
 			if(error){
 				msg.channel.send("Something went wrong").catch();
 			} else {
@@ -92,7 +87,7 @@ cmd.addHelp('Kills the bot');
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
     msg.channel.send('*ded*').then(() => {
-        console.log('Shutting down...');
+        logger.info('Shutting down...');
         client.destroy().then(() => {
             process.exit();
         });

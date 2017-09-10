@@ -3,6 +3,7 @@ var Command = require('./commandTemplate');
 var utils = require('./utils/utils');
 var discordUtils = require('./utils/discordUtils');
 var allCmds = directory(module, './commands/');
+var logger = require('./utils/logger');
 var suf = require('../config.json').suffix;
 
 var commands = {};
@@ -108,6 +109,6 @@ cmd.execution = function(client, msg, suffix) {
 commands[cmd.name] = cmd
 count++;
 
-console.log("Loaded " + count + " commands!");
+logger.info(`Loaded ${count} commands!`);
 ////////////////////////////////////////////////////////////
 module.exports = commands;

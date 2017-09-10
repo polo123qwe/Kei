@@ -1,4 +1,5 @@
 var Connection = require('./dbConnection');
+var logger = require('../utils/logger');
 
 exports.fetchChannel = function(channel_id, callback) {
 
@@ -32,7 +33,7 @@ exports.fetchRoleID = function(roleToFind, guild_id, callback) {
     }
     exports.fetchGuild(guild_id, function(err, guildData) {
         if (err) {
-            console.log(err)
+            logger.error(err);
             return callback(null);
         } else if (guildData && guildData.hasOwnProperty(roleToFind)) {
             return callback(guildData[roleToFind]);

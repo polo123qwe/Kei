@@ -8,13 +8,14 @@ var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
+var logger = require('../utils/logger');
 var suf = require('../../config.json').suffix;
 var commands = [];
 
 try {
     var colors = require('../../consts/values.json').colors;
 } catch (e) {
-    console.log("Error loading colors");
+    logger.error("Error loading colors");
     colors = [];
 }
 
@@ -45,7 +46,7 @@ cmd.execution = function(client, msg, suffix) {
         if (guildData && guildData.hasOwnProperty('roles')) {
             for (var roleID of guildData.roles) {
                 var role = rolesFound.find((r) => {
-                    return r.id == roleID
+                    return r.id == roleID;
                 });
                 if (role) {
                     rolesToAdd.push(role);

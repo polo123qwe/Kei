@@ -1,4 +1,5 @@
 var Connection = require('./dbConnection');
+var logger = require('../utils/logger');
 
 exports.updateUserJoined = function(guild_id, user_id, joinedTimestamp, callback) {
     var operation = {
@@ -93,7 +94,7 @@ function insertIntoMembers(guild_id, user_id, updateOperation, fields, callback)
         "users._id": user_id
     }, updateOperation, (err, res) => {
         if (err) {
-            console.log(err);
+            logger.error(err);
             return callback(err);
         }
         if (res.matchedCount < 1) addElement();
@@ -117,7 +118,7 @@ function insertIntoMembers(guild_id, user_id, updateOperation, fields, callback)
             upsert: true
         }, (err, res) => {
             if (err) {
-                console.log(err);
+                logger.error(err);
                 return callback(err);
             } else callback(null)
         });
@@ -145,7 +146,7 @@ exports.updateUsername = function(user_id, username, callback) {
         returnOriginal: false
     }, (err, res) => {
         if (err) {
-            console.log(err);
+            logger.error(err);
             return callback(err);
         }
 
@@ -168,7 +169,7 @@ exports.updateValue = function(user_id, key, value, callback) {
         returnOriginal: false
     }, (err, res) => {
         if (err) {
-            console.log(err);
+            logger.warn(err);
             return callback(err);
         }
 

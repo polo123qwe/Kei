@@ -99,7 +99,7 @@ Command.prototype = {
     },
 
     execution: function(client, msg, suffix) {
-        console.log(this.name + " is pending implementation!");
+        msg.channel.send(this.name + " is pending implementation!");
     }
 }
 

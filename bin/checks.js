@@ -3,6 +3,7 @@ var db;
 
 var paramtypes = require('../consts/paramtypes.json');
 var cooldown = require('./cooldown');
+var logger = require('./utils/logger');
 
 var utils = require('./utils/utils');
 var dbUtils = require('./db/dbUtils');
@@ -193,7 +194,7 @@ function checkDisabled(guild, channel, userLvl, cmd, callback) {
     }
     dbGuild.fetchChannel(channel.id, function(err, channelData) {
         if (err) {
-            console.log(err);
+			logger.error(err);
         }
 
         if (channelData == null) {

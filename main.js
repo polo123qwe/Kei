@@ -16,7 +16,8 @@ const client = new Discord.Client({
 });
 const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
-const logging = require('./config.json').logging;
+const persist = require('./config.json').logging;
+var logger = require('./bin/utils/logger');
 
 //Automatic membership processing
 var checkMembershipStatus = require('./bin/memberProcessor.js');
@@ -29,14 +30,14 @@ var time = Date.now();
 /* On ready event */
 client.on('ready', () => {
     var interval = Date.now() - time;
-    console.log(`[${utils.unixToTime(Date.now())}] Bot connected (${interval} ms)`);
+    logger.info(`Bot connected (${interval} ms)`);
     //Load all the timers
     helpers.loadTimers(client);
     helpers.loadNewMembers(client, NEWUSERTHRESHOLD);
 });
 
 client.on('disconnect', () => {
-	console.log(`[${utils.unixToTime(Date.now())}] Bot disconnected!`);
+    logger.info(`[${utils.unixToTime(Date.now())}] Bot disconnected!`);
 })
 
 /* Message event listener */
@@ -44,7 +45,7 @@ client.on('message', msg => {
     var splitted = msg.content.split(" ");
 
     //Log the message in the DB
-    if (logging) {
+    if (persist) {
         dbUtils.storeMessage(msg);
     }
     if (msg.guild != null) {
@@ -78,9 +79,9 @@ client.on('message', msg => {
             var location = msg.guild ? msg.guild.name : "DM";
 
             if (suffix) {
-                console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}. Parameters: ${suffix.join(" ")}`);
+                logger.info(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}. Parameters: ${suffix.join(" ")}`);
             } else {
-                console.log(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}`);
+                logger.info(`[${utils.unixToTime(Date.now())}][${location}][${msg.author.username}] >${cmdName}`);
             }
             commands[cmdName].run(client, msg, suffix);
         }
@@ -92,11 +93,11 @@ client.on('message', msg => {
 /* Member join and leave processing */
 client.on('guildMemberAdd', (member) => {
 
-    //Console logging
-    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) joined ${member.guild.name}`);
+    //Console persist
+    logger.info(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) joined ${member.guild.name}`);
 
     var guild = member.guild;
-    if (logging) {
+    if (persist) {
         dbUsers.updateUserJoined(guild.id, member.user.id, Date.now(), () => {});
     }
     dbGuild.fetchRoleID("warned", guild.id, warnedRole => {
@@ -106,7 +107,7 @@ client.on('guildMemberAdd', (member) => {
     });
 
     dbGuild.fetchGuild(guild.id, function(err, guildData) {
-        if (err) console.log(err);
+        if (err) logger.error(err);
 
         //Handling of newly created accounts
         if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts) {
@@ -121,18 +122,22 @@ client.on('guildMemberAdd', (member) => {
                     dbGuild.storeNewAccount(guild.id, member.user.id).then(() => {
                         var role = guild.roles.find("name", "New Account");
                         if (role) {
-                            console.log(`[${utils.unixToTime(Date.now())}] and added to newly created accounts`);
+                            logger.info(`[${utils.unixToTime(Date.now())}] and added to newly created accounts`);
                             member.send(`You have been locked in ${member.guild.name} due to the account being new, to be unlocked contact one of the moderators/adminstrators`).catch();
-							//TODO Change this
-							if(guild.id == "132490115137142784"){
-								var channel = guild.channels.get("184984832219152387");
-								if(channel) channel.send(`User ${member} joined the server and was added to New Accounts.`).catch();
-							}
+                            //TODO Change this
+                            if (guild.id == "132490115137142784") {
+                                var channel = guild.channels.get("184984832219152387");
+                                if (channel) channel.send(`User ${member} joined the server and was added to New Accounts.`).catch();
+                            }
                             setTimeout(() => {
-                                member.addRole(role).catch(console.log);
+                                member.addRole(role).catch((e) => {
+									logger.warn(discordUtils.missingPerms("Add Role", guild, member));
+								});
                             }, 1000);
                         }
-                    }).catch(console.log);
+                    }).catch((e) => {
+						logger.error(error);
+					});
                 });
             } else {
                 //If the user is not a newly created account
@@ -146,7 +151,7 @@ client.on('guildMemberAdd', (member) => {
 
     function retrieveMembers(warnedRole, mutedRole) {
         dbUsers.fetchMember(guild.id, member.user.id, (err, memberData) => {
-            if (err) console.log(err);
+            if (err) logger.error(err);
             else {
                 if (memberData && memberData.last_left) {
                     if (memberData.roles && memberData.roles.length > 0) {
@@ -155,7 +160,7 @@ client.on('guildMemberAdd', (member) => {
                                 member.user.send(`It looks like you have tried to circumvent a warning/mute in ${guild.name}. If you continue to do so, a ban will be issued.`);
                             }
                         }).catch((er) => {
-                            console.log(er.stack)
+							logger.error(er);
                         });
                     }
                 }
@@ -166,12 +171,12 @@ client.on('guildMemberAdd', (member) => {
 
 client.on('guildMemberRemove', (member) => {
 
-    //Console logging
-    console.log(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.user.id}) left ${member.guild.name}`);
+    //Console persist
+	logger.info(`${member.user.username}#${member.user.discriminator} (${member.user.id}) left ${member.guild.name}`);
 
     var guild = member.guild;
 
-    if (logging) {
+    if (persist) {
         var roleInstances = member.roles.array();
         var userRoles = [];
 
@@ -192,14 +197,16 @@ client.on('guildMemberRemove', (member) => {
     }
 
     dbGuild.fetchGuild(guild.id, function(err, guildData) {
-        if (err) console.log(err);
+        if (err) logger.error(err);
 
         //Handling of newly created accounts
         if (guildData != null && guildData.hasOwnProperty('isolatenewaccounts') && guildData.isolatenewaccounts) {
             dbGuild.fetchNewAccounts(guild.id).then((arr) => {
                 for (var userData of arr) {
                     if (userData.user_id == member.user.id && userData.guild_id == guild.id) {
-                        dbGuild.deleteNewAccount(guild.id, member.user.id).catch(console.log);
+                        dbGuild.deleteNewAccount(guild.id, member.user.id).catch((e) => {
+							logger.error(e);
+						});
                         return;
                     }
                 }
@@ -214,7 +221,7 @@ client.on('guildMemberRemove', (member) => {
 
 /* Username and nickname update handler */
 client.on('userUpdate', (oldUser, newUser) => {
-    if (logging && oldUser.username != newUser.username && newUser.username != null) {
+    if (persist && oldUser.username != newUser.username && newUser.username != null) {
         //dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
         dbUsers.updateUsername(newUser.id, newUser.username, () => {
 
@@ -223,7 +230,7 @@ client.on('userUpdate', (oldUser, newUser) => {
 });
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
-    if (logging && oldMember.nickname != newMember.nickname) {
+    if (persist && oldMember.nickname != newMember.nickname) {
         //dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
         dbUsers.updateNickname(newMember.guild.id, newMember.user.id, newMember.nickname, () => {
 
@@ -231,15 +238,15 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     }
 });
 
-/* Database logging of deleted/edited messages */
+/* Database persist of deleted/edited messages */
 client.on('messageDelete', (message) => {
-    if (logging) {
+    if (persist) {
         dbUtils.tagMessageAs(message.id, false);
     }
 });
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
-    if (logging) {
+    if (persist) {
         dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
         if (newMessage.guild != null) {
             helpers.checkInvLink(newMessage);
@@ -250,8 +257,8 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 /* Handling of server bans */
 client.on('guildBanAdd', (guild, user) => {
 
-    //Console logging
-    console.log(`[${utils.unixToTime(Date.now())}] ${user.username}#${user.discriminator} (${user.id}) banned from ${guild.name}`);
+    //Console persist
+    logger.info(`${user.username}#${user.discriminator} (${user.id}) banned from ${guild.name}`);
 
     //Timeout to dectect the softban message
     setTimeout(() => {
@@ -277,8 +284,6 @@ client.on('guildBanAdd', (guild, user) => {
 
                         if (messageFound == null) {
                             moderationUtils.logPlaceholder(user, logChannel);
-                        } else {
-                            console.log("Message")
                         }
                     });
             }
@@ -290,7 +295,7 @@ client.on('guildBanAdd', (guild, user) => {
 function startBot() {
     //Try to connect to DB and to log the client
     Connection((err, db) => {
-        if (err) console.log(err.message);
+        if (err) logger.error(err);
         client.login(token);
     });
 }

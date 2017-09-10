@@ -8,6 +8,7 @@ var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
+var logger = require('../utils/logger');
 var commands = [];
 
 var cmd;
@@ -39,7 +40,7 @@ cmd.execution = function(client, msg, suffix) {
     var collection = db.collection('roles');
 
     dbUtils.getLevel(msg.guild, msg.member, function(err, userLevel) {
-        if (err) return console.log(err);
+        if (err) return logger.error(err);
 
         //Check the conditions to allow the user to execute the command
         if (userLevel == null && msg.author.id != msg.guild.ownerID) {
@@ -54,7 +55,7 @@ cmd.execution = function(client, msg, suffix) {
         collection.findOne({
             _id: role.id
         }, function(err, roleLevel) {
-            if (err) return console.log(err);
+            if (err) return logger.error(err);
 
             if (!owners.includes(msg.author.id)) {
                 //If the role has a previous role greater than the one the user wants to set
@@ -76,11 +77,10 @@ cmd.execution = function(client, msg, suffix) {
                     upsert: true
                 },
                 function(err, res) {
-                    if (err) return console.log(err);
+                    if (err) return logger.error(err);
                     if (res.ok == 1) {
                         msg.channel.send("Role " + role.name + " updated with level " + lvl);
                     } else {
-                        console.log(res);
                         discordUtils.sendAndDelete(msg.channel, res)
                     }
                 }
@@ -175,12 +175,11 @@ cmd.execution = function(client, msg, suffix) {
             upsert: true
         },
         function(err, res) {
-            if (err) return console.log(err);
+            if (err) return logger.error(err);
             if (res.ok == 1) {
                 discordUtils.sendAndDelete(msg.channel, "Module " + modl + " successfully " + enabledmsg + ".", 10000);
             } else {
-                console.log(res);
-                discordUtils.sendAndDelete(msg.channel, res)
+                discordUtils.sendAndDelete(msg.channel, res);
             }
         }
     );
@@ -199,7 +198,10 @@ cmd.execution = function(client, msg, suffix) {
 
     dbUtils.getLevel(msg.guild, msg.member, (err, lvl) =>{
         if(err) return discordUtils.sendAndDelete(msg.channel, err);
-        msg.channel.send(`Your current level is ${lvl}`);
+        msg.channel.send(`Your current level is ${lvl}`).catch(e => {
+			logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+
+		});
     });
 }
 commands.push(cmd);

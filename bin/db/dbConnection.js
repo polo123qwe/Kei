@@ -8,30 +8,20 @@ var url = `mongodb://${dboptions.username}:${dboptions.password}@${dboptions.hos
 var db = null;
 
 function Connection(callback) {
-    //map port from remote 3306 to localhost 3306
-    /*var server = tunnel(dboptions.sshtunnel, function(error, server) {
-        if (error) {
-            //catch configuration and startup errors here.
+    MongoClient.connect(url, (err, database) => {
+        if (err) {
+            return callback(err);
         } else {
-            console.log(server);*/
-            MongoClient.connect(url, (err, database) => {
-                if (err) {
-                    //console.log(err);
-                    return callback(err);
-                } else {
-                    db = database.db(dboptions.db);
-                    return callback(null, database);
-                }
-            });
-    /*    }
-    });*/
+            db = database.db(dboptions.db);
+            return callback(null, database);
+        }
+    });
 }
 
 Connection.getDB = function() {
     if (db) {
         return db;
     } else {
-        //console.log("Not connected to the db!");
         return null;
     }
 }

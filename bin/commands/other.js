@@ -6,6 +6,7 @@ var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var dbGuild = require('../db/dbGuild');
 var discordUtils = require('../utils/discordUtils');
+var logger = require('../utils/logger');
 var commands = [];
 
 var cmd;

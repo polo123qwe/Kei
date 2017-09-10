@@ -21,10 +21,12 @@
   "dependencies": {
     "discord.js": "^x.x.x",
     "forecast.io-bluebird": "0.0.1",
+    "mongodb": "x.x.x",
     "osu-api": "0.0.3",
     "require-directory": "^2.1.1",
     "unirest": "^0.5.1",
-	"mongodb": "x.x.x"
+    "uws": "^8.14.1",
+    "winston": "^2.3.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
