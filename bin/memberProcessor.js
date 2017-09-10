@@ -32,26 +32,11 @@ module.exports = function(client, member) {
 
         var memberRole = member.guild.roles.get(memberRoleName[member.guild.id]);
 
-        //If the server has the automember enabled we do
+        //If the server has the automember enabled we do the checks to add the user to member
         if (guildData && guildData.hasOwnProperty('automember') && guildData.automember) {
             dbUtils.fetchUserActivity(member.guild.id, member.user.id, 7, (err, res) => {
                 if (err) return console.log(err);
-				if (member.roles.exists(r => r.name.toLowerCase() == 'lurker')) {
-					if (res.length != 0){
-						var total = 0;
-						for (var day of res) {
-							total += day.msgs;
-	                    }
-						if(total > 50){
-							member.removeRole(member.roles.find(r => r.name.toLowerCase() == 'lurker')).then(() => {
-								setTimeout(() => {
-									addToRole();
-								}, 1000);
-							}).catch(addToRole);
-							return;
-						}
-					}
-				} else if (res.length >= 4) {
+				if (res.length >= 4) {
                     var promote = 0;
                     for (var day of res) {
                         if (day.msgs > 35) {

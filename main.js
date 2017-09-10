@@ -20,7 +20,6 @@ const logging = require('./config.json').logging;
 
 //Automatic membership processing
 var checkMembershipStatus = require('./bin/memberProcessor.js');
-var memberRemoval = require('./bin/memberRemoval.js');
 var NEWUSERTHRESHOLD = (7 * 24 * 3600 * 1000);
 
 //Database module
@@ -34,7 +33,6 @@ client.on('ready', () => {
     //Load all the timers
     helpers.loadTimers(client);
     helpers.loadNewMembers(client, NEWUSERTHRESHOLD);
-    memberRemoval(client);
 });
 
 client.on('disconnect', () => {
