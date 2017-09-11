@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 var Command = require('../commandTemplate');
 var Connection = require('../db/dbConnection');
 var levels = require('../../consts/levels.json');
@@ -129,7 +130,7 @@ cmd.execution = function(client, msg, suffix) {
         response.on('end', function() {
 
             // Data reception is done, do whatever with it!
-			var parsed
+			var parsed;
 			try{
 				parsed = JSON.parse(body);
 			} catch(e){
@@ -174,6 +175,59 @@ cmd.execution = function(client, msg, suffix) {
     }
 }
 commands.push(cmd);
+////////////////////////////////////////////////////////////
+cmd = new Command('hug', 'Fun');
+cmd.alias.push('hugs');
+cmd.addHelp('Hugs the mentioned user');
+cmd.addUsage('[username/nick/id]');
+cmd.cd = 30;
+cmd.minLvl = levels.DEFAULT;
+cmd.params.push(paramtypes.PARAM);
+cmd.execution = function(client, msg, suffix) {
+    var member = discordUtils.getOneMemberFromMessage(msg, suffix);
+	if(!member) return discordUtils.sendAndDelete(msg.channel, "You need to hug someone!");
+	var hugText = `${msg.author.username} hugs ${member.user.username}`;
+	if(msg.author.id == member.user.id){
+		hugText = `${msg.author.username} hugs themselves`;
+	}
+	getRandomHug(json => {
+		if(json && json.hasOwnProperty("path")){
+		    var embed = new Discord.RichEmbed();
+			embed.setTitle(hugText);
+			embed.setImage(`https://rra.ram.moe${json.path}`);
+			embed.setColor('RANDOM');
+			msg.channel.send({embed: embed}).catch(e => {
+				logger.warn(discordUtils.missingPerms("Send Message", msg.guild, member));
+			});
+		}
+	});
+}
+commands.push(cmd);
+
+function getRandomHug(callback){
+	https.get({
+        host: 'rra.ram.moe',
+		path: '/i/r?type=hug&nsfw=false',
+    }, function(response) {
+        // Continuously update stream with data
+        var body = '';
+        response.on('data', function(d) {
+            body += d;
+        });
+        response.on('end', function() {
+
+            // Data reception is done, do whatever with it!
+			var parsed;
+			try{
+				parsed = JSON.parse(body);
+			} catch(e){
+				logger.error(e);
+			}
+            if (!parsed) return callback(null);
+			callback(parsed);
+        });
+    });
+}
 ////////////////////////////////////////////////////////////
 
 module.exports = commands;
