@@ -24,6 +24,8 @@ cmd.execution = function(client, msg, suffix) {
     var time = Date.now();
     msg.channel.send("Pong!").then((nMsg) => {
         nMsg.edit("Pong! (" + (Date.now() - time) + "ms)");
+        nMsg.edit(`Pong! (${(Date.now() - time)}ms) [Websocket: ${client.ping}ms]`);
+
     }).catch((e) => {
 		logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
 	});
