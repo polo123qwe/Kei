@@ -93,7 +93,9 @@ cmd.execution = function(client, msg, suffix) {
     if (!role) return discordUtils.sendAndDelete(msg.channel, "Role not found!");
     member.addRole(role).then(r => {
         dbUtils.insertTimer(Date.now(), time, member.user.id, role.id, msg.guild.id, function() {});
-        msg.channel.send(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000);
+        msg.channel.send(`:no_bell:  |  **${member.user.username}** you are dead for ${utils.convertUnixToDate(time).toLowerCase().slice(0, -1)}!`, 8000).catch((e) => {
+			logger.warn(discordUtils.missingPerms("Send Message", guild));
+		});
         setTimeout(() => {
             logger.info(`Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
 			member.removeRole(role).then(() => {}).catch((e) => {
@@ -134,7 +136,9 @@ cmd.execution = function(client, msg, suffix) {
 				logger.error(e);
 			}
             if (!parsed) return;
-            msg.channel.send(msg.author + ", " + parsed.magic.answer);
+            msg.channel.send(msg.author + ", " + parsed.magic.answer).catch((e) => {
+				logger.warn(discordUtils.missingPerms("Send Message", guild));
+			});
 
         });
     });
@@ -159,9 +163,13 @@ cmd.execution = function(client, msg, suffix) {
             }
         }
         if (names.length < 1) {
-            msg.channel.send(`:frowning:`);
+            msg.channel.send(`:frowning:`).catch((e) => {
+				logger.warn(discordUtils.missingPerms("Send Message", guild));
+			});
         } else {
-            msg.channel.send(`Your friends are: ${names.join(", ")}`);
+            msg.channel.send(`Your friends are: ${names.join(", ")}`).catch((e) => {
+				logger.warn(discordUtils.missingPerms("Send Message", guild));
+			});
         }
     }
 }

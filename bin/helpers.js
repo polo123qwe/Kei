@@ -165,7 +165,7 @@ function checkMembers(guild, arr) {
                     logger.error(err);
                 } else if (res.length == 0) {
                     member.kick().catch((e) => {
-						logger.error(discordUtils.missingPerms("Kick", guild, member));
+						logger.warn(discordUtils.missingPerms("Kick", guild, member));
 					});
                 }
                 checkMembers(guild, arr);
@@ -192,7 +192,7 @@ exports.checkInvLink = function(msg) {
                     msg.delete().then(() => {
                         discordUtils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
                     }).catch((e) => {
-						logger.error(discordUtils.missingPerms("Delete Message", msg.guild));
+						logger.warn(discordUtils.missingPerms("Delete Message", msg.guild));
 					});
                 }
             }
@@ -212,7 +212,7 @@ exports.logWelcomeOrLeft = function(guild, member, isWelcome) {
     var logChannel = discordUtils.findActivityChannel(guild);
     if (logChannel) {
 		logChannel.send(`User ${member.user.username}#${member.user.discriminator} ${message} the server.`).catch((e) => {
-			logger.error(discordUtils.missingPerms("Send Message", guild));
+			logger.warn(discordUtils.missingPerms("Send Message", guild));
 		});
     }
     return;

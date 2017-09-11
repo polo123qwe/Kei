@@ -1,5 +1,5 @@
 var Connection = require('../db/dbConnection');
-
+var logger = require('./logger');
 var DELAY = require('../../config.json').DELETEAFTER;
 
 //Perform various tests to find out if the value sent is a user, checking name,
@@ -142,9 +142,13 @@ exports.sendAndDelete = function(channel, content, delay) {
     }
     channel.send(content).then((reply) => {
         setTimeout(() => {
-            reply.delete();
+            reply.delete().catch();
         }, d);
-    });
+    }).catch((e) => {
+		if(channel.guild){
+			logger.warn(exports.missingPerms("Send Message", channel.guild));
+		}
+	});
 }
 
 exports.missingPerms = function(action, guild, member){

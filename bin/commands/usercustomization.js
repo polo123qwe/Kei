@@ -63,7 +63,9 @@ cmd.execution = function(client, msg, suffix) {
                         possibleRoles.push(role.name);
                     }
                 }
-                return msg.channel.send(`:warning:  |  Error! The role you chose is invalid.\n**Currently available self-assignable roles**: \`\`\`${possibleRoles.join(", ")}\`\`\``, 8000);
+                return msg.channel.send(`:warning:  |  Error! The role you chose is invalid.\n**Currently available self-assignable roles**: \`\`\`${possibleRoles.join(", ")}\`\`\``, 8000).catch((e) => {
+					logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+				});
             }
 
 			var errorRolesMessage = "";
@@ -74,15 +76,21 @@ cmd.execution = function(client, msg, suffix) {
                 }
             }
 			if(errorRolesMessage){
-				msg.channel.send(errorRolesMessage);
+				msg.channel.send(errorRolesMessage).catch((e) => {
+					logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+				});
 			}
 
             if (rolesToAdd.length != 0) {
                 msg.member.addRoles(rolesToAdd).then((memb) => {
 					if(errorRolesMessage){
-						msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to other roles!");
+						msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to other roles!").catch((e) => {
+							logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+						});
 					}
-                    msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to all the roles requested!");
+                    msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to all the roles requested!").catch((e) => {
+						logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+					});
                 }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
             }
         } else {

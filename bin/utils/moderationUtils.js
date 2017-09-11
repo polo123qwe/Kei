@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
 var logType = require('../../consts/logMessageType');
+var discordUtils = require('./discordUtils');
+var logger = require('./logger');
 
 //Send the type as a string
 exports.logMessage = function(type, moderatorUser, targetUser, channel, reason) {
@@ -20,7 +22,7 @@ exports.logMessage = function(type, moderatorUser, targetUser, channel, reason) 
     embed.setColor(logType[type]);
     return channel.send({
         embed: embed
-    });
+    }).catch();
 }
 
 //Placeholders are only for bans
@@ -39,8 +41,10 @@ exports.logPlaceholder = function(targetUser, channel) {
         embed.setTimestamp();
         return m.edit("", {
             embed: embed
-        })
-    })
+        }).catch();
+    }).catch((e) => {
+		logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+	});
 }
 
 exports.editEmbed = function(message, moderatorUser, reason) {

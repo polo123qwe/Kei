@@ -24,7 +24,9 @@ cmd.execution = function(client, msg, suffix) {
     var time = Date.now();
     msg.channel.send("Pong!").then((nMsg) => {
         nMsg.edit("Pong! (" + (Date.now() - time) + "ms)");
-    });
+    }).catch((e) => {
+		logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
+	});
 
 }
 commands.push(cmd);
@@ -86,12 +88,14 @@ cmd = new Command('kill', 'Core');
 cmd.addHelp('Kills the bot');
 cmd.minLvl = levels.MASTER;
 cmd.execution = function(client, msg) {
-    msg.channel.send('*ded*').then(() => {
-        logger.info('Shutting down...');
+    msg.channel.send('*ded*').then(kill).catch(kill);
+
+	function kill(){
+		logger.info('Shutting down...');
         client.destroy().then(() => {
             process.exit();
         });
-    });
+	}
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////

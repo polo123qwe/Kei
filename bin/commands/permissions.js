@@ -140,7 +140,10 @@ cmd.reqDB = true;
 cmd.execution = function(client, msg, suffix) {
 
     var bool = suffix[0];
-    var modl = suffix.splice(1, suffix.length).join(" ");
+	var modl = "";
+	if(suffix){
+		modl = suffix.splice(1, suffix.length).join(" ");
+	}
 
     var operation;
     var enabledmsg = "";
@@ -200,7 +203,6 @@ cmd.execution = function(client, msg, suffix) {
         if(err) return discordUtils.sendAndDelete(msg.channel, err);
         msg.channel.send(`Your current level is ${lvl}`).catch(e => {
 			logger.warn(discordUtils.missingPerms("Send Message", msg.guild));
-
 		});
     });
 }

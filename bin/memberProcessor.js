@@ -1,6 +1,7 @@
 var dbUtils = require('./db/dbUtils');
 var dbGuild = require('./db/dbGuild');
 var discordUtils = require('./utils/discordUtils');
+var logger = require('./utils/logger');
 
 var memberRoleName = {};
 
@@ -54,11 +55,11 @@ module.exports = function(client, member) {
 						var channel = discordUtils.findActivityChannel(member.guild);
 						if (channel) {
 							channel.send(`Congratulations ${member} you are now a member!`).catch((e) => {
-								logger.error(discordUtils.missingPerms("Send Message", member, member.guild));
+								logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
 							});
 						}
 					}).catch((e) => {
-						logger.error(discordUtils.missingPerms("Add Role", member, member.guild));
+						logger.warn(discordUtils.missingPerms("Add Role", member.guild, member));
 					});
 				}
             });

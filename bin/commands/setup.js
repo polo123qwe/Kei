@@ -72,7 +72,9 @@ cmd.execution = function(client, msg, suffix) {
                 } else {
                     discordUtils.sendAndDelete(msg.channel, res);
                 }
-                msg.delete();
+                msg.delete().catch((e) => {
+					logger.warn(discordUtils.missingPerms("Delete Message", msg.guild));
+				});
             }
         );
     }

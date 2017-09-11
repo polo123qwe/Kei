@@ -2,6 +2,7 @@ var Connection = require('./dbConnection');
 var utils = require('../utils/utils');
 var levels = require('../../consts/levels.json');
 var owners = require('../../config.json').owners;
+var logger = require('../utils/logger');
 
 /*
 Checks the roles of the user to find a match with the roles stored in the db
