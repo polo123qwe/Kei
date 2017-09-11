@@ -22,7 +22,7 @@ try {
 var cmd;
 ////////////////////////////////////////////////////////////
 cmd = new Command('join', 'User Customization');
-cmd.addHelp('Adds the user to the given roles (separated by commas)');
+cmd.addHelp('Adds the user to the given roles (separated by commas, you can use `all` to join all the roles)');
 cmd.addUsage('<role1>, [role2], [role3]');
 cmd.addExample(`join${suf} lood, food`);
 cmd.minLvl = levels.DEFAULT;
@@ -31,27 +31,42 @@ cmd.execution = function(client, msg, suffix) {
     var rolesFound = [];
     var rolesToAdd = [];
     var displayHelp = false;
+    var addAll = false;
 
     //Roles are sepparated by commas
     var elements = suffix.join(" ").split(/ ?, ?/);
-    for (var elem of elements) {
-        var role = discordUtils.getRole(msg.guild, elem);
-        if (role && rolesFound.indexOf(role) == -1) {
-            rolesFound.push(role);
+    if (elements.indexOf("all") != -1) {
+        addAll = true;
+    } else {
+        for (var elem of elements) {
+            var role = discordUtils.getRole(msg.guild, elem);
+            if (role && rolesFound.indexOf(role) == -1) {
+                rolesFound.push(role);
+            }
         }
     }
 
     dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData && guildData.hasOwnProperty('roles')) {
-            for (var roleID of guildData.roles) {
-                var role = rolesFound.find((r) => {
-                    return r.id == roleID;
-                });
-                if (role) {
-                    rolesToAdd.push(role);
+            if (addAll) {
+                for (var roleID of guildData.roles) {
+                    var role = discordUtils.getRole(msg.guild, roleID);
+                    if (role) {
+                        rolesToAdd.push(role);
+                    }
+                }
+            } else {
+                for (var roleID of guildData.roles) {
+                    var role = rolesFound.find((r) => {
+                        return r.id == roleID;
+                    });
+                    if (role) {
+                        rolesToAdd.push(role);
+                    }
                 }
             }
+
             //If no role was found, print out all the possibilities for the user to choose
             if (rolesToAdd.length < 1) {
                 var possibleRoles = [];
@@ -64,34 +79,39 @@ cmd.execution = function(client, msg, suffix) {
                     }
                 }
                 return msg.channel.send(`:warning:  |  Error! The role you chose is invalid.\n**Currently available self-assignable roles**: \`\`\`${possibleRoles.join(", ")}\`\`\``, 8000).catch((e) => {
-					logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
-				});
+                    logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+                });
             }
 
-			var errorRolesMessage = "";
+            var errorRolesMessage = "";
             for (var currentRole of rolesToAdd) {
                 if (msg.member.roles.array().indexOf(currentRole) > -1) {
                     rolesToAdd.splice(rolesToAdd.indexOf(currentRole), 1);
                     errorRolesMessage += ":octagonal_sign:  |  You already have the `" + currentRole.name + "` role!\n";
                 }
             }
-			if(errorRolesMessage){
-				msg.channel.send(errorRolesMessage).catch((e) => {
-					logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
-				});
-			}
+            if (errorRolesMessage) {
+                msg.channel.send(errorRolesMessage).catch((e) => {
+                    logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+                });
+            }
 
             if (rolesToAdd.length != 0) {
                 msg.member.addRoles(rolesToAdd).then((memb) => {
-					if(errorRolesMessage){
-						msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to other roles!").catch((e) => {
-							logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
-						});
-					}
-                    msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to all the roles requested!").catch((e) => {
-						logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
-					});
-                }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
+                    if (errorRolesMessage) {
+                        msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to other roles!").catch((e) => {
+                            logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+                        });
+                    } else {
+                        msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** added successfully to all the roles requested!").catch((e) => {
+                            logger.warn(discordUtils.missingPerms("Send Message", member.guild, member));
+                        });
+                    }
+                }).catch((e) => {
+                    logger.warn(discordUtils.missingPerms("Add Role", msg.member.guild, msg.member));
+                    discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ');
+                });
+
             }
         } else {
             discordUtils.sendAndDelete(msg.channel, ":octogonal_sign:  |  This server has no self-assignable roles!", 4000);
@@ -101,36 +121,53 @@ cmd.execution = function(client, msg, suffix) {
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('leave', 'User Customization');
-cmd.addHelp('Removes the user from the given roles');
+cmd.addHelp('Removes the user from the given roles (use `all` to be removed from every opt role)');
 cmd.addUsage('<role1>, [role2], [role3]');
 cmd.addExample(`leave${suf} lood`);
 cmd.minLvl = levels.DEFAULT;
+cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
     var rolesFound = [];
     var rolesToRemove = [];
+    var removeAll = false;
 
     //Roles are sepparated by commas
     var elements = suffix.join(" ").split(/ ?, ?/);
-    for (var elem of elements) {
-        var role = discordUtils.getRole(msg.guild, elem);
-        if (role && rolesFound.indexOf(role) == -1) {
-            rolesFound.push(role);
+    if (elements.indexOf("all") != -1) {
+        removeAll = true;
+    } else {
+        for (var elem of elements) {
+            var role = discordUtils.getRole(msg.guild, elem);
+            if (role && rolesFound.indexOf(role) == -1) {
+                rolesFound.push(role);
+            }
         }
     }
 
     dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData.roles) {
-            for (var roleID of guildData.roles) {
-                var role = rolesFound.find((r) => {
-                    return r.id == roleID
-                });
-                if (role) {
-                    rolesToRemove.push(role);
-                }
-            }
+			if(removeAll){
+				for (var roleID of guildData.roles) {
+					var role = discordUtils.getRole(msg.guild, roleID);
+					if (role) {
+						rolesToRemove.push(role);
+					}
+				}
+			} else {
+				for (var roleID of guildData.roles) {
+					var role = rolesFound.find((r) => {
+						return r.id == roleID
+					});
+					if (role) {
+						rolesToRemove.push(role);
+					}
+				}
+			}
         }
-        if (rolesToRemove.length < 1) return discordUtils.sendAndDelete(msg.channel, ":warning:  |  The roles you entered are either invalid or you are not in them!", 4000);
+        if (rolesToRemove.length < 1) {
+			return discordUtils.sendAndDelete(msg.channel, ":warning:  |  The roles you entered are either invalid or you are not in them!", 4000);
+		}
         msg.member.removeRoles(rolesToRemove).then((memb) => {
             msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** sucessfully removed from the requested roles!");
         }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
@@ -176,8 +213,8 @@ cmd.execution = function(client, msg, suffix) {
 
             var loc = path.join(__dirname, '..', '..', 'consts/colors.png')
 
-			var attachment = new Discord.Attachment(loc, 'colors.png');
-			msg.channel.send('Error, the colors available are:', attachment);
+            var attachment = new Discord.Attachment(loc, 'colors.png');
+            msg.channel.send('Error, the colors available are:', attachment);
             return;
 
         } else {
