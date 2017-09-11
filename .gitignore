@@ -39,5 +39,6 @@ jspm_packages
 config.json
 .tern-project
 run.bat
+run.sh
 tests.bat
 test
