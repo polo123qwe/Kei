@@ -16,7 +16,7 @@ const client = new Discord.Client({
 });
 const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
-const persist = require('./config.json').logging;
+const dev = require('./config.json').dev;
 var logger = require('./bin/utils/logger');
 
 //Automatic membership processing
@@ -45,7 +45,7 @@ client.on('message', msg => {
     var splitted = msg.content.split(" ");
 
     //Log the message in the DB
-    if (persist) {
+    if (!dev) {
         dbUtils.storeMessage(msg);
     }
     if (msg.guild != null) {
@@ -97,7 +97,7 @@ client.on('guildMemberAdd', (member) => {
     logger.info(`[${utils.unixToTime(Date.now())}] ${member.user.username}#${member.user.discriminator} (${member.id}) joined ${member.guild.name}`);
 
     var guild = member.guild;
-    if (persist) {
+    if (!dev) {
         dbUsers.updateUserJoined(guild.id, member.user.id, Date.now(), () => {});
     }
     dbGuild.fetchRoleID("warned", guild.id, warnedRole => {
@@ -176,7 +176,7 @@ client.on('guildMemberRemove', (member) => {
 
     var guild = member.guild;
 
-    if (persist) {
+    if (!dev) {
         var roleInstances = member.roles.array();
         var userRoles = [];
 
@@ -221,7 +221,7 @@ client.on('guildMemberRemove', (member) => {
 
 /* Username and nickname update handler */
 client.on('userUpdate', (oldUser, newUser) => {
-    if (persist && oldUser.username != newUser.username && newUser.username != null) {
+    if (!dev && oldUser.username != newUser.username && newUser.username != null) {
         //dbUtils.storeNameChange(oldUser.id, oldUser.username, newUser.username, false);
         dbUsers.updateUsername(newUser.id, newUser.username, () => {
 
@@ -230,7 +230,7 @@ client.on('userUpdate', (oldUser, newUser) => {
 });
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
-    if (persist && oldMember.nickname != newMember.nickname) {
+    if (!dev && oldMember.nickname != newMember.nickname) {
         //dbUtils.storeNameChange(newMember.user.id, oldMember.nickname, newMember.nickname, true, oldMember.guild.id);
         dbUsers.updateNickname(newMember.guild.id, newMember.user.id, newMember.nickname, () => {
 
@@ -240,13 +240,13 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
 
 /* Database persist of deleted/edited messages */
 client.on('messageDelete', (message) => {
-    if (persist) {
+    if (!dev) {
         dbUtils.tagMessageAs(message.id, false);
     }
 });
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
-    if (persist) {
+    if (!dev) {
         dbUtils.tagMessageAs(oldMessage.id, true, newMessage.content);
         if (newMessage.guild != null) {
             helpers.checkInvLink(newMessage);

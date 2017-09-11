@@ -13,5 +13,10 @@
     },
     "DELETEAFTER": 3000,
     "owners": ["USERID"],
-    "logging": false
+    "logging": false,
+	"webhook": {
+		"enabled": false,
+		"id": "WEBHOOKID",
+		"token": "WEBHOOKTOKEN",
+	}
 }
