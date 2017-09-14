@@ -159,12 +159,14 @@ exports.updateValue = function(user_id, key, value, callback) {
     if (!db) return callback("Not connected to DB!");
 
     var collection = db.collection('users');
+	var updateValues = {
+		$set: {}
+	};
+	updateValues["$set"][key] = value;
 
     collection.findOneAndUpdate({
         _id: user_id
-    }, {
-        key: value
-    }, {
+    }, updateValues, {
         upsert: true,
         returnOriginal: false
     }, (err, res) => {
@@ -213,5 +215,26 @@ exports.fetchUser = function(user_id, callback) {
     }, (err, res) => {
         if (err) return callback(err, null);
             callback(null, res);
+    });
+}
+
+exports.fetchUsers = function(callback) {
+
+    var db = Connection.getDB();
+    if (!db) return callback("Not connected to DB!");
+
+    var collection = db.collection('users');
+
+	collection.find({}, function(err, cur) {
+        if (err) return callback(err);
+
+        //We convert to array so we can iterate easily over it
+        cur.toArray().then((arr) => {
+            //If the guild has no level for the given member
+            return callback(null, arr);
+        }).catch((e) => {
+			logger.warn("Cursor error " + e.message);
+			return callback(e);
+		});
     });
 }

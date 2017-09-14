@@ -39,6 +39,7 @@ logger.on('logging', function(transport, level, msg, meta) {
 	var devText = "";
 	if(devMode){
 		devText = " 🚧";
+		return;
 	}
 	if(msg.includes("Bot connected")){
 		level = "aperture";

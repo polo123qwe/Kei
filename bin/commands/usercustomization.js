@@ -7,10 +7,15 @@ var paramtypes = require('../../consts/paramtypes.json');
 var utils = require('../utils/utils');
 var dbUtils = require('../db/dbUtils');
 var dbGuild = require('../db/dbGuild');
+var dbUsers = require('../db/dbUsers');
 var discordUtils = require('../utils/discordUtils');
 var logger = require('../utils/logger');
 var suf = require('../../config.json').suffix;
 var commands = [];
+
+//Date Parsing Regex
+const dateRegex = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
+
 
 try {
     var colors = require('../../consts/values.json').colors;
@@ -147,27 +152,27 @@ cmd.execution = function(client, msg, suffix) {
     dbGuild.fetchGuild(msg.guild.id, function(err, guildData) {
         if (err) return discordUtils.sendAndDelete(msg.channel, err);
         if (guildData.roles) {
-			if(removeAll){
-				for (var roleID of guildData.roles) {
-					var role = discordUtils.getRole(msg.guild, roleID);
-					if (role) {
-						rolesToRemove.push(role);
-					}
-				}
-			} else {
-				for (var roleID of guildData.roles) {
-					var role = rolesFound.find((r) => {
-						return r.id == roleID
-					});
-					if (role) {
-						rolesToRemove.push(role);
-					}
-				}
-			}
+            if (removeAll) {
+                for (var roleID of guildData.roles) {
+                    var role = discordUtils.getRole(msg.guild, roleID);
+                    if (role) {
+                        rolesToRemove.push(role);
+                    }
+                }
+            } else {
+                for (var roleID of guildData.roles) {
+                    var role = rolesFound.find((r) => {
+                        return r.id == roleID
+                    });
+                    if (role) {
+                        rolesToRemove.push(role);
+                    }
+                }
+            }
         }
         if (rolesToRemove.length < 1) {
-			return discordUtils.sendAndDelete(msg.channel, ":warning:  |  The roles you entered are either invalid or you are not in them!", 4000);
-		}
+            return discordUtils.sendAndDelete(msg.channel, ":warning:  |  The roles you entered are either invalid or you are not in them!", 4000);
+        }
         msg.member.removeRoles(rolesToRemove).then((memb) => {
             msg.channel.send(":white_check_mark:  |  **" + msg.author.username + "** sucessfully removed from the requested roles!");
         }).catch(err => discordUtils.sendAndDelete(msg.channel, ':warning:  |  Bot error! ' + err.response.body.message));
@@ -290,5 +295,42 @@ cmd.execution = function(client, msg, suffix) {
 }
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
+cmd = new Command('bday', 'User Customization');
+cmd.alias.push("birthday", "bd");
+cmd.addHelp('Sets the birthday of a user');
+cmd.addUsage('DD-MM-YYYY');
+cmd.addExample(`bday${suf} 01-01-2000`);
+cmd.cd = 10;
+cmd.minLvl = levels.DEFAULT;
+cmd.reqDB = true;
+cmd.execution = function(client, msg, suffix) {
+
+    if (!suffix) {
+        dbUsers.fetchUser(msg.author.id, (err, userData) => {
+            if (err) logger.warn(err);
+			
+
+        });
+    } else {
+        var toParse = suffix.join(" ").split(/ ?[-\.\/] ?/);
+		//Check if it has more than 3 parameters and if the date is a valid date
+        if (toParse.length == 3 && dateRegex.test(toParse.join("/"))) {
+			if(toParse[2] > (new Date()).getFullYear() - 5){
+				discordUtils.sendAndDelete(msg.channel, "Error, you are not from the future!");
+			} else {
+				dbUsers.updateValue(msg.author.id, "bday", toParse, () => {
+					discordUtils.sendAndDelete(msg.channel, "Date added successfully");
+				});
+			}
+        } else {
+            discordUtils.sendAndDelete(msg.channel, "Error, bad format! Please use DD/MM/YYYY eg `01/01/1990`");
+        }
+    }
+
+}
+commands.push(cmd);
+////////////////////////////////////////////////////////////
+
+
 
 module.exports = commands;

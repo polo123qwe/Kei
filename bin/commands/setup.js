@@ -272,6 +272,19 @@ var operations = {
             }
         },
     },
+	bdays: {
+		help: `Toggles automatic notification of birthdays. Eg: \`set${suf} bdays 1\``,
+        run: function(msg, suffix, remove) {
+
+            var setting = suffix.splice(1, suffix.length).join(" ");
+
+            return {
+                $set: {
+                    bdays: (setting == true)
+                }
+            }
+        },
+    },
 }
 var ops = [];
 for (var op in operations) {

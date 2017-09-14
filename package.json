@@ -22,6 +22,7 @@
     "discord.js": "^x.x.x",
     "forecast.io-bluebird": "0.0.1",
     "mongodb": "x.x.x",
+    "node-schedule": "^1.2.4",
     "osu-api": "0.0.3",
     "require-directory": "^2.1.1",
     "unirest": "^0.5.1",

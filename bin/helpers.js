@@ -1,13 +1,16 @@
 const Discord = require('discord.js');
 var discordUtils = require('./utils/discordUtils.js');
 var utils = require('./utils/utils');
-var dbUtils = require('./db/dbUtils.js');
+var dbUtils = require('./db/dbUtils');
 var dbGuild = require('./db/dbGuild');
+var dbUsers = require('./db/dbUsers');
 var logger = require('./utils/logger');
+var schedule = require('node-schedule');
 
 const Connection = require('./db/dbConnection');
 
 var NEWUSERTHRESHOLD;
+var bdayLoop;
 /**
  * This function processes the suggestions channel, adding reactions for users to vote on.
  * @arg {Message} msg - Message interface
@@ -18,14 +21,14 @@ exports.processSuggestionChannel = function(msg) {
             msg.react(":PillowYes:230126424290230272").then(() => {
                 msg.react(":PillowNo:230126607510142976").then(() => {
                     msg.react("🔨").catch((e) => {
-						logger.warn("React Error" + e.message);
-					});
+                        logger.warn("React Error" + e.message);
+                    });
                 }).catch((e) => {
-					logger.warn("React Error" + e.message);
-				});
+                    logger.warn("React Error" + e.message);
+                });
             }).catch((e) => {
-				logger.warn("React Error" + e.message);
-			});
+                logger.warn("React Error" + e.message);
+            });
         }
     });
 }
@@ -59,10 +62,10 @@ exports.loadTimers = function(client) {
                     var guild = client.guilds.get(timer.guild_id);
                     if (guild == null) return;
                     var member = guild.members.get(timer.user_id);
-					var role;
-					if(member){
-						 role = member.guild.roles.get(timer.role_id);
-					}
+                    var role;
+                    if (member) {
+                        role = member.guild.roles.get(timer.role_id);
+                    }
                     if (!member || !role) {
                         logger.info("No user found with id " + timer.user_id);
                         dbUtils.removeTimer(timer.user_id, timer.role_id, function() {});
@@ -73,8 +76,8 @@ exports.loadTimers = function(client) {
                         member.removeRole(role.id).then(() => {
                             logger.info(`Removed expired timer for ${member.user.username} at [${member.guild.name}]`);
                         }).catch((e) => {
-							logger.warn("Remove Role" + e.message);
-						});
+                            logger.warn("Remove Role" + e.message);
+                        });
                         dbUtils.removeTimer(timer.user_id, role.id, function() {});
                     }, timer.time - span);
                 }
@@ -83,8 +86,8 @@ exports.loadTimers = function(client) {
             removeTimers();
 
         }).catch((e) => {
-			logger.error("Cursor error: " + e.message);
-		});
+            logger.error("Cursor error: " + e.message);
+        });
     });
 
     //helper function to remove expired timers
@@ -118,8 +121,8 @@ exports.loadNewMembers = function(client, constTreshold) {
                 checkMembers(guild, arr);
             }
         }).catch((e) => {
-			logger.error("Fetching error " + e.message);
-		});
+            logger.error("Fetching error " + e.message);
+        });
     }
 
     //Check every day
@@ -130,8 +133,8 @@ exports.loadNewMembers = function(client, constTreshold) {
                     checkMembers(guild.id, arr);
                 }
             }).catch((e) => {
-				logger.error("Fetching error " + e.message);
-			});
+                logger.error("Fetching error " + e.message);
+            });
         }
     }, 24 * 3600000);
 }
@@ -143,16 +146,16 @@ exports.loadNewMembers = function(client, constTreshold) {
  */
 function checkMembers(guild, arr) {
     if (arr.length == 0) return;
-	if(!guild) return;
+    if (!guild) return;
 
     var userData = arr.pop();
-	if(!guild.members) return;
+    if (!guild.members) return;
 
     var member = guild.members.get(userData.user_id);
     if (member == null) {
         return dbGuild.deleteNewAccount(guild.id, userData.user_id).catch((e) => {
-			logger.error("Delete New Account error: " + e.message);
-		});
+            logger.error("Delete New Account error: " + e.message);
+        });
     }
     if (member.roles.exists("name", "New Account")) {
         if (member.user.createdTimestamp > Date.now() - NEWUSERTHRESHOLD) {
@@ -165,8 +168,8 @@ function checkMembers(guild, arr) {
                     logger.error(err);
                 } else if (res.length == 0) {
                     member.kick().catch((e) => {
-						logger.warn(discordUtils.missingPerms("Kick", guild, member));
-					});
+                        logger.warn(discordUtils.missingPerms("Kick", guild, member));
+                    });
                 }
                 checkMembers(guild, arr);
             });
@@ -192,8 +195,8 @@ exports.checkInvLink = function(msg) {
                     msg.delete().then(() => {
                         discordUtils.sendAndDelete(msg.channel, 'Discord invites are not allowed in this server! Ask a moderator for more information');
                     }).catch((e) => {
-						logger.warn(discordUtils.missingPerms("Delete Message", msg.guild));
-					});
+                        logger.warn(discordUtils.missingPerms("Delete Message", msg.guild));
+                    });
                 }
             }
         }
@@ -205,15 +208,66 @@ exports.checkInvLink = function(msg) {
  * @arg {Message} msg - Message interface
  */
 exports.logWelcomeOrLeft = function(guild, member, isWelcome) {
-	var message = "left";
-	if(isWelcome){
-		message = "joined";
-	}
+    var message = "left";
+    if (isWelcome) {
+        message = "joined";
+    }
     var logChannel = discordUtils.findActivityChannel(guild);
     if (logChannel) {
-		logChannel.send(`User ${member.user.username}#${member.user.discriminator} ${message} the server.`).catch((e) => {
-			logger.warn(discordUtils.missingPerms("Send Message", guild));
-		});
+        logChannel.send(`User ${member.user.username}#${member.user.discriminator} ${message} the server.`).catch((e) => {
+            logger.warn(discordUtils.missingPerms("Send Message", guild));
+        });
     }
     return;
+}
+
+/*
+ *
+ */
+exports.startBirthdayLoop = function(client) {
+
+	if(bdayLoop){
+		bdayLoop.cancel();
+		return;
+	}
+
+	bdayLoop = schedule.scheduleJob('* 1 0 * *', () =>{
+		//Retrieve all users
+	    dbUsers.fetchUsers((err, usersData) => {
+	        if (err) logger.warn(err);
+
+	        //Check if any user has today as bday
+			var usersWithBday = [];
+	        var today = new Date();
+	        var current = [today.getDate(), today.getMonth() + 1, today.getFullYear()];
+	        for (var userData of usersData) {
+	            if (userData.hasOwnProperty("bday")) {
+	                if (userData.bday[0] == current[0] && userData.bday[1] == current[1]) {
+	                    //Today is bday
+						usersWithBday.push(userData);
+	                }
+	            }
+	        }
+
+			//Check for the guilds when to post the bday
+	        for (var guild of client.guilds.array()) {
+	            dbGuild.fetchGuild(guild.id, (err, guildData) => {
+					if(err) logger.error(err);
+	                if (guildData != null && guildData.hasOwnProperty('bdays') && guildData.bdays) {
+						var channel = discordUtils.findActivityChannel(guild);
+						for(var userData of usersWithBday){
+							var member = guild.member(userData._id);
+							//The user is in the guild
+							if(member){
+								if(channel){
+									channel.send(`Happy birthday ${member.user.username}#${member.user.discriminator}!`);
+								}
+							}
+						}
+	                }
+	            });
+	        }
+	    });
+	});
+
 }

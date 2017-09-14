@@ -13,8 +13,7 @@ guilds:
     whitelisted: []
     allowinvites: boolean
     automember: boolean
-    greeting: string
-    goodbye: string
+	bdays: boolean
 
 channels:
     _id: channel_id,
@@ -83,6 +82,7 @@ users:
     _id: user_id
     usernames: [string]
     coutry: string
+	bday: [DD, MM, YYYY]
 
 newaccounts:
 	author_id: user_id

@@ -34,6 +34,7 @@ client.on('ready', () => {
     //Load all the timers
     helpers.loadTimers(client);
     helpers.loadNewMembers(client, NEWUSERTHRESHOLD);
+	helpers.startBirthdayLoop(client);
 });
 
 client.on('disconnect', () => {
@@ -293,6 +294,7 @@ client.on('guildBanAdd', (guild, user) => {
 
 /* Starts the bot */
 function startBot() {
+
     //Try to connect to DB and to log the client
     Connection((err, db) => {
         if (err) logger.error(err);
