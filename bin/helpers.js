@@ -241,7 +241,7 @@ exports.startBirthdayLoop = function(client) {
 	        var today = new Date();
 	        var current = [today.getDate(), today.getMonth() + 1, today.getFullYear()];
 	        for (var userData of usersData) {
-	            if (userData.hasOwnProperty("bday")) {
+	            if (userData && userData.hasOwnProperty("bday")) {
 	                if (userData.bday[0] == current[0] && userData.bday[1] == current[1]) {
 	                    //Today is bday
 						usersWithBday.push(userData);

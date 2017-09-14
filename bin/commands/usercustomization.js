@@ -296,7 +296,7 @@ cmd.execution = function(client, msg, suffix) {
 commands.push(cmd);
 ////////////////////////////////////////////////////////////
 cmd = new Command('bday', 'User Customization');
-cmd.alias.push("birthday", "bd");
+cmd.alias.push("birthday");
 cmd.addHelp('Sets the birthday of a user');
 cmd.addUsage('DD-MM-YYYY');
 cmd.addExample(`bday${suf} 01-01-2000`);
@@ -308,7 +308,13 @@ cmd.execution = function(client, msg, suffix) {
     if (!suffix) {
         dbUsers.fetchUser(msg.author.id, (err, userData) => {
             if (err) logger.warn(err);
-			
+
+			if (userData && userData.hasOwnProperty("bday")) {
+				msg.channel.send("Your birthday is currently set up as: " + userData.bday.join("/"));
+			} else {
+				msg.channel.send("You havent set up your bday!");
+			}
+
 
         });
     } else {
