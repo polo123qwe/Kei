@@ -34,7 +34,8 @@ cmd.minLvl = levels.DEFAULT;
 cmd.params.push(paramtypes.PARAM);
 cmd.execution = function(client, msg, suffix) {
     var rolesFound = [];
-    var rolesToAdd = [];
+    var rolesWantToAdd = [];
+	var rolesToAdd = [];
     var displayHelp = false;
     var addAll = false;
 
@@ -58,27 +59,25 @@ cmd.execution = function(client, msg, suffix) {
                 for (var roleID of guildData.roles) {
                     var role = discordUtils.getRole(msg.guild, roleID);
                     if (role) {
-                        rolesToAdd.push(role);
+                        rolesWantToAdd.push(role);
                     }
                 }
             } else {
                 for (var roleID of guildData.roles) {
-                    var role = rolesFound.find((r) => {
+                    var role = rolesFound.get((r) => {
                         return r.id == roleID;
                     });
                     if (role) {
-                        rolesToAdd.push(role);
+                        rolesWantToAdd.push(role);
                     }
                 }
             }
 
             //If no role was found, print out all the possibilities for the user to choose
-            if (rolesToAdd.length < 1) {
+            if (rolesWantToAdd.length < 1) {
                 var possibleRoles = [];
                 for (var roleID of guildData.roles) {
-                    var role = msg.guild.roles.find((r) => {
-                        return r.id == roleID
-                    });
+                    var role = msg.guild.roles.get(r.id);
                     if (role) {
                         possibleRoles.push(role.name);
                     }
@@ -89,11 +88,13 @@ cmd.execution = function(client, msg, suffix) {
             }
 
             var errorRolesMessage = "";
-            for (var currentRole of rolesToAdd) {
-                if (msg.member.roles.array().indexOf(currentRole) > -1) {
-                    rolesToAdd.splice(rolesToAdd.indexOf(currentRole), 1);
+			var allUserRoles = msg.member.roles.array();
+            for (var currentRole of rolesWantToAdd) {
+                if (allUserRoles.indexOf(currentRole) > -1) {
                     errorRolesMessage += ":octagonal_sign:  |  You already have the `" + currentRole.name + "` role!\n";
-                }
+                } else {
+					rolesToAdd.push(currentRole);
+				}
             }
             if (errorRolesMessage) {
                 msg.channel.send(errorRolesMessage).catch((e) => {
