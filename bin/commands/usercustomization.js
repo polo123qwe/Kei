@@ -77,7 +77,7 @@ cmd.execution = function(client, msg, suffix) {
       if (rolesWantToAdd.length < 1) {
         var possibleRoles = [];
         for (var roleID of guildData.roles) {
-          var role = msg.guild.roles.get(r.id);
+          var role = msg.guild.roles.get(roleID);
           if (role) {
             possibleRoles.push(role.name);
           }

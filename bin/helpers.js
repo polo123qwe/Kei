@@ -205,7 +205,9 @@ exports.checkInvLink = function(msg) {
 
 /**
  * Sends a message to the logchannel when a user joins or leaves. isJoin determines if the user isWelcome or left
- * @arg {Message} msg - Message interface
+ * @arg {guild} Discord.guild
+ * @arg {member} Discord.member
+ * @arg {isWelcom} boolean
  */
 exports.logWelcomeOrLeft = function(guild, member, isWelcome) {
     var message = "left";
