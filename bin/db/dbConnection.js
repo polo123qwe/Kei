@@ -8,12 +8,12 @@ var url = `mongodb://${dboptions.username}:${dboptions.password}@${dboptions.hos
 var db = null;
 
 function Connection(callback) {
-    MongoClient.connect(url, (err, database) => {
+    MongoClient.connect(url, {useNewUrlParser: true},(err, client) => {
         if (err) {
             return callback(err);
         } else {
-            db = database.db(dboptions.db);
-            return callback(null, database);
+            db = client.db(dboptions.db);
+            return callback(null, db);
         }
     });
 }

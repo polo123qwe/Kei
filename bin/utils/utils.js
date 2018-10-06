@@ -1,5 +1,5 @@
-var unirest = require('unirest');
-var hastebin = require('../../config.json').hastebin;
+const request = require('request');
+const hastebin = require('../../config.json').hastebin;
 
 //Function to convert a timespan into a readable time
 exports.convertUnixToDate = function(t) {
@@ -51,12 +51,11 @@ exports.unixToTime = function(UNIX_timestamp) {
 
 //Generates a hastebin document
 exports.generateHasteBin = function(data, callback) {
+    const url = 'https://hastebin.com/documents'
 
-    unirest.post(`https://hastebin.com/documents`)
-        .send(data)
-        .end(function(response) {
-            return callback(`https://hastebin.com/${response.body.key}.txt`);
-        });
+    request.post(url, data, (err, res, body) => {
+        return callback(`https://hastebin.com/${res.body.key}.txt`)
+    });
 }
 
 exports.getRandom = function(min, max) {

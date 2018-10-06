@@ -1,12 +1,17 @@
 const utils = require('./utils')
-const winston = require('winston');
+const {createLogger, transports, format} = require('winston');
+const {timestamp, combine, printf } = format;
 const Discord = require('discord.js');
 const webhookData = require('../../config.json').webhook;
 const devMode = require('../../config.json').dev;
 
-var webhook;
+let webhook;
 
-var levels = {
+const loggerFormat = printf(info => {
+    return `[${utils.unixToTime(info.timestamp)}] ${info.level}: ${info.message}`;
+});
+
+const levels = {
     error: "<:error:356623800617664523>",
     warn: "⚠",
     info: "ℹ",
@@ -23,12 +28,13 @@ if (webhookData.enabled) {
     });
 }
 
-var logger = new(winston.Logger)({
+const logger = createLogger({
+    format: combine(
+        timestamp(),
+        loggerFormat
+    ),
     transports: [
-        new winston.transports.Console({
-            'timestamp': () => {
-                return `[${utils.unixToTime(Date.now())}]`;
-            },
+        new transports.Console({
             'prettyPrint': true,
             'colorize': true,
         })
