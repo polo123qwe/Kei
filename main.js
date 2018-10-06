@@ -1,14 +1,14 @@
 const Discord = require('discord.js');
 
-var Command = require('./bin/commandTemplate');
-var commands = require('./bin/commands');
-var utils = require('./bin/utils/utils');
-var dbUtils = require('./bin/db/dbUtils');
-var dbUsers = require('./bin/db/dbUsers');
-var dbGuild = require('./bin/db/dbGuild');
-var discordUtils = require('./bin/utils/discordUtils');
-var moderationUtils = require('./bin/utils/moderationUtils');
-var helpers = require('./bin/helpers.js');
+var Command = require('./src/commandTemplate');
+var commands = require('./src/commands');
+var utils = require('./src/utils/utils');
+var dbUtils = require('./src/db/dbUtils');
+var dbUsers = require('./src/db/dbUsers');
+var dbGuild = require('./src/db/dbGuild');
+var discordUtils = require('./src/utils/discordUtils');
+var moderationUtils = require('./src/utils/moderationUtils');
+var helpers = require('./src/helpers.js');
 
 const client = new Discord.Client({
     fetchAllMembers: true,
@@ -17,14 +17,14 @@ const client = new Discord.Client({
 const token = require('./config.json').token;
 const suf = require('./config.json').suffix;
 const dev = require('./config.json').dev;
-var logger = require('./bin/utils/logger');
+var logger = require('./src/utils/logger');
 
 //Automatic membership processing
-var checkMembershipStatus = require('./bin/memberProcessor.js');
+var checkMembershipStatus = require('./src/memberProcessor.js');
 var NEWUSERTHRESHOLD = (7 * 24 * 3600 * 1000);
 
 //Database module
-const Connection = require('./bin/db/dbConnection');
+const Connection = require('./src/db/dbConnection');
 var time = Date.now();
 
 /* On ready event */

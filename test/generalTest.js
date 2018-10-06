@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 
-var Command = require('../bin/commandTemplate');
+var Command = require('../src/commandTemplate');
 
 const Discord = require('discord.js');
 const client = new Discord.Client({
@@ -20,21 +20,16 @@ describe('Running Tests', function() {
         });
     });
 
-    describe('> JSONs', function() {
-        it('Correctly built levels JSON', function() {
-            assert.doesNotThrow(() => {
-                var levels = require('../bin/levels.json');
-            });
-        });
+    describe('JSONs', function() {
     });
 
-    describe('> CommandTemplate', require('./commandsTest'));
+    describe('CommandTemplate', require('./commandsTest'));
 
-    describe('> Checks test', function(){
+    describe('Checks test', function(){
         require('./checkTests')(client);
     });
 
-    describe('> Database test', require('./dbTest'));
+    describe('Database test', require('./dbTest'));
 
     after(() => {
         client.destroy();

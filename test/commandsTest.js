@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 
-var Command = require('../bin/commandTemplate');
+var Command = require('../src/commandTemplate');
 var levels = require('../consts/levels.json')
 
 module.exports = function(){
